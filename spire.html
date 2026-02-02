@@ -11,33 +11,29 @@
   <div class="crt-overlay"></div>
   <div class="scanline"></div>
 
-  <!-- HEADER -->
   <header class="tactical-nav">
     <div class="status-indicator">● CORE_STABLE</div>
     <div class="logo">ALDERSYTH<span>_V2.0.6</span></div>
     <div class="telemetry-glow">LAT: 40.7128 | LONG: -74.0060</div>
   </header>
 
-  <!-- MAIN DASHBOARD -->
   <main class="dashboard-grid">
 
-    <!-- LEFT SIDEBAR -->
     <aside class="sidebar-left">
       <div class="module-box">
         <h3>SENSORY_INPUT</h3>
         <div id="telemetryFeed">
           <div class="stat"><span>TEMP:</span> <span class="val">-14°C</span></div>
-          <div class="stat"><span>GRAV:</span> <span class="val">0.84G</span></div>
+          <div class="stat"><span>GRAV:</span> <span id="gravVal" class="val">0.84G</span></div>
           <div class="stat"><span>OXY:</span> <span class="val">12%</span></div>
         </div>
       </div>
       <nav class="action-menu">
         <button onclick="scrollToSection('storyLinks')">STORY_ARCHIVE</button>
-        <button class="warning" onclick="alert('SYSTEM LOCKDOWN INITIATED')">TERMINATE</button>
+        <button class="warning" onclick="initiateReboot()">TERMINATE</button>
       </nav>
     </aside>
 
-    <!-- VISUAL CORE HERO -->
     <section class="visual-core">
       <div class="hero-frame">
         <img src="images/gold-telemetry-hero.jpg" alt="Null-Space Library" class="main-visual">
@@ -45,7 +41,6 @@
       </div>
     </section>
 
-    <!-- ANOMALIES TABLE -->
     <section id="anomalies" class="module-box table-module">
       <h2>LIVE_DEVIATIONS</h2>
       <div class="table-scroll">
@@ -53,19 +48,25 @@
           <thead>
             <tr><th>SIG</th><th>TYPE</th><th>LOC</th><th>DEV</th><th>STATUS</th></tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+              <tr>
+                <td>#003</td>
+                <td>METRIC_VAR</td>
+                <td>SPIRE_01</td>
+                <td>0.88%</td>
+                <td>ANALYZING</td>
+              </tr>
+          </tbody>
         </table>
       </div>
     </section>
 
   </main>
 
-  <!-- STORY ARCHIVE / NAVIGATION -->
   <section id="storyLinks" class="story-grid">
     <h2 class="section-glitch">SUB-STRATA_LOGS</h2>
     <div class="log-manifest">
 
-      <!-- Story Cards -->
       <div class="log-entry">
         <div class="log-img-wrapper">
           <img src="images/phantom-lead-sphere.jpg" alt="Spire District">
@@ -124,7 +125,6 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer-terminal">
     <div class="terminal-text">>> ALDERSYTH MONITORING SYSTEM // NO_LINK_FOUND // 2026</div>
   </footer>
