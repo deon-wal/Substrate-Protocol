@@ -1,134 +1,133 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dystopian">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALDERSYTH // SUBSTRATE-PROTOCOL</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // SUBSTRATE-PROTOCOL</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
 
-  <div class="crt-overlay"></div>
-  <div class="scanline"></div>
+    <header class="tactical-nav">
+        <div class="status-indicator">● CORE_STABLE</div>
+        <div class="logo">ALDERSYTH<span>_V2.0.6</span></div>
+        <div class="telemetry-glow">LAT: 40.7128 | LONG: -74.0060</div>
+    </header>
 
-  <!-- HEADER -->
-  <header class="tactical-nav">
-    <div class="status-indicator">● CORE_STABLE</div>
-    <div class="logo">ALDERSYTH<span>_V2.0.6</span></div>
-    <div class="telemetry-glow">LAT: 40.7128 | LONG: -74.0060</div>
-  </header>
+    <main class="dashboard-grid">
+        
+        <aside class="sidebar-left">
+            <div class="module-box">
+                <h3>SENSORY_INPUT</h3>
+                <div id="telemetryFeed">
+                    <div class="stat"><span>TEMP:</span> <span class="val">-14°C</span></div>
+                    <div class="stat"><span>GRAV:</span> <span id="gravVal" class="val">0.84G</span></div>
+                    <div class="stat"><span>OXY:</span> <span class="val">12%</span></div>
+                </div>
+            </div>
+            
+            <nav class="action-menu">
+                <button onclick="scrollToSection('storyLinks')">STORY_ARCHIVE</button>
+                <button class="warning" onclick="initiateReboot()">TERMINATE</button>
+            </nav>
+        </aside>
 
-  <!-- MAIN DASHBOARD -->
-  <main class="dashboard-grid">
+        <section class="visual-core">
+            <div class="hero-frame">
+                <img src="images/gold-telemetry-hero.jpg" alt="Null-Space Library" class="main-visual">
+                <div class="glitch-title" data-text="NULL-SPACE">NULL-SPACE</div>
+            </div>
+        </section>
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-left">
-      <div class="module-box">
-        <h3>SENSORY_INPUT</h3>
-        <div id="telemetryFeed">
-          <div class="stat"><span>TEMP:</span> <span class="val">-14°C</span></div>
-          <div class="stat"><span>GRAV:</span> <span class="val">0.84G</span></div>
-          <div class="stat"><span>OXY:</span> <span class="val">12%</span></div>
+        <section id="anomalies" class="module-box table-module">
+            <h2>LIVE_DEVIATIONS</h2>
+            <div class="table-scroll">
+                <table id="anomaliesTable">
+                    <thead>
+                        <tr><th>SIG</th><th>TYPE</th><th>LOC</th><th>DEV</th><th>STATUS</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#001</td>
+                            <td>VCTR_SHFT</td>
+                            <td>SEC_04</td>
+                            <td>0.04%</td>
+                            <td>STABLE</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <section id="storyLinks" class="story-grid">
+        <h2 class="section-glitch">SUB-STRATA_LOGS</h2>
+        <div class="log-manifest">
+            
+            <div class="log-entry">
+                <div class="log-img-wrapper">
+                    <img src="images/phantom-lead-sphere.jpg" alt="Spire District">
+                </div>
+                <div class="log-text">
+                    <h3>LOG I: SPIRE DISTRICT</h3>
+                    <p>The Metric Variable – Structural analysis of Aldersyth’s Spire District.</p>
+                    <a class="read-more" href="spire.html">>> ACCESS_LOG</a>
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div class="log-img-wrapper">
+                    <img src="images/frozen-citizens-market.jpg" alt="Market District">
+                </div>
+                <div class="log-text">
+                    <h3>LOG II: MARKET DISTRICT</h3>
+                    <p>Thermodynamic Stress – High-frequency vibrations and city pulse syncing.</p>
+                    <a class="read-more" href="market.html">>> ACCESS_LOG</a>
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div class="log-img-wrapper">
+                    <img src="images/hud-overlays-residential.jpg" alt="Residential Rings">
+                </div>
+                <div class="log-text">
+                    <h3>LOG III: RESIDENTIAL RINGS</h3>
+                    <p>Acoustic Suspension – Citizens frozen mid-motion in high-fidelity telemetry.</p>
+                    <a class="read-more" href="residential.html">>> ACCESS_LOG</a>
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div class="log-img-wrapper">
+                    <img src="images/observatory-vector.jpg" alt="Observatory">
+                </div>
+                <div class="log-text">
+                    <h3>LOG IV: OBSERVATORY</h3>
+                    <p>Vector Crisis – Dimensional shearing and post-gravity hazards.</p>
+                    <a class="read-more" href="observatory.html">>> ACCESS_LOG</a>
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div class="log-img-wrapper">
+                    <img src="images/null-space-library.jpg" alt="Substrate">
+                </div>
+                <div class="log-text">
+                    <h3>LOG V: SUBSTRATE</h3>
+                    <p>System Integration – Aldersyth collapsed into infinite high-fidelity loops.</p>
+                    <a class="read-more" href="substrate.html">>> ACCESS_LOG</a>
+                </div>
+            </div>
+
         </div>
-      </div>
-      <nav class="action-menu">
-        <button onclick="scrollToSection('storyLinks')">STORY_ARCHIVE</button>
-        <button class="warning" onclick="alert('SYSTEM LOCKDOWN INITIATED')">TERMINATE</button>
-      </nav>
-    </aside>
-
-    <!-- VISUAL CORE HERO -->
-    <section class="visual-core">
-      <div class="hero-frame">
-        <img src="images/gold-telemetry-hero.jpg" alt="Null-Space Library" class="main-visual">
-        <div class="glitch-title" data-text="NULL-SPACE">NULL-SPACE</div>
-      </div>
     </section>
 
-    <!-- ANOMALIES TABLE -->
-    <section id="anomalies" class="module-box table-module">
-      <h2>LIVE_DEVIATIONS</h2>
-      <div class="table-scroll">
-        <table id="anomaliesTable">
-          <thead>
-            <tr><th>SIG</th><th>TYPE</th><th>LOC</th><th>DEV</th><th>STATUS</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+    <footer class="footer-terminal">
+        <div class="terminal-text">>> ALDERSYTH MONITORING SYSTEM // NO_LINK_FOUND // 2026</div>
+    </footer>
 
-  </main>
-
-  <!-- STORY ARCHIVE / NAVIGATION -->
-  <section id="storyLinks" class="story-grid">
-    <h2 class="section-glitch">SUB-STRATA_LOGS</h2>
-    <div class="log-manifest">
-
-      <!-- Story Cards -->
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/phantom-lead-sphere.jpg" alt="Spire District">
-        </div>
-        <div class="log-text">
-          <h3>LOG I: SPIRE DISTRICT</h3>
-          <p>The Metric Variable – Structural analysis of Aldersyth’s Spire District.</p>
-          <a class="read-more" href="spire.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/frozen-citizens-market.jpg" alt="Market District">
-        </div>
-        <div class="log-text">
-          <h3>LOG II: MARKET DISTRICT</h3>
-          <p>Thermodynamic Stress – High-frequency vibrations and city pulse syncing.</p>
-          <a class="read-more" href="market.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/hud-overlays-residential.jpg" alt="Residential Rings">
-        </div>
-        <div class="log-text">
-          <h3>LOG III: RESIDENTIAL RINGS</h3>
-          <p>Acoustic Suspension – Citizens frozen mid-motion in high-fidelity telemetry.</p>
-          <a class="read-more" href="residential.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/observatory-vector.jpg" alt="Observatory">
-        </div>
-        <div class="log-text">
-          <h3>LOG IV: OBSERVATORY</h3>
-          <p>Vector Crisis – Dimensional shearing and post-gravity hazards.</p>
-          <a class="read-more" href="observatory.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/null-space-library.jpg" alt="Substrate">
-        </div>
-        <div class="log-text">
-          <h3>LOG V: SUBSTRATE</h3>
-          <p>System Integration – Aldersyth collapsed into infinite high-fidelity loops.</p>
-          <a class="read-more" href="substrate.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer-terminal">
-    <div class="terminal-text">>> ALDERSYTH MONITORING SYSTEM // NO_LINK_FOUND // 2026</div>
-  </footer>
-
-  <script src="js/main.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
