@@ -15,12 +15,41 @@ body {
   text-transform: uppercase;
 }
 
-/* --- GRID LAYOUT FIX --- */
+/* --- CRT & SCANLINE EFFECTS --- */
+.scanline {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 176, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 4px, 3px 100%;
+  z-index: 11;
+  pointer-events: none;
+}
+
+/* --- GRID LAYOUT --- */
 .dashboard-grid {
   display: grid;
-  /* Sidebar is 300px, rest is flexible */
-  grid-template-columns: 300px 1fr; 
-  /* Hero height is auto, Table takes remaining space */
+  grid-template-columns: 300px 1fr;
   grid-template-rows: auto 1fr;
   grid-template-areas: 
     "sidebar hero"
@@ -35,16 +64,11 @@ body {
   grid-area: sidebar; 
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
-.visual-core { 
-  grid-area: hero; 
-}
-
-.table-module { 
-  grid-area: table; 
-}
+.visual-core { grid-area: hero; }
+.table-module { grid-area: table; }
 
 /* --- MODULE STYLING --- */
 .module-box {
@@ -52,15 +76,21 @@ body {
   padding: 15px;
   background: rgba(255, 176, 0, 0.02);
   position: relative;
-  /* Keeps the futuristic notched corners */
   clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%);
+}
+
+.module-box h2, .module-box h3 {
+  font-size: 0.9rem;
+  margin-top: 0;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 5px;
 }
 
 /* --- HERO & VISUALS --- */
 .hero-frame {
   position: relative;
   border: 1px solid var(--neon-gold);
-  height: 300px; /* Ensures the frame exists even if image fails */
+  height: 350px;
   background: #000;
   overflow: hidden;
 }
@@ -68,15 +98,28 @@ body {
 .main-visual {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Prevents image stretching */
+  object-fit: cover;
   filter: sepia(100%) hue-rotate(-50deg) contrast(150%);
-  opacity: 0.7;
+  opacity: 0.6;
+}
+
+/* GLITCH TITLE */
+.glitch-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  letter-spacing: 5px;
+  text-shadow: 2px 2px var(--neon-red);
+  z-index: 2;
 }
 
 /* --- LOG MANIFEST GRID --- */
 .log-manifest {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
   padding: 20px;
 }
@@ -84,20 +127,23 @@ body {
 .log-entry {
   border: 1px solid var(--panel-border);
   background: rgba(255, 176, 0, 0.05);
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .log-img-wrapper img {
   width: 100%;
-  height: 150px;
+  height: 180px;
   object-fit: cover;
-  filter: grayscale(100%) sepia(50%);
 }
 
-/* --- BUTTONS & NAV --- */
+.log-text { padding: 15px; }
+
+/* --- BUTTONS --- */
 .tactical-nav {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 15px 30px;
   border-bottom: 2px solid var(--neon-gold);
   background: #000;
@@ -112,14 +158,13 @@ body {
   padding: 12px;
   margin-top: 10px;
   cursor: pointer;
-  font-family: var(--font-main);
-  transition: all 0.3s;
+  text-transform: uppercase;
+  transition: 0.3s;
 }
 
 .action-menu button:hover {
   background: var(--neon-gold);
   color: #000;
-  box-shadow: 0 0 10px var(--neon-gold);
 }
 
 .action-menu button.warning {
@@ -134,7 +179,7 @@ body {
 
 /* --- FOOTER --- */
 .footer-terminal {
-  position: relative; /* Changed from fixed to prevent overlapping content */
+  position: relative;
   width: 100%;
   background: #000;
   padding: 20px;
