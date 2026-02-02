@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aldersyth // Substrate-Protocol Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<nav class="header">
+  <div class="logo">Aldersyth Monitor</div>
+  <div class="nav-buttons">
+    <button id="scrollAnomaliesBtn">Live Feed</button>
+    <button id="scrollStoryBtn">Story Logs</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-wrapper">
+    <img src="images/gold-telemetry-hero.jpg" class="hero-bg">
+    <div class="hud-layer"></div>
+    <div class="hud-layer layer2"></div>
+  </div>
+  <div class="hero-content">
+    <h1 class="glitch">Aldersyth <span>Dashboard</span></h1>
+    <p>Live anomaly monitoring & immersive story logs from the Null-Space city core.</p>
+    <div class="hero-buttons">
+      <button id="scrollAnomaliesBtn2">View Anomalies</button>
+      <button id="scrollStoryBtn2">Read Logs</button>
+    </div>
+  </div>
+</section>
+
+<!-- ANOMALIES -->
+<section id="anomalies">
+  <h2>Current Anomalies</h2>
+  <div class="anomaly-cards"></div>
+</section>
+
+<!-- INTEGRATION -->
+<section id="integration">
+  <h2>Integration Logic</h2>
+  <div class="integrationCards">
+    <div class="card">
+      <h3>Reporting Form</h3>
+      <p>Field sensors submit anomalies to the central core in real-time.</p>
+    </div>
+    <div class="card">
+      <h3>JSON Substrate</h3>
+      <p>Structured live data triggers rendering & anomaly alerts.</p>
+    </div>
+    <div class="card">
+      <h3>Cloud Deployment</h3>
+      <p>Hosted via GitHub Pages for continuous uptime and monitoring.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STORY LOGS -->
+<section id="storyLogs">
+  <h2>Story Logs</h2>
+  <div id="logsContainer"></div>
+</section>
+
+<!-- MODAL -->
+<div id="logModal" class="modal">
+  <div class="modalContent">
+    <span class="closeBtn">&times;</span>
+    <h3 id="modalTitle"></h3>
+    <img id="modalImage" src="" alt="" class="modalImage">
+    <p id="modalExcerpt"></p>
+    <p id="modalContent"></p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Aldersyth Monitoring. All rights reserved.</p>
+  <div class="links">
+    <a href="#">GitHub</a>
+    <a href="#">LinkedIn</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
