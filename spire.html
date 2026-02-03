@@ -1,134 +1,96 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dystopian">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALDERSYTH // SUBSTRATE-PROTOCOL 111</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // LOG_I: SPIRE_DISTRICT</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Specific layout for the Log Pages */
+        .log-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            border-left: 2px solid var(--neon-gold);
+            background: rgba(255, 176, 0, 0.02);
+        }
+        .typewriter-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            white-space: pre-wrap; /* Keeps the terminal formatting */
+        }
+        .back-nav {
+            margin-top: 40px;
+            display: inline-block;
+            color: var(--neon-gold);
+            text-decoration: none;
+            border: 1px solid var(--neon-gold);
+            padding: 10px 20px;
+        }
+        .back-nav:hover {
+            background: var(--neon-gold);
+            color: #000;
+        }
+        .structural-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            filter: grayscale(1) contrast(1.5) sepia(0.5);
+            margin-bottom: 20px;
+            border: 1px solid var(--panel-border);
+        }
+    </style>
 </head>
 <body>
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
 
-  <div class="crt-overlay"></div>
-  <div class="scanline"></div>
+    <header class="tactical-nav">
+        <div class="status-indicator">● ANALYSIS_IN_PROGRESS</div>
+        <div class="logo">ALDERSYTH<span>_LOG_ARCHIVE</span></div>
+        <div class="telemetry-glow">SECTOR: SPIRE | DEPTH: 14,000m</div>
+    </header>
 
-  <header class="tactical-nav">
-    <div class="status-indicator">● CORE_STABLE</div>
-    <div class="logo">ALDERSYTH<span>_V2.0.6</span></div>
-    <div class="telemetry-glow">LAT: 40.7128 | LONG: -74.0060</div>
-  </header>
+    <main class="log-container">
+        <img src="images/phantom-lead-sphere.jpg" class="structural-img" alt="Spire Analysis">
+        
+        <h2>LOG_I: THE SPIRE DISTRICT</h2>
+        <hr style="border: 0; border-top: 1px solid var(--panel-border); margin-bottom: 20px;">
+        
+        <div id="typewriter" class="typewriter-text"></div>
 
-  <main class="dashboard-grid">
+        <a href="index.html" class="back-nav"><< RETURN_TO_DASHBOARD</a>
+    </main>
 
-    <aside class="sidebar-left">
-      <div class="module-box">
-        <h3>SENSORY_INPUT</h3>
-        <div id="telemetryFeed">
-          <div class="stat"><span>TEMP:</span> <span class="val">-14°C</span></div>
-          <div class="stat"><span>GRAV:</span> <span id="gravVal" class="val">0.84G</span></div>
-          <div class="stat"><span>OXY:</span> <span class="val">12%</span></div>
-        </div>
-      </div>
-      <nav class="action-menu">
-        <button onclick="scrollToSection('storyLinks')">STORY_ARCHIVE</button>
-        <button class="warning" onclick="initiateReboot()">TERMINATE</button>
-      </nav>
-    </aside>
+    <script>
+        const text = `[SURVEILLANCE_LOG_742-G]
+LOCATION: SPIRE_DISTRICT (VERTICAL_CORE)
+METRIC: UNAUTHORIZED_BIOLOGIC_NOISE
 
-    <section class="visual-core">
-      <div class="hero-frame">
-        <img src="images/gold-telemetry-hero.jpg" alt="Null-Space Library" class="main-visual">
-        <div class="glitch-title" data-text="NULL-SPACE">NULL-SPACE</div>
-      </div>
-    </section>
+The Spire is no longer a residential district. It has become a self-replicating architectural error. 
 
-    <section id="anomalies" class="module-box table-module">
-      <h2>LIVE_DEVIATIONS</h2>
-      <div class="table-scroll">
-        <table id="anomaliesTable">
-          <thead>
-            <tr><th>SIG</th><th>TYPE</th><th>LOC</th><th>DEV</th><th>STATUS</th></tr>
-          </thead>
-          <tbody>
-              <tr>
-                <td>#003</td>
-                <td>METRIC_VAR</td>
-                <td>SPIRE_01</td>
-                <td>0.88%</td>
-                <td>ANALYZING</td>
-              </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+The concrete does not stop growing. Our sensors indicate that the building is dismantling the lower-level foundation to build higher into the atmosphere. This is the 'Substrate' logic at work—nothing is wasted, every atom is raw data for the structure's expansion.
 
-  </main>
+I observed a citizen today. They were merged into the 14th-floor support beam. They were not dead. Their nervous system had been slaved to the building's structural sensors. They are now a part of the Metric.
 
-  <section id="storyLinks" class="story-grid">
-    <h2 class="section-glitch">SUB-STRATA_LOGS</h2>
-    <div class="log-manifest">
+PHYSICS_DEVIATION: 
+- Local gravity at the peak: 0.12G
+- Structural integrity: OPTIMIZED
+- Human survival probability: 0.00%
 
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/phantom-lead-sphere.jpg" alt="Spire District">
-        </div>
-        <div class="log-text">
-          <h3>LOG I: SPIRE DISTRICT</h3>
-          <p>The Metric Variable – Structural analysis of Aldersyth’s Spire District.</p>
-          <a class="read-more" href="spire.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
+[END_LOG]`;
 
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/frozen-citizens-market.jpg" alt="Market District">
-        </div>
-        <div class="log-text">
-          <h3>LOG II: MARKET DISTRICT</h3>
-          <p>Thermodynamic Stress – High-frequency vibrations and city pulse syncing.</p>
-          <a class="read-more" href="market.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
+        let i = 0;
+        function typeWriter() {
+            if (i < text.length) {
+                document.getElementById("typewriter").innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 20); // Speed of typing
+            }
+        }
 
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/hud-overlays-residential.jpg" alt="Residential Rings">
-        </div>
-        <div class="log-text">
-          <h3>LOG III: RESIDENTIAL RINGS</h3>
-          <p>Acoustic Suspension – Citizens frozen mid-motion in high-fidelity telemetry.</p>
-          <a class="read-more" href="residential.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/observatory-vector.jpg" alt="Observatory">
-        </div>
-        <div class="log-text">
-          <h3>LOG IV: OBSERVATORY</h3>
-          <p>Vector Crisis – Dimensional shearing and post-gravity hazards.</p>
-          <a class="read-more" href="observatory.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-      <div class="log-entry">
-        <div class="log-img-wrapper">
-          <img src="images/null-space-library.jpg" alt="Substrate">
-        </div>
-        <div class="log-text">
-          <h3>LOG V: SUBSTRATE</h3>
-          <p>System Integration – Aldersyth collapsed into infinite high-fidelity loops.</p>
-          <a class="read-more" href="substrate.html">>> ACCESS_LOG</a>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <footer class="footer-terminal">
-    <div class="terminal-text">>> ALDERSYTH MONITORING SYSTEM // NO_LINK_FOUND // 2026</div>
-  </footer>
-
-  <script src="css/js/main.js"></script>
+        // Start effect on load
+        window.onload = typeWriter;
+    </script>
 </body>
 </html>
