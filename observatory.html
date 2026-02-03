@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // ARCH_04: THE_OBSERVATORY</title>
+    <style>
+        :root {
+            --neon-cyan: #06b6d4;
+            --neon-red: #ff3e3e;
+            --neon-purple: #a855f7;
+            --bg-dark: #05070a;
+            --panel-border: rgba(6, 182, 212, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #cffafe;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- DIMENSIONAL SHEAR EFFECT --- */
+        .shear-line {
+            position: fixed;
+            width: 2px;
+            height: 100%;
+            background: var(--neon-purple);
+            opacity: 0.2;
+            box-shadow: 0 0 15px var(--neon-purple);
+            left: 50%;
+            transform: rotate(15deg);
+            z-index: -1;
+            animation: drift 10s infinite alternate;
+        }
+
+        @keyframes drift {
+            from { transform: rotate(15deg) translateX(-50px); }
+            to { transform: rotate(18deg) translateX(50px); }
+        }
+
+        .tactical-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(0,0,0,0.9);
+            border-bottom: 1px solid var(--neon-purple);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .log-container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid var(--panel-border);
+            background: rgba(168, 85, 247, 0.02);
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .structural-img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            filter: grayscale(1) invert(1) opacity(0.5);
+            border: 1px solid var(--neon-purple);
+            margin-bottom: 25px;
+        }
+
+        .void-telemetry {
+            position: absolute;
+            top: 40px;
+            left: -100px;
+            transform: rotate(-90deg);
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--neon-purple);
+            letter-spacing: 5px;
+        }
+
+        .typewriter-text {
+            font-size: 1rem;
+            color: #f3e8ff;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        .back-nav {
+            margin-top: 40px;
+            display: inline-block;
+            color: var(--neon-purple);
+            text-decoration: none;
+            border: 1px solid var(--neon-purple);
+            padding: 10px 20px;
+            text-transform: uppercase;
+            font-family: monospace;
+            transition: 0.3s;
+        }
+
+        .back-nav:hover { background: var(--neon-purple); color: #000; box-shadow: 0 0 20px var(--neon-purple); }
+    </style>
+</head>
+<body>
+    <div class="shear-line"></div>
+    <div class="tactical-nav">
+        <div style="color: var(--neon-purple)">● ALERT: DIMENSIONAL_SHEAR_IMMINENT</div>
+        <div style="color: var(--neon-cyan)">SECTOR: THE_VOID_OBSERVATORY</div>
+        <div style="color: var(--neon-red)">REALITY_ANCHOR: 14%</div>
+    </div>
+
+    <main class="log-container">
+        <div class="void-telemetry">NULL_SPACE_DETECTED</div>
+
+        
+        <img src="images/observatory-vector.jpg" class="structural-img" alt="The Void Observatory">
+
+        <h2>LOG_IV: THE OBSERVATORY // DIMENSIONAL_SHEARING</h2>
+        <hr style="border: 0; border-top: 1px solid var(--neon-purple); margin-bottom: 20px;">
+        
+        <div id="typewriter" class="typewriter-text"></div>
+
+        <a href="index.html" class="back-nav"><< RETURN_TO_DASHBOARD</a>
+    </main>
+
+    <script>
+        const text = `[FILE_ID: ARCH_04]
+LOCATION: THE_VOID_OBSERVATORY
+SUBJECT: FINAL_VECTOR_COLLAPSE
+
+This is where the math stops working. 
+
+I am standing at the edge of the Observatory gantry. Below me, there is no Spire, no Market, and no Residential Rings. There is only the Void—a raw, bleeding tear in the geometry of our universe. 
+
+Sloane isn't even looking at her tablet anymore. She is staring into the aperture. The 'Strangers' have stopped building; they are waiting. The vector analysis shows that the 12% fluctuation I detected in the Spire was just a ripple. This is the wave.
+
+The dimensions are shearing. I can see two versions of my own hands—one solid, one a ghost of purple light. 
+
+<span style="color:var(--neon-purple)">[SHEAR_LOGIC]:</span>
+- Reality Anchor: FAILING
+- Spatial Folding: ACTIVE
+- Narrative Integrity: COMPROMISED
+
+Aldersyth was never meant to be a city. It was a bridge. And something from the other side is finally crossing over. 
+
+[END_OF_DATA_STREAM]`;
+
+        let i = 0;
+        const container = document.getElementById("typewriter");
+
+        function typeWriter() {
+            if (i < text.length) {
+                if (text.substring(i, i + 1) === '<') {
+                    const tagEnd = text.indexOf('>', i);
+                    container.innerHTML += text.substring(i, tagEnd + 1);
+                    i = tagEnd + 1;
+                } else {
+                    container.innerHTML += text.charAt(i);
+                    i++;
+                }
+                setTimeout(typeWriter, 15);
+            }
+        }
+
+        window.onload = typeWriter;
+    </script>
+</body>
+</html>
