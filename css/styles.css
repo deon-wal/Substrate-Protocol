@@ -1,4 +1,23 @@
-:root {
+/* Simulates the subsonic vibration of the city */
+.hero-frame {
+    animation: subsonic-jitter 0.2s infinite;
+}
+
+@keyframes subsonic-jitter {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(0.5px, -0.5px); }
+    75% { transform: translate(-0.5px, 0.5px); }
+}
+
+/* Metadata text found in Sloane's telemetry */
+.data-point {
+    position: absolute;
+    font-size: 0.6rem;
+    color: var(--neon-gold);
+    background: rgba(0,0,0,0.8);
+    padding: 2px 5px;
+    border-left: 1px solid var(--neon-red);
+}:root {
   --neon-gold: #ffb000;
   --neon-red: #ff3e3e;
   --bg-black: #050505;
