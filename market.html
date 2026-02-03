@@ -6,43 +6,92 @@
     <title>ALDERSYTH // LOG_II: MARKET_DISTRICT</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
+        :root {
+            --neon-cyan: #06b6d4;
+            --neon-gold: #ffb000;
+            --neon-red: #ff3e3e;
+        }
+
         .log-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
-            padding: 20px;
-            border-left: 2px solid var(--neon-gold);
-            background: rgba(255, 176, 0, 0.02);
+            padding: 30px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            background: rgba(10, 15, 18, 0.9);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
-        .typewriter-text {
-            font-size: 1rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            color: var(--neon-gold);
+
+        /* Narrative Telemetry Header */
+        .log-header-meta {
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--neon-cyan);
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+            padding-bottom: 5px;
         }
-        .back-nav {
-            margin-top: 40px;
-            display: inline-block;
-            color: var(--neon-gold);
-            text-decoration: none;
-            border: 1px solid var(--neon-gold);
-            padding: 10px 20px;
-            text-transform: uppercase;
-        }
-        .back-nav:hover {
-            background: var(--neon-gold);
-            color: #000;
-        }
+
         .metric-banner {
             width: 100%;
-            height: 250px;
+            height: 300px;
             object-fit: cover;
-            filter: grayscale(1) brightness(0.5) contrast(1.2);
-            margin-bottom: 20px;
-            border: 1px solid var(--panel-border);
+            filter: sepia(1) hue-rotate(150deg) brightness(0.6) contrast(1.2);
+            margin-bottom: 25px;
+            border: 1px solid var(--neon-cyan);
         }
+
+        .typewriter-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            color: #e0f2f1; /* Off-white cyan for readability */
+            font-family: 'Courier New', Courier, monospace;
+        }
+
         .warning-text {
             color: var(--neon-red);
             font-weight: bold;
+            text-shadow: 0 0 8px var(--neon-red);
+        }
+
+        /* Sidebar Stats for the Market */
+        .market-stats {
+            float: right;
+            width: 200px;
+            margin-left: 20px;
+            padding: 15px;
+            background: rgba(6, 182, 212, 0.05);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+
+        .market-stats h4 {
+            color: var(--neon-cyan);
+            margin-top: 0;
+            border-bottom: 1px solid var(--neon-cyan);
+        }
+
+        .back-nav {
+            margin-top: 40px;
+            display: inline-block;
+            color: var(--neon-cyan);
+            text-decoration: none;
+            border: 1px solid var(--neon-cyan);
+            padding: 10px 25px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .back-nav:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-cyan);
         }
     </style>
 </head>
@@ -57,13 +106,28 @@
     </header>
 
     <main class="log-container">
+        <div class="log-header-meta">
+            <span>FILE: LOG_II_THERMODYNAMICS.DAT</span>
+            <span>AUTH: STRUCTURAL_ANALYST_01</span>
+            <span>ENCRYPTION: LEVEL_4</span>
+        </div>
+
         <img src="images/frozen-citizens-market.jpg" class="metric-banner" alt="Market Analysis">
         
+        <aside class="market-stats">
+            <h4>SENSORY_DATA</h4>
+            <p>VIBRATION: <span style="color:var(--neon-gold)">88Hz</span></p>
+            <p>PHASE_SHIFT: <span style="color:var(--neon-red)">99.4%</span></p>
+            <p>COMMERCE: <span style="color:var(--neon-red)">NULL</span></p>
+            <p>HUMAN_HEAT: <span style="color:var(--neon-cyan)">CONTRIBUTING</span></p>
+        </aside>
+
         <h2>LOG_II: MARKET DISTRICT // THERMODYNAMICS</h2>
-        <hr style="border: 0; border-top: 1px solid var(--panel-border); margin-bottom: 20px;">
+        <hr style="border: 0; border-top: 1px solid rgba(6, 182, 212, 0.3); margin-bottom: 20px;">
         
         <div id="typewriter" class="typewriter-text"></div>
 
+        <div style="clear: both;"></div>
         <a href="index.html" class="back-nav"><< RETURN_TO_METRIC</a>
     </main>
 
@@ -91,7 +155,6 @@ Every night, the architecture rearranges. If you are standing on a seam when the
         const container = document.getElementById("typewriter");
 
         function typeWriter() {
-            // This version handles the HTML span tag correctly
             if (i < text.length) {
                 if (text.substring(i, i + 1) === '<') {
                     const tagEnd = text.indexOf('>', i);
