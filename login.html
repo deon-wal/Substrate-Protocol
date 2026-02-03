@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // AUTHENTICATION</title>
+    <style>
+        :root {
+            --neon-cyan: #06b6d4;
+            --neon-red: #ff3e3e;
+            --bg-dark: #05070a;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-box {
+            width: 400px;
+            padding: 40px;
+            border: 1px solid var(--neon-cyan);
+            background: rgba(6, 182, 212, 0.02);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .glitch-text {
+            font-size: 1.2rem;
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            outline: none;
+            text-align: center;
+        }
+
+        .auth-btn {
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 10px 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        #status-msg {
+            font-size: 0.7rem;
+            margin-top: 20px;
+            height: 1rem;
+            color: var(--neon-red);
+        }
+
+        .branding {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            font-size: 0.6rem;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-overlay"></div>
+
+    <div class="login-box">
+        <div class="glitch-text">ALDERSYTH_OS</div>
+        
+        <div id="login-form">
+            <input type="text" id="node-id" placeholder="USER_NODE_ID" autocomplete="off">
+            <input type="password" id="access-key" placeholder="ACCESS_KEY">
+            <button class="auth-btn" onclick="authenticate()">INITIALIZE_SESSION</button>
+        </div>
+
+        <div id="status-msg"></div>
+
+        <div class="branding">
+            PROPERTY OF THE SUBSTRATE // UNIT: STRUCTURAL_ANALYST
+        </div>
+    </div>
+
+    <script>
+        function authenticate() {
+            const status = document.getElementById('status-msg');
+            const nodeId = document.getElementById('node-id').value;
+            
+            status.innerText = "AUTHENTICATING...";
+            
+            setTimeout(() => {
+                if(nodeId.toUpperCase() === "SLOANE") {
+                    status.style.color = "var(--neon-cyan)";
+                    status.innerText = "OVERRIDE DETECTED. WELCOME, LEAD THEORIST.";
+                    setTimeout(() => window.location.href = "index.html", 1500);
+                } else if (nodeId !== "") {
+                    status.style.color = "var(--neon-cyan)";
+                    status.innerText = "ACCESS GRANTED. SYNCING TELEMETRY...";
+                    setTimeout(() => window.location.href = "index.html", 1500);
+                } else {
+                    status.innerText = "ERROR: INVALID_CREDENTIALS";
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
