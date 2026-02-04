@@ -137,6 +137,18 @@ th { text-align: left; color: var(--neon-cyan); border-bottom: 1px solid var(--p
 td { padding: 8px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .alert-row { color: var(--neon-red); background: rgba(255, 62, 62, 0.05); }
 
+.typing::after {
+    content: "█";
+    animation: blink 0.8s infinite;
+    margin-left: 5px;
+    color: var(--neon-gold);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 /* --- Media Queries for Mobile --- */
 @media (max-width: 1100px) {
     .dashboard-grid { grid-template-columns: 1fr; }
