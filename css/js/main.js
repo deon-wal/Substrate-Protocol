@@ -9,7 +9,46 @@ const ALDERSYTH = {
         sphereWeight: 3.00,
         syncActive: true
     },
+const logMessages = [
+    "NEURAL_SYNC_DRIFT: 0.04ms",
+    "GRAVITY_FLUX_DETECTED: SECTOR_01",
+    "RESI_UNIT_402: GEOMETRIC_LEAK",
+    "SIGNAL_DECAY_STABILIZED",
+    "BIOLOGIC_NOISE_PURGED",
+    "REM_CYCLE_HARVEST: ACTIVE",
+    "STRANGER_SIGNATURE_FOUND",
+    "SPIRE_INTEGRITY: 88.2%",
+    "UPDATING_ANOMALY_DATABASE..."
+];
 
+function addLogEntry() {
+    const logScroll = document.getElementById('logScroll');
+    const newEntry = document.createElement('div');
+    const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    // Pick a random message
+    const msg = logMessages[Math.floor(Math.random() * logMessages.length)];
+    
+    newEntry.innerHTML = `<span style="opacity:0.5">[${timestamp}]</span> > ${msg}`;
+    newEntry.style.marginBottom = "4px";
+    
+    // Add to the top of the scroll container
+    logScroll.prepend(newEntry);
+
+    // Keep only the last 15 logs to prevent memory bloat
+    if (logScroll.children.length > 15) {
+        logScroll.removeChild(logScroll.lastChild);
+    }
+}
+
+// Run the log update every 3-7 seconds randomly
+(function loop() {
+    let rand = Math.round(Math.random() * 4000) + 3000;
+    setTimeout(() => {
+        addLogEntry();
+        loop();
+    }, rand);
+}());
     // --- TELEMETRY JITTER ---
     updateTelemetry: function() {
         const bpmElem = document.getElementById('bpm');
