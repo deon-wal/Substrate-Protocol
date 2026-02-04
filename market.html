@@ -50,14 +50,21 @@ button:hover { background:var(--gold); color:#000; }
 .hud { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); border:1px solid var(--cyan); padding:8px; font-size:0.7rem; z-index:3; }
 .hud div { margin-bottom:4px; }
 
-/* Canvas Wave & Particle */
+/* Canvas Wave */
 #wave { position:absolute; inset:0; z-index:1; }
 
 /* Magnetic Containment Bottle */
 #magnetic-bottle { position:absolute; bottom:50px; left:50%; transform:translateX(-50%); width:120px; height:250px; border:2px solid var(--cyan); border-radius:12px; box-shadow:0 0 15px rgba(0,198,212,0.5); z-index:2; }
 
-/* Lead Block Particles */
-.lead-particle { position:absolute; width:12px; height:12px; background:rgba(128,128,128,0.7); border-radius:50%; z-index:2; }
+/* Floating Objects */
+.floating { position:absolute; width:40px; height:40px; border-radius:50%; cursor:pointer; z-index:4; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:bold; color:#000; text-align:center; }
+.melon { background:#4caf50; }
+.crate { background:#8b4513; }
+.lead { background:#808080; }
+.floating:hover { transform: scale(1.2); transition:0.1s ease; }
+
+/* Splatter particles */
+.particle { position:absolute; border-radius:50%; pointer-events:none; z-index:5; }
 </style>
 </head>
 <body class="crt">
@@ -68,7 +75,6 @@ button:hover { background:var(--gold); color:#000; }
 </header>
 
 <main class="container">
-    <!-- Main View -->
     <section class="main-view">
         <div style="padding:20px;">
             <h2 class="warning-flash">!! WARNING: VOLATILE_LINK_STATE !!</h2>
@@ -82,13 +88,13 @@ button:hover { background:var(--gold); color:#000; }
             <div>PULSE_LOCK: ACTIVE</div>
         </div>
         <div id="magnetic-bottle"></div>
-        <!-- Lead block particles -->
-        <div class="lead-particle" style="top:100px; left:60px;"></div>
-        <div class="lead-particle" style="top:140px; left:120px;"></div>
-        <div class="lead-particle" style="top:200px; left:80px;"></div>
+        
+        <!-- Floating objects -->
+        <div class="floating melon" style="top:80px; left:100px;">M</div>
+        <div class="floating crate" style="top:150px; left:200px;">C</div>
+        <div class="floating lead" style="top:250px; left:300px;">L</div>
     </section>
 
-    <!-- Side Panel -->
     <aside class="side-panel">
         <div class="panel">
             <h3 style="font-size:0.7rem; border-bottom:1px solid var(--border);">ANOMALY_DETECTION</h3>
@@ -99,11 +105,6 @@ button:hover { background:var(--gold); color:#000; }
         <button onclick="location.href='index.html'">RETURN_TO_CORE</button>
     </aside>
 </main>
-
-<!-- Ambient Audio -->
-<audio id="ambient" autoplay loop>
-    <source src="audio/market_ambient.mp3" type="audio/mpeg">
-</audio>
 
 <script>
 /* Clock */
@@ -138,18 +139,79 @@ function draw(){
 }
 draw();
 
-/* Animate Lead Particles */
-const particles=document.querySelectorAll('.lead-particle');
-function moveParticles(){
-    particles.forEach(p=>{
-        let top=parseFloat(p.style.top);
-        top+=Math.random()*1.5-0.7;
-        if(top>canvas.height) top=0;
-        p.style.top=top+'px';
-    });
-    requestAnimationFrame(moveParticles);
+/* Floating Objects Physics */
+const objects=document.querySelectorAll('.floating');
+objects.forEach(o=>{
+    o.vx=(Math.random()*2-1)*0.3;
+    o.vy=(Math.random()*2-1)*0.3;
+});
+
+/* Particle System */
+const particles=[];
+function spawnParticle(x,y,color){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.background=color;
+    p.style.width=p.style.height=Math.random()*8+4+'px';
+    p.style.left=x+'px';
+    p.style.top=y+'px';
+    document.body.appendChild(p);
+    const dx=(Math.random()-0.5)*4;
+    const dy=(Math.random()-0.5)*4;
+    particles.push({el:p,x:0,y:0,dx,dy,life:30});
 }
-moveParticles();
+function animateParticles(){
+    for(let i=particles.length-1;i>=0;i--){
+        let p=particles[i];
+        p.x+=p.dx; p.y+=p.dy; p.life--;
+        p.el.style.left=(parseFloat(p.el.style.left)+p.dx)+'px';
+        p.el.style.top=(parseFloat(p.el.style.top)+p.dy)+'px';
+        p.el.style.opacity=p.life/30;
+        if(p.life<=0){ p.el.remove(); particles.splice(i,1);}
+    }
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+function animateObjects(){
+    objects.forEach(o=>{
+        let top=parseFloat(o.style.top);
+        let left=parseFloat(o.style.left);
+        top+=o.vy; left+=o.vx;
+
+        // Collision with edges
+        if(top<0||top>window.innerHeight-50){ 
+            o.vy*=-1; 
+            if(o.classList.contains('melon')) spawnParticle(left+20,top+20,'#4caf50');
+        }
+        if(left<0||left>window.innerWidth-50){ 
+            o.vx*=-1; 
+            if(o.classList.contains('melon')) spawnParticle(left+20,top+20,'#4caf50');
+        }
+
+        o.style.top=top+'px';
+        o.style.left=left+'px';
+    });
+    requestAnimationFrame(animateObjects);
+}
+animateObjects();
+
+/* Draggable Interaction */
+let dragObj=null, offsetX=0, offsetY=0;
+objects.forEach(o=>{
+    o.addEventListener('mousedown', e=>{
+        dragObj=o;
+        offsetX=e.clientX - o.offsetLeft;
+        offsetY=e.clientY - o.offsetTop;
+    });
+});
+document.addEventListener('mousemove', e=>{
+    if(dragObj){
+        dragObj.style.left=(e.clientX-offsetX)+'px';
+        dragObj.style.top=(e.clientY-offsetY)+'px';
+    }
+});
+document.addEventListener('mouseup', ()=>{ dragObj=null; });
 </script>
 </body>
 </html>
