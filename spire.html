@@ -7,7 +7,7 @@
     <style>
         :root {
             --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-dark: #0a0f12; --panel-border: rgba(6, 182, 212, 0.2);
+            --bg-dark: #070a0c; --panel-border: rgba(6, 182, 212, 0.2);
         }
 
         body {
@@ -18,80 +18,79 @@
 
         /* --- ATMOSPHERIC EFFECTS --- */
         .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; inset: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
             background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1000;
         }
 
         .mist-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; inset: 0;
             background: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-            opacity: 0.1; pointer-events: none; z-index: 500;
+            opacity: 0.05; pointer-events: none; z-index: 500; animation: drift 60s linear infinite;
         }
 
-        /* --- LAYOUT --- */
+        @keyframes drift { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+
         header {
             padding: 15px 25px; border-bottom: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; font-size: 0.75rem;
             background: #000; position: sticky; top: 0; z-index: 800;
         }
 
-        .content-wrap { max-width: 900px; margin: 0 auto; padding: 40px 20px; display: grid; grid-template-columns: 1fr 250px; gap: 30px; }
+        .content-wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
 
         .report-header {
             grid-column: span 2; border: 1px solid var(--neon-cyan); padding: 20px;
-            background: rgba(6, 182, 212, 0.03); margin-bottom: 20px;
-        }
-
-        .report-header h1 { 
-            color: var(--neon-cyan); font-size: 1.2rem; margin: 0 0 10px 0; 
-            text-transform: uppercase; letter-spacing: 3px;
+            background: rgba(6, 182, 212, 0.03); position: relative;
         }
 
         .hero-img {
             width: 100%; height: 400px; object-fit: cover;
-            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.7) contrast(1.2);
-            margin-bottom: 30px;
+            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.6) sepia(0.3);
+            margin-bottom: 30px; transition: filter 0.5s;
         }
 
-        /* --- TELEMETRY SIDEBAR --- */
+        .hero-img:hover { filter: grayscale(0.5) brightness(0.8) sepia(0); }
+
+        /* --- SIDEBAR & GAUGES --- */
         .sidebar-stats {
-            background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 15px;
-            font-size: 0.7rem; height: fit-content;
+            background: rgba(0,0,0,0.6); border: 1px solid var(--panel-border); padding: 20px;
+            font-size: 0.7rem; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .sidebar-stats h4 { margin: 0 0 10px 0; border-bottom: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
+        .sidebar-stats h4 { margin: 20px 0 10px 0; border-bottom: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.8rem; }
+        .sidebar-stats h4:first-child { margin-top: 0; }
 
         .grav-meter {
-            height: 150px; width: 100%; background: #111; position: relative; border: 1px solid #333; margin: 10px 0;
+            height: 180px; width: 40px; background: #111; position: relative; border: 1px solid #333; margin: 10px auto;
         }
 
         .grav-level {
             position: absolute; bottom: 0; width: 100%; background: var(--neon-red);
-            height: 62%; /* Representing 1.12G baseline */
-            box-shadow: 0 0 15px var(--neon-red);
-            transition: height 0.3s;
+            height: 62%; box-shadow: 0 0 15px var(--neon-red); transition: height 0.1s;
         }
 
-        /* --- TEXT STYLING --- */
+        /* --- STORY TEXT --- */
         .story-text { 
             font-size: 1rem; white-space: pre-wrap; 
-            border-left: 1px solid rgba(255, 255, 255, 0.1); padding-left: 25px;
+            border-left: 2px solid rgba(6, 182, 212, 0.3); padding-left: 30px;
+            color: #b1d8da;
         }
 
-        .data-point { color: var(--neon-gold); font-weight: bold; }
-        .alert { color: var(--neon-red); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        .warning-block { color: var(--neon-red); font-weight: bold; background: rgba(255, 62, 62, 0.1); padding: 5px; }
 
         .nav-links {
-            grid-column: span 2; margin-top: 60px; padding-top: 20px;
+            grid-column: span 2; margin-top: 60px; padding: 20px 0;
             border-top: 1px solid var(--panel-border);
-            display: flex; justify-content: space-between; font-size: 0.8rem;
+            display: flex; justify-content: space-between;
         }
 
-        a { color: var(--neon-cyan); text-decoration: none; font-weight: bold; }
-        a:hover { text-shadow: 0 0 8px var(--neon-cyan); }
+        a { color: var(--neon-cyan); text-decoration: none; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; }
+        a:hover { color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
+
+        .pulse { animation: heart-pulse 1.5s infinite; }
+        @keyframes heart-pulse { 0% { color: var(--neon-red); } 50% { color: #500; } 100% { color: var(--neon-red); } }
     </style>
 </head>
 <body>
@@ -99,43 +98,44 @@
     <div class="mist-layer"></div>
 
     <header>
-        <div>FILE_ID: ARCH_01 // THE_SPIRE</div>
-        <div class="alert">LOCAL_GRAVITY: 1.12G [CRITICAL]</div>
+        <div>LOC: THE_SPIRE // ALT: 4,200M</div>
+        <div id="telemetry-alert" class="alert">GRAVITY: 1.12G [UNSTABLE]</div>
     </header>
 
     <div class="content-wrap">
         <div class="report-header">
-            <h1>Subject: The Spire</h1>
-            <div style="font-size: 0.7rem; opacity: 0.7;">
-                SECTOR: 742-G // UNIT: KAEL-01 // TELEMETRY: ACTIVE
-            </div>
+            <h1 style="color: var(--neon-cyan); margin: 0; letter-spacing: 5px;">ARCH_01: THE_SPIRE</h1>
+            <div style="font-size: 0.6rem; margin-top: 10px;">NEURAL_SYNC_LINK: 94.2% // INTEGRITY: STABLE</div>
         </div>
 
         <section>
-            <img src="images/market_thumbnail.jpg" class="hero-img" alt="Spire Sector Detail View">
-
-            <article id="typewriter" class="story-text">
-                </article>
+            
+            <img src="images/market_thumbnail.jpg" class="hero-img" alt="The Spire Detail">
+            <article id="typewriter" class="story-text"></article>
         </section>
 
         <aside class="sidebar-stats">
-            <h4>STRUCTURAL_INTEGRITY</h4>
-            <div class="stat">VERTICALITY: <span class="data-point">88.2%</span></div>
-            <div class="stat">VIBRATION: <span class="data-point">LOW</span></div>
-            
-            <h4 style="margin-top:20px;">GRAVITY_FLUX</h4>
+            <h4>PHYSICS_ENGINE</h4>
+            <div class="stat">LOCAL_GRAVITY: <span id="grav-val" style="color: var(--neon-red)">1.12G</span></div>
             <div class="grav-meter">
                 <div class="grav-level" id="gravBar"></div>
             </div>
-            <div style="text-align:center">1.12G</div>
+            
+            <h4>NEURAL_STRESS</h4>
+            <div class="stat">HEART_RATE: <span id="bpm" class="pulse">88 BPM</span></div>
+            <div class="stat">ADRENALINE: <span style="color: var(--neon-gold)">HIGH</span></div>
 
-            <h4 style="margin-top:20px;">OBJECT_METRICS</h4>
-            <p>NAME: LEAD_SPHERE<br>MASS: 3.00KG<br>EFFECTIVE_WT: <span class="alert">3.36KG</span></p>
+            <h4>SUBSTRATE_LEAK</h4>
+            <div style="font-size: 0.6rem; line-height: 1.2; color: var(--neon-gold);">
+                > DETECTED AT FOUNDATION<br>
+                > GEOMETRIC_DRIFT: 0.04°<br>
+                > VAPOR_DENSITY: 88%
+            </div>
         </aside>
 
         <footer class="nav-links">
-            <a href="index.html"><< DASHBOARD</a>
-            <a href="market.html">ARCH_02: THE_MARKET >></a>
+            <a href="index.html">« RETURN_TO_CORE</a>
+            <a href="market.html">ARCH_02: THE_MARKET »</a>
         </footer>
     </div>
 
@@ -150,23 +150,35 @@ His HUD flickered red as the local gravity hit 1.12G. It was a subtle increase t
 
 "Vera, the sync is holding," he grunted, his heartbeat thumping against the Neural Tether. "But the geometry is failing. The Spire is leaning, and I don't think it’s the wind. The Substrate is eating the foundations."
 
-He looked out into the mist. Somewhere in that grey soup, the Spire ended, and the void began.
-
 [END_LOG]`;
 
         let i = 0;
         const container = document.getElementById("typewriter");
         const gravBar = document.getElementById("gravBar");
+        const gravVal = document.getElementById("grav-val");
+        const bpmVal = document.getElementById("bpm");
 
         function typeWriter() {
             if (i < text.length) {
+                // Formatting tags logic
+                if (text.substring(i, i+1) === '[') {
+                    container.innerHTML += '<span class="warning-block">';
+                } else if (text.substring(i, i+1) === ']') {
+                    container.innerHTML += '</span>';
+                }
+
                 container.innerHTML += text.charAt(i);
                 i++;
-                // Slight bar jitter to simulate instability
-                if (i % 5 === 0) {
-                    gravBar.style.height = (62 + (Math.random() * 2)) + "%";
+
+                // Physics Jitter
+                if (i % 4 === 0) {
+                    let jitter = 62 + (Math.random() * 5);
+                    gravBar.style.height = jitter + "%";
+                    gravVal.innerText = (1.10 + (Math.random() * 0.05)).toFixed(2) + "G";
+                    bpmVal.innerText = Math.floor(85 + (Math.random() * 10)) + " BPM";
                 }
-                setTimeout(typeWriter, 12);
+
+                setTimeout(typeWriter, 15);
             }
         }
 
