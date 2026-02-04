@@ -21,6 +21,8 @@ body {
     margin: 0;
     font-family: system-ui, -apple-system, sans-serif;
     color: #e5e7eb;
+
+    /* ✅ SINGLE BACKGROUND IMAGE */
     background: url("images/images/wallpaper.jpg.png") center / cover fixed;
 }
 
@@ -77,12 +79,16 @@ main {
     gap: 16px;
 }
 
-/* ---------- HEADER ---------- */
+/* ---------- HEADER (NO IMAGE) ---------- */
 
 .header {
-    height: 180px;
+    height: 120px;
     border: 1px solid var(--border);
-    background: url("images/images/index_Header.jpg") center / cover;
+    background: linear-gradient(
+        180deg,
+        rgba(6,182,212,0.08),
+        rgba(0,0,0,0.4)
+    );
     display: flex;
     align-items: flex-end;
 }
@@ -104,9 +110,13 @@ main {
 }
 
 .log-entry {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
     border: 1px solid var(--border);
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.55);
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
     opacity: 0;
     transform: translateY(4px);
     animation: fadeIn 1.2s ease forwards;
@@ -117,20 +127,6 @@ main {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.log-meta {
-    padding: 8px 10px;
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-}
-
-.log-entry img {
-    width: 100%;
-    display: block;
-    filter: brightness(0.96) contrast(1.04);
 }
 
 /* scrollbar */
@@ -170,31 +166,21 @@ main {
 
 <script>
 const logs = [
-    { img: "images/images/log1.jpg", label: "LOG_01 :: INITIAL BREACH" },
-    { img: "images/images/log1_2.jpg", label: "LOG_02 :: SIGNAL FRAGMENT" },
-    { img: "images/images/log2.jpg", label: "LOG_03 :: MARKET ANOMALY" },
-    { img: "images/images/log3.jpg", label: "LOG_04 :: RESIDENTIAL FREEZE" },
-    { img: "images/images/log4.jpg", label: "LOG_05 :: OBSERVATORY TRACE" }
+    "LOG_01 :: INITIAL BREACH DETECTED",
+    "LOG_02 :: SIGNAL FRAGMENT RECOVERED",
+    "LOG_03 :: MARKET ANOMALY ESCALATING",
+    "LOG_04 :: RESIDENTIAL SECTOR FROZEN",
+    "LOG_05 :: OBSERVATORY TRACE ACTIVE"
 ];
 
 const feed = document.getElementById("logFeed");
 let i = 0;
 
 function addLog() {
-    const data = logs[i];
-
     const entry = document.createElement("div");
     entry.className = "log-entry";
+    entry.textContent = logs[i];
 
-    const meta = document.createElement("div");
-    meta.className = "log-meta";
-    meta.textContent = data.label;
-
-    const img = document.createElement("img");
-    img.src = data.img;
-    img.loading = "lazy";
-
-    entry.append(meta, img);
     feed.appendChild(entry);
     feed.scrollTop = feed.scrollHeight;
 
@@ -202,7 +188,7 @@ function addLog() {
 }
 
 addLog();
-setInterval(addLog, 7000);
+setInterval(addLog, 6000);
 </script>
 
 </body>
