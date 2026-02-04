@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALDERSYTH :: INDEX</title>
 
 <style>
 :root {
     --bg: #05070b;
-    --panel: rgba(10,14,20,0.82);
+    --panel: rgba(10,14,20,0.88);
     --cyan: #06b6d4;
     --red: #ef4444;
     --muted: #94a3b8;
-    --border: rgba(6,182,212,0.25);
+    --border: rgba(6,182,212,0.22);
 }
 
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
     color: #e5e7eb;
-    background:
-        linear-gradient(rgba(5,7,11,0.85), rgba(5,7,11,0.85)),
-        url("images/images/wallpaper.jpg.png") center / cover fixed;
+    background: url("images/images/wallpaper.jpg.png") center / cover fixed;
 }
 
 /* ---------- LAYOUT ---------- */
@@ -32,6 +30,7 @@ body {
     display: grid;
     grid-template-columns: 260px 1fr;
     height: 100vh;
+    backdrop-filter: blur(2px);
 }
 
 /* ---------- NAV ---------- */
@@ -44,15 +43,15 @@ nav {
 
 nav h3 {
     margin: 0 0 16px;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
     color: var(--cyan);
-    font-size: 0.9rem;
-    letter-spacing: 0.15em;
 }
 
 .nav-item {
     display: flex;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 9px 11px;
     margin-bottom: 6px;
     text-decoration: none;
     color: #e5e7eb;
@@ -61,7 +60,7 @@ nav h3 {
 
 .nav-item:hover {
     border-color: var(--border);
-    background: rgba(6,182,212,0.06);
+    background: rgba(6,182,212,0.05);
 }
 
 .status-tag {
@@ -72,7 +71,7 @@ nav h3 {
 /* ---------- MAIN ---------- */
 
 main {
-    padding: 24px;
+    padding: 22px;
     display: grid;
     grid-template-rows: auto 1fr;
     gap: 16px;
@@ -81,27 +80,17 @@ main {
 /* ---------- HEADER ---------- */
 
 .header {
-    position: relative;
-    height: 220px;
+    height: 180px;
     border: 1px solid var(--border);
-    overflow: hidden;
     background: url("images/images/index_Header.jpg") center / cover;
-}
-
-.header::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(5,7,11,0.3), var(--bg));
+    display: flex;
+    align-items: flex-end;
 }
 
 .header h1 {
-    position: absolute;
-    bottom: 18px;
-    left: 18px;
-    margin: 0;
+    margin: 14px;
+    font-size: 1rem;
     letter-spacing: 0.2em;
-    font-size: 1.2rem;
     color: var(--cyan);
 }
 
@@ -110,20 +99,20 @@ main {
 .log-feed {
     background: var(--panel);
     border: 1px solid var(--border);
+    padding: 14px;
     overflow-y: auto;
-    padding: 16px;
 }
 
 .log-entry {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     border: 1px solid var(--border);
-    background: rgba(0,0,0,0.55);
+    background: rgba(0,0,0,0.5);
     opacity: 0;
-    transform: translateY(6px);
-    animation: logFade 1.4s ease forwards;
+    transform: translateY(4px);
+    animation: fadeIn 1.2s ease forwards;
 }
 
-@keyframes logFade {
+@keyframes fadeIn {
     to {
         opacity: 1;
         transform: translateY(0);
@@ -131,25 +120,25 @@ main {
 }
 
 .log-meta {
-    font-size: 0.7rem;
-    color: var(--muted);
     padding: 8px 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--muted);
     border-bottom: 1px solid var(--border);
-    letter-spacing: 0.12em;
 }
 
 .log-entry img {
     width: 100%;
     display: block;
-    filter: contrast(1.05) brightness(0.95);
+    filter: brightness(0.96) contrast(1.04);
 }
 
-/* subtle scrollbar */
+/* scrollbar */
 .log-feed::-webkit-scrollbar {
     width: 6px;
 }
 .log-feed::-webkit-scrollbar-thumb {
-    background: rgba(6,182,212,0.3);
+    background: rgba(6,182,212,0.25);
 }
 </style>
 </head>
@@ -158,32 +147,16 @@ main {
 
 <div class="container">
 
-<!-- ---------- NAV ---------- -->
 <nav>
     <h3>SECTOR_NAV</h3>
 
-    <a class="nav-item" href="market.html">
-        01_MARKET <span class="status-tag">$---</span>
-    </a>
-
-    <a class="nav-item" href="residential.html">
-        02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span>
-    </a>
-
-    <a class="nav-item" href="observatory.html">
-        03_OBSERVATORY <span class="status-tag">TRACKING</span>
-    </a>
-
-    <a class="nav-item" href="sync.html">
-        04_SYNC <span class="status-tag">ACTIVE</span>
-    </a>
-
-    <a class="nav-item" href="spire.html">
-        05_SPIRE <span class="status-tag">LOCKED</span>
-    </a>
+    <a class="nav-item" href="market.html">01_MARKET <span class="status-tag">$---</span></a>
+    <a class="nav-item" href="residential.html">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
+    <a class="nav-item" href="observatory.html">03_OBSERVATORY <span class="status-tag">TRACKING</span></a>
+    <a class="nav-item" href="sync.html">04_SYNC <span class="status-tag">ACTIVE</span></a>
+    <a class="nav-item" href="spire.html">05_SPIRE <span class="status-tag">LOCKED</span></a>
 </nav>
 
-<!-- ---------- MAIN ---------- -->
 <main>
 
     <div class="header">
@@ -201,43 +174,35 @@ const logs = [
     { img: "images/images/log1_2.jpg", label: "LOG_02 :: SIGNAL FRAGMENT" },
     { img: "images/images/log2.jpg", label: "LOG_03 :: MARKET ANOMALY" },
     { img: "images/images/log3.jpg", label: "LOG_04 :: RESIDENTIAL FREEZE" },
-    { img: "images/images/log4.jpg", label: "LOG_05 :: OBSERVATORY TRACE" },
-    { img: "images/images/log1_spire_visual.jpg", label: "LOG_06 :: SPIRE SHADOW" }
+    { img: "images/images/log4.jpg", label: "LOG_05 :: OBSERVATORY TRACE" }
 ];
 
 const feed = document.getElementById("logFeed");
-let index = 0;
+let i = 0;
 
 function addLog() {
-    const log = logs[index];
+    const data = logs[i];
 
     const entry = document.createElement("div");
     entry.className = "log-entry";
 
     const meta = document.createElement("div");
     meta.className = "log-meta";
-    meta.textContent = log.label;
+    meta.textContent = data.label;
 
     const img = document.createElement("img");
-    img.src = log.img;
+    img.src = data.img;
     img.loading = "lazy";
 
-    entry.appendChild(meta);
-    entry.appendChild(img);
+    entry.append(meta, img);
     feed.appendChild(entry);
-
     feed.scrollTop = feed.scrollHeight;
 
-    index = (index + 1) % logs.length;
+    i = (i + 1) % logs.length;
 }
 
-// preload a few so it doesn't feel empty
 addLog();
-setTimeout(addLog, 1200);
-setTimeout(addLog, 2400);
-
-// slow cinematic cadence
-setInterval(addLog, 6000);
+setInterval(addLog, 7000);
 </script>
 
 </body>
