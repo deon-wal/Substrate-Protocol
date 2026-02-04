@@ -12,6 +12,8 @@
     --bg:#020202;
 }
 
+* { box-sizing:border-box; }
+
 body {
     margin:0;
     height:100vh;
@@ -19,14 +21,15 @@ body {
     font-family:"Courier New", monospace;
     color:var(--gold);
     background:
+        radial-gradient(circle at 50% 20%, rgba(6,182,212,.05), transparent 60%),
         var(--bg)
-        url("images/wallpaper.jpg.png")
+        url("images/images/wallpaper.jpg.png")
         center/cover no-repeat fixed;
     display:flex;
     flex-direction:column;
 }
 
-/* CRT overlay */
+/* CRT overlay (very subtle) */
 body::after {
     content:"";
     position:fixed;
@@ -34,19 +37,21 @@ body::after {
     pointer-events:none;
     z-index:100;
     background:
-        linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,.12) 50%),
-        linear-gradient(90deg, rgba(255,0,0,.03), transparent, rgba(0,0,255,.03));
-    background-size:100% 3px,3px 100%;
+        linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,.1) 50%);
+    background-size:100% 3px;
+    opacity:.35;
 }
 
 /* Header */
 header {
     display:flex;
     justify-content:space-between;
-    padding:15px 25px;
+    align-items:center;
+    padding:14px 26px;
     font-size:.8rem;
     background:rgba(0,0,0,.75);
     border-bottom:2px solid var(--gold);
+    letter-spacing:.08em;
 }
 
 /* Layout */
@@ -54,19 +59,20 @@ header {
     flex:1;
     display:grid;
     grid-template-columns:320px 1fr 320px;
-    gap:12px;
-    padding:15px;
+    gap:14px;
+    padding:16px;
 }
 
 /* Panels */
 .panel {
-    background:rgba(0,10,15,.88);
+    background:linear-gradient(180deg, rgba(0,15,20,.92), rgba(0,8,12,.92));
     border:1px solid rgba(255,176,0,.25);
     padding:15px;
     backdrop-filter:blur(10px);
+    box-shadow:0 0 30px rgba(0,0,0,.4);
 }
 
-/* Center visualizer */
+/* CENTER VISUALIZER */
 #visualizer {
     position:relative;
     overflow:hidden;
@@ -78,37 +84,50 @@ header {
     inset:0;
     background-size:cover;
     background-position:center;
-    opacity:.35;
+    animation:drift 90s linear infinite;
 }
 
-.layer.bg1 { background-image:url("images/index_Header.jpg"); }
-.layer.bg2 { background-image:url("images/index_Header2.jpg"); opacity:.15; }
+.layer.bg1 {
+    background-image:url("images/images/index_Header.jpg");
+    opacity:.35;
+}
+.layer.bg2 {
+    background-image:url("images/images/index_Header2.jpg");
+    opacity:.15;
+    animation-duration:140s;
+}
+
+@keyframes drift {
+    from { transform:scale(1) translateY(0); }
+    to   { transform:scale(1.05) translateY(-40px); }
+}
 
 /* Lead sphere */
 #lead-sphere {
     position:absolute;
-    width:60px;
-    height:60px;
+    width:62px;
+    height:62px;
     left:50%;
-    bottom:40px;
+    bottom:42px;
     transform:translateX(-50%);
     border-radius:50%;
     background:radial-gradient(circle at 30% 30%, #aaa, #222);
-    box-shadow:0 0 20px rgba(255,255,255,.2);
+    box-shadow:0 0 25px rgba(255,255,255,.25);
     cursor:grab;
-    z-index:10;
+    z-index:5;
 }
 
-/* Navigation */
+/* Nav */
 .nav-item {
     display:flex;
     justify-content:space-between;
-    padding:10px;
+    padding:10px 12px;
     margin-bottom:8px;
     border:1px solid rgba(6,182,212,.2);
     color:var(--gold);
     text-decoration:none;
     font-size:.8rem;
+    letter-spacing:.05em;
 }
 
 .nav-item:hover {
@@ -127,21 +146,21 @@ header {
     color:#fff;
 }
 
-/* Log feed — calm cinematic */
+/* Log feed — cinematic, calm */
 .log-feed {
-    height:230px;
+    height:240px;
     overflow-y:auto;
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:12px;
 }
 
 .log-entry {
     background:rgba(0,0,0,.55);
     border:1px solid rgba(6,182,212,.25);
     opacity:0;
-    transform:translateY(6px);
-    animation:logFade 1.6s ease forwards;
+    transform:translateY(8px);
+    animation:logFade 1.8s ease forwards;
 }
 
 .log-entry img {
@@ -168,42 +187,58 @@ header {
 
 <main class="dashboard">
 
-    <!-- LEFT -->
-    <div class="panel">
-        <h3>NEURAL_TELEMETRY</h3>
-        <span class="val" id="batt">--%</span>
-        <div style="margin-top:12px;border:1px solid var(--red);color:var(--red);padding:8px;font-size:.6rem;text-align:center">
-            IDENTITY_LOSS_RISK: CRITICAL
-        </div>
+<!-- LEFT -->
+<div class="panel">
+    <h3>NEURAL_TELEMETRY</h3>
+    <span class="val" id="batt">--%</span>
+    <div style="margin-top:14px;border:1px solid var(--red);color:var(--red);padding:8px;font-size:.6rem;text-align:center">
+        IDENTITY_LOSS_RISK: CRITICAL
     </div>
+</div>
 
-    <!-- CENTER -->
-    <div class="panel" id="visualizer">
-        <div class="layer bg1"></div>
-        <div class="layer bg2"></div>
-        <canvas id="wave" style="position:absolute;inset:0"></canvas>
-        <div id="lead-sphere"></div>
+<!-- CENTER -->
+<div class="panel" id="visualizer">
+    <div class="layer bg1"></div>
+    <div class="layer bg2"></div>
+    <canvas id="wave" style="position:absolute;inset:0"></canvas>
+    <div id="lead-sphere"></div>
+</div>
+
+<!-- RIGHT -->
+<div class="panel">
+    <h3>SECTOR_NAV</h3>
+
+    <a class="nav-item" href="market.html">
+        01_MARKET <span id="btc" class="status-tag" style="color:var(--cyan)">$---</span>
+    </a>
+
+    <a class="nav-item" href="residential.html">
+        02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span>
+    </a>
+
+    <a class="nav-item" href="observatory.html">
+        03_OBSERVATORY <span class="status-tag" style="color:var(--cyan)">TRACKING</span>
+    </a>
+
+    <a class="nav-item" href="sync.html">
+        04_SYNC <span class="status-tag" style="color:var(--cyan)">ACTIVE</span>
+    </a>
+
+    <a class="nav-item" href="spire.html">
+        05_SPIRE <span class="status-tag">LOCKED</span>
+    </a>
+
+    <div style="margin-top:16px">
+        <span class="val" id="temp">--°C</span>
+        <div style="font-size:.6rem;opacity:.6">THERMAL_SYNC</div>
     </div>
+</div>
 
-    <!-- RIGHT -->
-    <div class="panel">
-        <h3>SECTOR_NAV</h3>
-        <a class="nav-item" href="#">01_MARKET <span id="btc" class="status-tag" style="color:var(--cyan)">$---</span></a>
-        <a class="nav-item" href="#">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
-        <a class="nav-item" href="#">03_SYNC <span class="status-tag" style="color:var(--cyan)">ACTIVE</span></a>
-        <a class="nav-item" href="#">04_SPIRE <span class="status-tag">LOCKED</span></a>
-
-        <div style="margin-top:15px">
-            <span class="val" id="temp">--°C</span>
-            <div style="font-size:.6rem;opacity:.6">THERMAL_SYNC</div>
-        </div>
-    </div>
-
-    <!-- LOGS -->
-    <div class="panel">
-        <h3>LOG_FEED</h3>
-        <div id="log-feed" class="log-feed"></div>
-    </div>
+<!-- LOGS -->
+<div class="panel">
+    <h3>LOG_FEED</h3>
+    <div id="log-feed" class="log-feed"></div>
+</div>
 
 </main>
 
@@ -212,16 +247,17 @@ header {
 setInterval(()=>clock.innerText=new Date().toLocaleTimeString(),1000);
 
 /* BTC + Weather */
+const btcEl=document.getElementById("btc");
+const temp=document.getElementById("temp");
+
 async function fetchData(){
     try{
-        const btc=(await fetch("https://api.coindesk.com/v1/bpi/currentprice.json")).json();
-        btc.then(d=>btcEl.innerText="$"+Math.floor(d.bpi.USD.rate_float).toLocaleString());
+        const b=await fetch("https://api.coindesk.com/v1/bpi/currentprice.json").then(r=>r.json());
+        btcEl.innerText="$"+Math.floor(b.bpi.USD.rate_float).toLocaleString();
         const w=await fetch("https://wttr.in/?format=j1").then(r=>r.json());
         temp.innerText=w.current_condition[0].temp_C+"°C";
     }catch{}
 }
-const btcEl=document.getElementById("btc");
-const temp=document.getElementById("temp");
 fetchData();
 setInterval(fetchData,60000);
 
@@ -235,54 +271,58 @@ if(navigator.getBattery){
 
 /* Lead sphere drag */
 const s=document.getElementById("lead-sphere");
-let d=false;
-s.onmousedown=()=>{d=true;s.style.cursor="grabbing"};
-window.onmouseup=()=>{d=false;s.style.cursor="grab"};
+let drag=false;
+s.onmousedown=()=>{drag=true;s.style.cursor="grabbing"};
+window.onmouseup=()=>{drag=false;s.style.cursor="grab"};
 window.onmousemove=e=>{
-    if(d){s.style.left=e.clientX-30+"px";s.style.top=e.clientY-30+"px";}
+    if(drag){
+        s.style.left=e.clientX-31+"px";
+        s.style.top=e.clientY-31+"px";
+    }
 };
 
 /* Wave */
-const c=document.getElementById("wave"),x=c.getContext("2d");
+const c=document.getElementById("wave"),ctx=c.getContext("2d");
 let t=0;
 function wave(){
     c.width=c.offsetWidth;c.height=c.offsetHeight;
-    x.clearRect(0,0,c.width,c.height);
-    x.beginPath();x.strokeStyle="#06b6d4";
-    for(let i=0;i<c.width;i+=5){
-        const y=c.height/2+Math.sin(i*.01+t)*30;
-        i?x.lineTo(i,y):x.moveTo(i,y);
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.beginPath();ctx.strokeStyle="#06b6d4";
+    for(let i=0;i<c.width;i+=6){
+        const y=c.height/2+Math.sin(i*.01+t)*28;
+        i?ctx.lineTo(i,y):ctx.moveTo(i,y);
     }
-    x.stroke();t+=.05;requestAnimationFrame(wave);
+    ctx.stroke();t+=.04;
+    requestAnimationFrame(wave);
 }
 wave();
 
-/* Image Logs — calm */
+/* Image Logs */
 const logs=[
-    "images/log1.jpg",
-    "images/log1_2.jpg",
-    "images/log2.jpg",
-    "images/log3.jpg",
-    "images/log4.jpg",
-    "images/log1_spire_visual.jpg"
+    "images/images/log1.jpg",
+    "images/images/log1_2.jpg",
+    "images/images/log2.jpg",
+    "images/images/log3.jpg",
+    "images/images/log4.jpg",
+    "images/images/log1_spire_visual.jpg"
 ];
 const feed=document.getElementById("log-feed");
-let i=0;
+let li=0;
 
 function addLog(){
     const e=document.createElement("div");
     e.className="log-entry";
     const img=document.createElement("img");
-    img.src=logs[i];
+    img.src=logs[li];
     img.loading="lazy";
     e.appendChild(img);
     feed.appendChild(e);
     feed.scrollTop=feed.scrollHeight;
-    i=(i+1)%logs.length;
+    li=(li+1)%logs.length;
 }
 
 addLog();
-setInterval(addLog,5000);
+setInterval(addLog,5500);
 </script>
 
 </body>
