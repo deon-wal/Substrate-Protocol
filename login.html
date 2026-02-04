@@ -3,134 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // AUTHENTICATION</title>
+    <title>ALDERSYTH // GATEWAY_PROTOCOL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cyan: #06b6d4;
-            --neon-red: #ff3e3e;
-            --bg-dark: #05070a;
+            /* THEME: The Gate (Obsidian / Gold / Void) */
+            --bg: #000;
+            --gold: #d4af37;
+            --gold-dim: #6b5c2b;
+            --crimson: #ef4444;
+            --teal: #14b8a6;
+            --void: #0a0a0f;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--neon-cyan);
-            font-family: 'Courier New', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: var(--bg);
+            color: var(--gold);
+            font-family: 'Space Mono', monospace;
             margin: 0;
+            height: 100vh;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px; /* For 3D Gyro */
         }
 
-        .login-box {
-            width: 400px;
-            padding: 40px;
-            border: 1px solid var(--neon-cyan);
-            background: rgba(6, 182, 212, 0.02);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        /* --- FX LAYERS --- */
+        #boot-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            padding: 40px; color: var(--teal); font-size: 0.8rem;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        
+        .scanline {
+            position: fixed; inset: 0; pointer-events: none; z-index: 50;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%);
+            background-size: 100% 4px;
+        }
+        
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none; z-index: 40;
+            background: radial-gradient(circle, transparent 40%, black 120%);
+        }
+
+        /* --- THE GYROSCOPE LOCK --- */
+        .gyro-container {
+            position: relative;
+            width: 400px; height: 400px;
+            display: flex; align-items: center; justify-content: center;
+            transform-style: preserve-3d;
+            opacity: 0; /* Hidden until boot complete */
+            transition: opacity 1s;
+        }
+
+        .ring {
+            position: absolute; border-radius: 50%;
+            border: 1px solid var(--gold-dim);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            pointer-events: none;
+        }
+
+        .r1 { width: 380px; height: 380px; border-width: 1px; animation: spin1 12s infinite linear; }
+        .r2 { width: 320px; height: 320px; border-width: 2px; border-left-color: var(--gold); animation: spin2 8s infinite linear; }
+        .r3 { width: 260px; height: 260px; border-width: 1px; border-style: dashed; animation: spin1 20s infinite reverse linear; }
+
+        @keyframes spin1 { 0% { transform: rotateX(60deg) rotateZ(0deg); } 100% { transform: rotateX(60deg) rotateZ(360deg); } }
+        @keyframes spin2 { 0% { transform: rotateY(60deg) rotateZ(0deg); } 100% { transform: rotateY(60deg) rotateZ(360deg); } }
+
+        /* --- LOGIN FORM (CENTER OF GYRO) --- */
+        .login-core {
+            width: 200px;
             text-align: center;
             position: relative;
+            z-index: 100;
+            transform: translateZ(50px); /* Push forward */
         }
 
-        .crt-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .glitch-text {
-            font-size: 1.2rem;
-            letter-spacing: 5px;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
+        .title { font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 20px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
         input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--gold-dim);
+            color: #fff;
+            padding: 12px;
             width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            outline: none;
             text-align: center;
-        }
-
-        .auth-btn {
-            background: transparent;
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            padding: 10px 30px;
-            cursor: pointer;
-            text-transform: uppercase;
+            font-family: inherit;
+            letter-spacing: 2px;
+            outline: none;
             transition: 0.3s;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        input::placeholder { color: #333; letter-spacing: 1px; }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+
+        .btn-main {
+            background: var(--gold); color: #000; border: none;
+            padding: 10px 20px; font-weight: bold; cursor: pointer;
+            width: 100%; font-family: inherit; transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+        .btn-main:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        .status-msg {
+            margin-top: 15px; font-size: 0.6rem; min-height: 1.5em;
+            color: var(--crimson); text-shadow: 0 0 5px var(--crimson);
         }
 
-        .auth-btn:hover {
-            background: var(--neon-cyan);
-            color: #000;
-            box-shadow: 0 0 15px var(--neon-cyan);
-        }
+        /* --- ANIMATION STATES --- */
+        .access-granted .ring { border-color: var(--teal); box-shadow: 0 0 30px var(--teal); animation-duration: 1s; }
+        .access-granted .title { color: var(--teal); text-shadow: 0 0 20px var(--teal); }
+        
+        .root-override .ring { border-color: var(--crimson); box-shadow: 0 0 30px var(--crimson); animation-direction: reverse; animation-duration: 0.5s; }
+        .root-override body { animation: shake 0.5s infinite; }
 
-        #status-msg {
-            font-size: 0.7rem;
-            margin-top: 20px;
-            height: 1rem;
-            color: var(--neon-red);
-        }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-        .branding {
-            position: absolute;
-            bottom: -50px;
-            left: 0;
-            font-size: 0.6rem;
-            opacity: 0.4;
-        }
     </style>
 </head>
 <body>
-    <div class="crt-overlay"></div>
 
-    <div class="login-box">
-        <div class="glitch-text">ALDERSYTH_OS</div>
-        
-        <div id="login-form">
-            <input type="text" id="node-id" placeholder="USER_NODE_ID" autocomplete="off">
-            <input type="password" id="access-key" placeholder="ACCESS_KEY">
-            <button class="auth-btn" onclick="authenticate()">INITIALIZE_SESSION</button>
-        </div>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
 
-        <div id="status-msg"></div>
+    <div id="boot-screen">
+        <div id="boot-text"></div>
+    </div>
 
-        <div class="branding">
-            PROPERTY OF THE SUBSTRATE // UNIT: STRUCTURAL_ANALYST
+    <div class="gyro-container" id="ui-layer">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+
+        <div class="login-core">
+            <div class="title">ALDERSYTH_OS</div>
+            
+            <input type="text" id="username" placeholder="NODE_ID" autocomplete="off">
+            <input type="password" id="password" placeholder="KEY" onkeydown="checkInput(this)">
+            
+            <button class="btn-main" onclick="attemptLogin()">INITIATE_LINK</button>
+            
+            <div class="status-msg" id="status">AWAITING_INPUT...</div>
         </div>
     </div>
 
     <script>
-        function authenticate() {
-            const status = document.getElementById('status-msg');
-            const nodeId = document.getElementById('node-id').value;
-            
-            status.innerText = "AUTHENTICATING...";
-            
+        // --- 1. BOOT SEQUENCE ---
+        const bootText = [
+            "INITIALIZING KERNEL...",
+            "LOADING: [PHYSICS_ENGINE_V4]",
+            "LOADING: [MARKET_DATA_STREAM]",
+            "CHECKING HIGGS_ANCHOR... <span style='color:#ef4444'>UNSTABLE</span>",
+            "BYPASSING SECURITY PROTOCOLS...",
+            "ESTABLISHING CONNECTION TO SPIRE..."
+        ];
+        
+        const bootEl = document.getElementById('boot-text');
+        let bootIndex = 0;
+
+        function runBoot() {
+            if (bootIndex < bootText.length) {
+                const line = document.createElement('div');
+                line.innerHTML = `> ${bootText[bootIndex]}`;
+                line.style.opacity = 0;
+                line.style.animation = "fadeIn 0.1s forwards";
+                bootEl.appendChild(line);
+                bootIndex++;
+                setTimeout(runBoot, 300);
+            } else {
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.opacity = 0;
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').remove();
+                        document.getElementById('ui-layer').style.opacity = 1;
+                    }, 500);
+                }, 800);
+            }
+        }
+        
+        // Add minimal fade-in CSS for boot
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes fadeIn { to { opacity: 1; } }`;
+        document.head.appendChild(style);
+
+        window.onload = runBoot;
+
+        // --- 2. INPUT REACTIVITY ---
+        function checkInput(el) {
+            // Secret visual cue if they type TECTONIC partially
+            if(el.value.toUpperCase().includes("TEC")) {
+                document.querySelector('.r3').style.borderColor = "#ef4444"; // Inner ring turns red
+            }
+            if(el.key === "Enter") attemptLogin();
+        }
+
+        // --- 3. LOGIN LOGIC ---
+        function attemptLogin() {
+            const u = document.getElementById('username').value.toUpperCase();
+            const p = document.getElementById('password').value.toUpperCase();
+            const status = document.getElementById('status');
+            const body = document.body;
+            const gyro = document.querySelector('.gyro-container');
+
+            status.innerText = "VERIFYING BIOMETRICS...";
+            status.style.color = "#fff";
+
             setTimeout(() => {
-                if(nodeId.toUpperCase() === "SLOANE") {
-                    status.style.color = "var(--neon-cyan)";
-                    status.innerText = "OVERRIDE DETECTED. WELCOME, LEAD THEORIST.";
-                    setTimeout(() => window.location.href = "index.html", 1500);
-                } else if (nodeId !== "") {
-                    status.style.color = "var(--neon-cyan)";
-                    status.innerText = "ACCESS GRANTED. SYNCING TELEMETRY...";
-                    setTimeout(() => window.location.href = "index.html", 1500);
-                } else {
-                    status.innerText = "ERROR: INVALID_CREDENTIALS";
+                // CASE 1: THE BACKDOOR (ROOT)
+                if (p === 'TECTONIC') {
+                    body.classList.add('root-override'); // Shaking / Red
+                    status.innerText = "⚠ SYSTEM FAILURE ⚠ ROOT ACCESS FORCED";
+                    status.style.color = "var(--crimson)";
+                    
+                    // Glitch Sound Effect (Visual)
+                    document.body.style.filter = "invert(1)";
+                    
+                    setTimeout(() => window.location.href = "backdoor.html", 2000);
+                }
+                
+                // CASE 2: ADMIN (SLOANE)
+                else if (u === 'SLOANE') {
+                    body.classList.add('access-granted'); // Teal / Fast Spin
+                    status.innerText = "WELCOME, LEAD THEORIST.";
+                    status.style.color = "var(--teal)";
+                    setTimeout(() => window.location.href = "spire.html", 1500);
+                }
+                
+                // CASE 3: GUEST (ANY OTHER INPUT)
+                else if (u !== "") {
+                    body.classList.add('access-granted');
+                    status.innerText = "GUEST NODE RECOGNIZED.";
+                    status.style.color = "var(--teal)";
+                    setTimeout(() => window.location.href = "spire.html", 1500);
+                }
+                
+                // CASE 4: EMPTY
+                else {
+                    status.innerText = "ERROR: NULL_INPUT";
+                    status.style.color = "var(--crimson)";
+                    // Shake input
+                    document.getElementById('username').style.animation = "shake 0.2s";
+                    setTimeout(() => document.getElementById('username').style.animation = "", 200);
                 }
             }, 1000);
         }
