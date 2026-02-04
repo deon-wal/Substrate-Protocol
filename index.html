@@ -1,122 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ALDERSYTH // CORE_RECOVERY</title>
-<style>
-:root { --gold: #ffb000; --cyan: #06b6d4; --red: #ff3e3e; --bg: #020202; }
-body { 
-    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
-    color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh;
-}
+    <meta charset="UTF-8">
+    <title>ALDERSYTH // CORE_RECOVERY</title>
+    <style>
+        :root { 
+            --gold: #ffb000; 
+            --cyan: #06b6d4; 
+            --red: #ff3e3e; 
+            --bg: #020202; 
+            --panel-border: rgba(6, 182, 212, 0.2);
+        }
 
-/* CRT SCANLINE OVERLAY */
-body::after { 
-    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
-    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,0,0,0), rgba(0,0,255,0.02));
-    background-size: 100% 3px, 3px 100%;
-}
+        body { 
+            background: var(--bg);
+            color: var(--gold); 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            line-height: 1.6;
+        }
 
-.container { display: grid; grid-template-columns: 280px 1fr; height: 100vh; backdrop-filter: blur(10px); }
+        /* --- GLOBAL HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--cyan);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 30px; box-sizing: border-box; font-family: monospace;
+            backdrop-filter: blur(10px);
+        }
+        .header-logo { color: var(--cyan); font-weight: bold; font-size: 0.9rem; }
+        .nav-links a {
+            color: #fff; text-decoration: none; margin-left: 20px; font-size: 0.7rem;
+            border: 1px solid transparent; padding: 5px 10px; transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--gold); border-color: var(--gold); }
+        .active-link { border-color: var(--cyan) !important; color: var(--cyan) !important; }
 
-/* SIDEBAR & TELEMETRY */
-nav { background: rgba(0,10,15,0.92); border-right: 1px solid var(--cyan); padding: 25px; display: flex; flex-direction: column; z-index: 10; }
-.nav-item { 
-    border: 1px solid rgba(6,182,212,0.2); padding: 12px; margin-bottom: 8px; text-decoration: none; 
-    color: var(--gold); display: flex; justify-content: space-between; font-size: 0.75rem; transition: 0.2s;
-}
-.nav-item:hover { background: rgba(6,182,212,0.1); border-color: var(--cyan); color: #fff; }
+        /* --- CRT SCANLINE OVERLAY --- */
+        body::after { 
+            content: ""; position: fixed; inset: 0; z-index: 999; pointer-events: none;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%);
+            background-size: 100% 3px;
+        }
 
-/* MAIN INTERFACE */
-main { padding: 20px; display: grid; grid-template-rows: 150px 1fr; gap: 20px; position: relative; }
-.header-viz { 
-    border: 1px solid var(--cyan); background: url('index_Header.jpg') center/cover; 
-    display: flex; align-items: flex-end; padding: 15px; position: relative;
-}
-.log-feed { 
-    background: rgba(0,0,0,0.8) url('index_Header2.jpg') center/cover;
-    background-blend-mode: overlay; border: 1px solid var(--cyan); padding: 20px; overflow-y: auto;
-}
-.log-entry { 
-    background: rgba(0,15,20,0.85); border: 1px solid var(--cyan); padding: 10px; 
-    margin-bottom: 8px; font-size: 0.7rem; color: var(--cyan); border-left: 4px solid var(--cyan);
-}
+        .page-wrapper { padding: 100px 40px 0 40px; max-width: 1200px; margin: 0 auto; }
 
-/* INTERACTIVE LEAD SPHERE */
-#lead-sphere {
-    position: absolute; width: 70px; height: 70px; top: 35%; left: 55%;
-    background: radial-gradient(circle at 30% 30%, #999, #222);
-    border-radius: 50%; cursor: grab; z-index: 50; 
-    box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);
-}
+        /* --- HERO SECTION --- */
+        .hero-layout { display: grid; grid-template-columns: 300px 1fr; gap: 30px; margin-bottom: 50px; }
+        
+        .sidebar-viz { 
+            background: rgba(0,10,15,0.9); border: 1px solid var(--cyan); padding: 20px; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
 
-.stat-box { margin-top: auto; border-top: 1px solid var(--cyan); padding-top: 20px; }
-.val { font-size: 1.3rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px var(--cyan); }
-</style>
+        .main-viz { 
+            border: 1px solid var(--cyan); background: rgba(0,15,20,0.5); 
+            position: relative; height: 400px; overflow: hidden;
+        }
+
+        /* --- INTERACTIVE LEAD SPHERE --- */
+        #lead-sphere {
+            position: absolute; width: 60px; height: 60px; top: 20%; left: 40%;
+            background: radial-gradient(circle at 30% 30%, #999, #222);
+            border-radius: 50%; cursor: grab; z-index: 50; 
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+        }
+
+        /* --- DATA GRID (FORCED SCROLLING) --- */
+        .data-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;
+        }
+        .data-card {
+            border: 1px solid var(--panel-border); padding: 20px; background: rgba(6, 182, 212, 0.05);
+        }
+        .data-card h4 { margin-top: 0; color: var(--cyan); font-size: 0.8rem; border-bottom: 1px solid var(--panel-border); }
+
+        .log-entry { 
+            background: rgba(0,15,20,0.8); border: 1px solid var(--cyan); padding: 8px; 
+            margin-bottom: 5px; font-size: 0.65rem; color: var(--cyan);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 80px; padding: 50px 30px; border-top: 1px solid var(--cyan);
+            background: #000; font-family: monospace; font-size: 0.7rem;
+        }
+
+        .val { font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px var(--cyan); }
+    </style>
 </head>
 <body>
 
-<div id="lead-sphere" title="METRIC_STABILIZER"></div>
+    <header>
+        <div class="header-logo">ALDERSYTH_OS // CORE_RECOVERY</div>
+        <nav class="nav-links">
+            <a href="index.html" class="active-link">CORE</a>
+            <a href="market.html">MARKET</a>
+            <a href="residential.html">RESIDENTIAL</a>
+            <a href="observatory.html">OBSERVATORY</a>
+        </nav>
+    </header>
 
-<div class="container">
-    <nav>
-        <h3 style="color:var(--cyan); font-size:0.7rem; letter-spacing: 2px;">SECTOR_NAV</h3>
-        <a class="nav-item" href="market.html">01_MARKET <span id="btc" style="color:var(--cyan)">$---</span></a>
-        <a class="nav-item" href="residential.html">02_RESID <span style="color:var(--red); font-size: 0.55rem;">PURGING</span></a>
-        <a class="nav-item" href="observatory.html">03_OBSERV <span style="color:var(--cyan); font-size: 0.55rem;">TRACKING</span></a>
-        <a class="nav-item" href="sync.html">04_SYNC <span>ACTIVE</span></a>
-        <a class="nav-item" href="spire.html">05_SPIRE <span>LOCKED</span></a>
+    <div id="lead-sphere"></div>
+
+    <div class="page-wrapper">
+        <section class="hero-layout">
+            <aside class="sidebar-viz">
+                <h3 style="font-size:0.7rem; color:var(--cyan); margin-top:0;">SECTOR_METRICS</h3>
+                <div>
+                    <span class="val" id="clock">00:00:00</span>
+                    <span style="display:block; font-size:0.5rem; opacity:0.6;">SYSTEM_TIME</span>
+                </div>
+                <div>
+                    <span class="val" id="batt">--%</span>
+                    <span style="display:block; font-size:0.5rem; opacity:0.6;">RESERVE_POWER</span>
+                </div>
+                <div style="margin-top:20px;">
+                    <span style="color:var(--cyan); font-size:0.6rem;">BTC_TETHER:</span>
+                    <span id="btc" style="color:#fff; font-size:0.8rem; display:block;">$---</span>
+                </div>
+            </aside>
+
+            <main class="main-viz">
+                <div style="padding: 20px;">
+                    <h2 style="font-size: 0.9rem; letter-spacing: 5px; color: var(--cyan);">INDEX // SYSTEM_MEMORY_DUMP</h2>
+                    <p style="font-size: 0.75rem; color: var(--gold); max-width: 500px;">
+                        Welcome, Subject 01. The Aldersyth Substrate is currently in a state of partial recovery. 
+                        Use the lead sphere to stabilize metric fluctuations across the Spire.
+                    </p>
+                </div>
+                <div id="logFeed" style="position: absolute; bottom: 10px; left: 10px; right: 10px; max-height: 150px; overflow: hidden;"></div>
+            </main>
+        </section>
+
+        <h3 style="border-left: 4px solid var(--gold); padding-left: 15px;">ARCHIVAL_FRAGMENTS</h3>
         
-        <div class="stat-box">
-            <span class="val" id="batt">--%</span><span style="font-size:0.5rem; opacity:0.6; display:block;">DEVICE_RESERVE</span>
-            <div style="margin-top:15px;"><span class="val" id="clock">00:00:00</span><span style="font-size:0.5rem; opacity:0.6; display:block;">CORE_SYNC</span></div>
+        <div class="data-grid">
+            <div class="data-card">
+                <h4>CORE_STABILITY</h4>
+                <p style="font-size: 0.7rem;">> Tectonic Groan: ACTIVE</p>
+                <p style="font-size: 0.7rem;">> Spatial Anchor: 82%</p>
+                <p style="font-size: 0.7rem; color: var(--red);">> WARNING: VECTOR_DRIFT</p>
+            </div>
+            <div class="data-card">
+                <h4>BIOMETRIC_SYNC</h4>
+                <p style="font-size: 0.7rem;">> Subject 01: CONNECTED</p>
+                <p style="font-size: 0.7rem;">> Pulse: 72 BPM</p>
+                <p style="font-size: 0.7rem;">> Cortisol: PEAKING</p>
+            </div>
+            <div class="data-card">
+                <h4>GLOBAL_FEED</h4>
+                <p style="font-size: 0.7rem;">> Market: 18°C</p>
+                <p style="font-size: 0.7rem;">> Resi-Rings: ROTATING</p>
+                <p style="font-size: 0.7rem;">> Observatory: VOID</p>
+            </div>
         </div>
-    </nav>
-    <main>
-        <div class="header-viz"><h1 style="font-size:1rem; letter-spacing:3px; margin:0; text-shadow: 2px 2px #000;">INDEX // SYSTEM_MEMORY</h1></div>
-        <div class="log-feed" id="logFeed"></div>
-    </main>
-</div>
 
-<script>
-    // 1. Clock & Battery
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-    if(navigator.getBattery) navigator.getBattery().then(b => {
-        const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
-        up(); b.onlevelchange = up;
-    });
+        <section style="background: rgba(6, 182, 212, 0.05); border: 1px solid var(--panel-border); padding: 30px; margin-bottom: 50px;">
+            <h4 style="color: var(--gold); margin-top: 0;">ANALYST_MANIFESTO_FRAG</h4>
+            <p style="font-size: 0.85rem; font-family: 'Courier New';">
+                "The city is not a place; it is an observation. Every time I lunge for a falling espresso cup, 
+                every time I stabilize a tilting floor, I am providing the data Sloane needs to finalize 
+                the bridge. I am the software. I am the patch."
+            </p>
+        </section>
+    </div>
 
-    // 2. Live Market Data
-    async function getBTC() {
-        try {
-            const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-            const data = await res.json();
-            document.getElementById('btc').innerText = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
-        } catch(e) { }
-    }
-    getBTC(); setInterval(getBTC, 60000);
+    <footer>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px;">
+            <div>
+                <div style="color: var(--cyan); margin-bottom: 10px;">OS_VERSION</div>
+                <p style="color:#666;">ALDERSYTH_OS v4.0.2<br>Build: 0x88_ALPHA</p>
+            </div>
+            <div>
+                <div style="color: var(--gold); margin-bottom: 10px;">QUICK_LINKS</div>
+                <a href="market.html" style="color:#666; text-decoration:none; display:block;">MARKET_HUB</a>
+                <a href="observatory.html" style="color:#666; text-decoration:none; display:block;">VOID_SENSORS</a>
+            </div>
+            <div style="grid-column: span 2;">
+                <div style="color: var(--red); margin-bottom: 10px;">LEAD_THEORIST_DISCLAIMER</div>
+                <p style="color:#444;">Substrate stability is not guaranteed. Interaction with the interactive metrics (Lead Sphere) may cause localized Higgs-decoherence. Please report all spontaneous memory loss to Sloane immediately.</p>
+            </div>
+        </div>
+    </footer>
 
-    // 3. Terminal Log Feed
-    const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> OBSERVATORY_TRACE_ACTIVE", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE"];
-    const feed = document.getElementById("logFeed");
-    setInterval(() => {
-        const div = document.createElement("div"); div.className = "log-entry";
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${logData[Math.floor(Math.random()*logData.length)]}`;
-        feed.prepend(div);
-        if(feed.children.length > 10) feed.lastChild.remove();
-    }, 4000);
+    <script>
+        // 1. Clock & Battery
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        if(navigator.getBattery) navigator.getBattery().then(b => {
+            const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
+            up(); b.onlevelchange = up;
+        });
 
-    // 4. Lead Sphere Drag
-    const sphere = document.getElementById('lead-sphere');
-    let drag = false, offX, offY;
-    sphere.onmousedown = (e) => { drag = true; offX = e.offsetX; offY = e.offsetY; sphere.style.cursor = 'grabbing'; };
-    window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
-    window.onmousemove = (e) => {
-        if(drag) {
-            sphere.style.left = (e.clientX - offX) + 'px';
-            sphere.style.top = (e.clientY - offY) + 'px';
+        // 2. BTC
+        async function getBTC() {
+            try {
+                const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+                const data = await res.json();
+                document.getElementById('btc').innerText = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
+            } catch(e) { }
         }
-    };
-</script>
+        getBTC();
+
+        // 3. Log Feed
+        const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> OBSERVATORY_TRACE_ACTIVE", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE"];
+        const feed = document.getElementById("logFeed");
+        setInterval(() => {
+            const div = document.createElement("div"); div.className = "log-entry";
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${logData[Math.floor(Math.random()*logData.length)]}`;
+            feed.prepend(div);
+            if(feed.children.length > 5) feed.lastChild.remove();
+        }, 3000);
+
+        // 4. Drag
+        const sphere = document.getElementById('lead-sphere');
+        let drag = false, offX, offY;
+        sphere.onmousedown = (e) => { drag = true; offX = e.offsetX; offY = e.offsetY; sphere.style.cursor = 'grabbing'; };
+        window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
+        window.onmousemove = (e) => {
+            if(drag) {
+                sphere.style.left = (e.clientX - offX) + 'px';
+                sphere.style.top = (e.clientY - offY) + 'px';
+            }
+        };
+    </script>
 </body>
 </html>
