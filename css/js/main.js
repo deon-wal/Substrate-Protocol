@@ -3,67 +3,117 @@
  * Vibe: Brutalist / Cold Machine / Hard Surrealism
  */
 
-// --- TELEMETRY JITTER ---
-// Simulates real-time structural analysis by fluctuating data values
-function updateTelemetry() {
-    const grav = document.getElementById('gravVal');
-    const stress = document.querySelector('.sidebar-left .stat:first-child .val');
-    
-    if (grav) {
-        // Gravity fluctuates slightly around 0.84G
-        const newGrav = (0.84 + (Math.random() * 0.04 - 0.02)).toFixed(2);
-        grav.innerText = newGrav + "G";
+const ALDERSYTH = {
+    state: {
+        heartRate: 148,
+        sphereWeight: 3.00,
+        syncActive: true
+    },
+
+    // --- TELEMETRY JITTER ---
+    updateTelemetry: function() {
+        const bpmElem = document.getElementById('bpm');
+        const weightElem = document.getElementById('sphereWeight');
+        const gravityBar = document.querySelector('.bar-inner.gold');
+
+        // 1. Fluctuating Heart Rate (Neural Tether)
+        this.state.heartRate += Math.floor(Math.random() * 5) - 2;
+        if (bpmElem) {
+            bpmElem.innerText = `${this.state.heartRate} BPM`;
+            // Visual feedback for high stress
+            bpmElem.style.textShadow = this.state.heartRate > 155 ? "0 0 10px var(--neon-red)" : "none";
+        }
+
+        // 2. Lead Sphere Weight Decay (Simulating Buoyancy)
+        this.state.sphereWeight = (3.00 + (Math.random() * 0.10 - 0.05)).toFixed(2);
+        if (weightElem) weightElem.innerText = `${this.state.sphereWeight}KG`;
+
+        // 3. Dynamic Progress Bar (Structural Load)
+        if (gravityBar) {
+            const loadWidth = 80 + (Math.random() * 10);
+            gravityBar.style.width = `${loadWidth}%`;
+        }
+    },
+
+    // --- ENHANCED GLITCH ENGINE ---
+    // Targets specific headers and frames for more "digital decay"
+    triggerGlitch: function() {
+        const chance = Math.random();
+        
+        // Minor Flicker (Frequent)
+        if (chance > 0.95) {
+            const target = document.querySelector('.hero-frame');
+            if (target) {
+                target.style.opacity = "0.4";
+                setTimeout(() => target.style.opacity = "0.6", 50);
+            }
+        }
+
+        // Critical Reality Shift (Rare)
+        if (chance > 0.99) {
+            document.body.classList.add('reality-shift');
+            console.warn("ALDERSYTH: LOGIC_COLLAPSE_IMMINENT");
+            setTimeout(() => document.body.classList.remove('reality-shift'), 150);
+        }
+    },
+
+    // --- TABLE DATA SCANNER ---
+    scanTable: function() {
+        const rows = document.querySelectorAll('table tr:not(:first-child)');
+        rows.forEach(row => row.style.borderLeft = "none");
+        
+        const randomRow = rows[Math.floor(Math.random() * rows.length)];
+        if (randomRow) {
+            randomRow.style.borderLeft = "3px solid var(--neon-cyan)";
+            randomRow.style.transition = "border 0.2s ease";
+        }
+    },
+
+    // --- CORE COMMANDS ---
+    initiateReboot: function() {
+        const confirmPowerDown = confirm("CRITICAL: PROCEED WITH IDENTITY ERASURE?");
+        if (confirmPowerDown) {
+            // "Typewriter" deletion effect
+            const main = document.body;
+            main.style.pointerEvents = "none";
+            main.innerHTML = `<div id="terminal-out" style="color:var(--neon-cyan); padding:50px; font-size:1.2rem;"></div>`;
+            
+            let i = 0;
+            const msg = ">> BIOLOGIC_NOISE_PURGED... \n>> MEMORY_FLUSHED... \n>> SYSTEM_IDLE.";
+            const speed = 50;
+
+            function typeWriter() {
+                if (i < msg.length) {
+                    document.getElementById("terminal-out").innerHTML += msg.charAt(i) === '\n' ? '<br>' : msg.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            }
+            typeWriter();
+        }
+    },
+
+    // --- BOOT SEQUENCE ---
+    init: function() {
+        console.log("ALDERSYTH // SUBSTRATE_PROTOCOL_ACTIVE");
+        
+        // Set intervals
+        setInterval(() => this.updateTelemetry(), 1500);
+        setInterval(() => this.triggerGlitch(), 100);
+        setInterval(() => this.scanTable(), 4000);
+
+        // Add a click listener for the alert banner to "dismiss" logic errors
+        const banner = document.querySelector('.alert-banner');
+        if (banner) {
+            banner.addEventListener('click', () => {
+                banner.innerText = ">> ERR_OVERRIDE_ACTIVE // SYSTEM_STABLE";
+                banner.style.backgroundColor = "var(--neon-gold)";
+            });
+        }
     }
+};
 
-    if (stress && Math.random() > 0.8) {
-        // Randomly flip between CRITICAL and OPTIMIZED
-        stress.style.color = Math.random() > 0.5 ? "var(--neon-red)" : "var(--neon-gold)";
-        stress.innerText = Math.random() > 0.5 ? "STABLE" : "CRITICAL";
-    }
-}
-
-// --- SYSTEM GLITCH EFFECT ---
-// Randomly applies a brief visual distortion to the body
-function triggerGlitch() {
-    if (Math.random() > 0.98) {
-        document.body.style.filter = "invert(1) contrast(200%)";
-        setTimeout(() => {
-            document.body.style.filter = "none";
-        }, 40);
-    }
-}
-
-// --- TABLE ROW SCANNER ---
-// Highlights a random row in the Megastructure Analysis table
-function scanTable() {
-    const rows = document.querySelectorAll('#anomaliesTable tbody tr');
-    rows.forEach(row => row.style.backgroundColor = "transparent");
-    
-    const randomRow = rows[Math.floor(Math.random() * rows.length)];
-    if (randomRow) {
-        randomRow.style.backgroundColor = "rgba(255, 176, 0, 0.1)";
-    }
-}
-
-// --- CORE FUNCTIONS ---
-function initiateReboot() {
-    const confirmPowerDown = confirm("CRITICAL: PROCEED WITH IDENTITY ERASURE?");
-    if (confirmPowerDown) {
-        document.body.innerHTML = "<div style='color:white; font-family:monospace; padding:20px;'>>> BIOLOGIC_NOISE_PURGED...<br>>> SYSTEM_IDLE.</div>";
-        setTimeout(() => window.location.reload(), 3000);
-    }
-}
-
-function scrollToSection(id) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-// --- INITIALIZATION ---
-setInterval(updateTelemetry, 1200);
-setInterval(triggerGlitch, 100);
-setInterval(scanTable, 3000);
-
-console.log("ALDERSYTH // SUBSTRATE_PROTOCOL_ACTIVE");
+// Start Protocol
+window.onload = () => ALDERSYTH.init();
