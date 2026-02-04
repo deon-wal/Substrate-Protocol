@@ -1,204 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // NEURAL_SYNC: CALIBRATION</title>
-    <style>
-        :root {
-            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-black: #010203; --panel-border: rgba(6, 182, 212, 0.15);
-        }
+<meta charset="UTF-8">
+<title>ALDERSYTH // NEURAL_SYNC</title>
+<style>
+:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #01080a; --border: rgba(6, 182, 212, 0.3); }
+body { background: var(--bg); color: var(--cyan); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; text-transform: uppercase; height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            background-color: var(--bg-black); color: var(--neon-cyan);
-            font-family: 'Courier New', Courier, monospace; margin: 0;
-            overflow: hidden; height: 100vh; display: flex; flex-direction: column;
-            text-transform: uppercase;
-        }
+/* CRT Overlay */
+.crt::before { content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; background: linear-gradient(rgba(6, 182, 212, 0.05) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(0,255,255,0.02), rgba(0,0,0,0), rgba(0,255,255,0.02)); background-size: 100% 3px, 3px 100%; }
 
-        /* --- SENSORY DISTORTION (Chromatic Aberration) --- */
-        @keyframes glitch-shake {
-            0% { transform: translate(0); filter: none; }
-            20% { transform: translate(-3px, 3px); filter: drop-shadow(3px 0 var(--neon-red)) drop-shadow(-3px 0 var(--neon-cyan)); }
-            40% { transform: translate(3px, -3px); filter: hue-rotate(90deg); }
-            60% { transform: translate(-3px, -3px); opacity: 0.8; }
-            100% { transform: translate(0); }
-        }
+header { padding: 15px 25px; border-bottom: 2px solid var(--cyan); display: flex; justify-content: space-between; font-size: 0.8rem; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
 
-        .system-unstable { animation: glitch-shake 0.15s infinite; }
+.sync-container { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 25px; flex-grow: 1; }
 
-        .tactical-header {
-            padding: 20px 40px; border-bottom: 1px solid var(--neon-cyan);
-            display: flex; justify-content: space-between; font-size: 0.75rem;
-            background: #000; z-index: 10; letter-spacing: 2px;
-        }
+/* Matrix Grid */
+.matrix-view { border: 1px solid var(--border); background: rgba(0,0,0,0.8); display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 5px; padding: 20px; position: relative; }
+.node { border: 1px solid var(--border); background: rgba(6, 182, 212, 0.05); transition: 0.3s; width: 100%; height: 100%; }
+.node.active { background: var(--cyan); box-shadow: 0 0 12px var(--cyan); transform: scale(1.2); }
 
-        /* --- GEOMETRIC INTERFACE (The Waveform) --- */
-        .sync-visualizer {
-            flex-grow: 1; display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-            background: radial-gradient(circle at center, #0a1014 0%, #000 100%);
-        }
+.pulse-wave { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; box-shadow: 0 0 40px rgba(6,182,212,0.3); animation: pulse 2s infinite alternate; }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0.6; } }
 
-        #neural-wave {
-            width: 90%; height: 400px; stroke: var(--neon-cyan);
-            stroke-width: 3; fill: none; filter: drop-shadow(0 0 15px var(--neon-cyan));
-            transition: stroke 0.4s ease;
-        }
+.side-panel { display: flex; flex-direction: column; gap: 15px; }
+.stat-box { border: 1px solid var(--border); padding: 15px; background: rgba(6, 182, 212, 0.02); }
 
-        .data-overlay {
-            position: absolute; inset: 0; padding: 40px;
-            pointer-events: none; display: flex; justify-content: space-between;
-            align-items: flex-end; font-size: 0.7rem; color: rgba(6, 182, 212, 0.6);
-        }
+.sync-status { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
+.loading-dots::after { content: '...'; animation: dots 1.5s steps(3, end) infinite; }
+@keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } }
 
-        /* --- BRUTALIST CALIBRATION CONTROLS --- */
-        .control-panel {
-            padding: 40px; background: #000; border-top: 1px solid var(--neon-cyan);
-            display: grid; grid-template-columns: 1fr 250px; gap: 60px;
-        }
-
-        .status-readout { 
-            border-left: 4px solid var(--neon-red); 
-            padding-left: 20px;
-            background: linear-gradient(90deg, rgba(255, 62, 62, 0.05) 0%, transparent 100%);
-        }
-
-        .sync-btn {
-            background: transparent; border: 1px solid var(--neon-cyan); 
-            color: var(--neon-cyan); padding: 25px; cursor: pointer; 
-            text-transform: uppercase; font-family: inherit; font-size: 0.9rem;
-            letter-spacing: 3px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sync-btn:hover { 
-            background: var(--neon-cyan); color: #000; 
-            box-shadow: 0 0 30px var(--neon-cyan);
-        }
-        
-        .sync-btn:active { transform: scale(0.98); filter: brightness(1.5); }
-
-        .back-link {
-            position: absolute; top: 80px; left: 40px;
-            color: var(--neon-cyan); text-decoration: none; font-size: 0.6rem;
-            opacity: 0.5; transition: 0.3s; z-index: 20;
-        }
-        .back-link:hover { opacity: 1; letter-spacing: 2px; }
-
-        .live-indicator {
-            display: inline-block; width: 8px; height: 8px; 
-            background: var(--neon-red); border-radius: 50%;
-            margin-right: 5px; animation: pulse 1s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-    </style>
+button { background: none; border: 1px solid var(--cyan); color: var(--cyan); padding: 10px; cursor: pointer; font-family: inherit; width: 100%; margin-top: auto; }
+button:hover { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
+</style>
 </head>
-<body>
+<body class="crt">
 
-    <header class="tactical-header">
-        <div><span style="color: var(--neon-red)">[SYS]</span> NEURAL_LINK: ESTABLISHED</div>
-        <div>SIGNAL_STRENGTH: <span id="sig-strength">94%</span></div>
-        <div id="sync-telemetry" style="color: var(--neon-gold);"><span class="live-indicator"></span>LIVE_FEED: ACTIVE</div>
-    </header>
+<header>
+    <span>ALDERSYTH // SECTOR_05 // NEURAL_SYNC_PROTOCOL</span>
+    <span id="clock">00:00:00</span>
+</header>
 
-    <a href="index.html" class="back-link">« EXIT_CALIBRATION</a>
-
-    <main class="sync-visualizer" id="main-viewport">
-        <svg id="neural-wave" viewBox="0 0 1000 300">
-            <path id="wave-path" d="M0 150 Q 250 150 500 150 T 1000 150" />
-        </svg>
-        
-        <div class="data-overlay">
-            <div>
-                <p>LATENCY: <span id="latency">2</span>MS</p>
-                <p>COGNITIVE_DRIFT: 0.0004%</p>
-            </div>
-            <div style="text-align: right;">
-                <p>CEREBRAL_LOAD: <span id="load-val">14%</span></p>
-                <p>SUBSTRATE_ECHO: <span style="color: var(--neon-gold)">DETECTED</span></p>
-            </div>
-        </div>
-    </main>
-
-    <section class="control-panel">
-        <div>
-            <h3 style="margin: 0 0 15px 0; color: var(--neon-cyan);">NEURAL_STABILIZATION_PROTOCOL</h3>
-            <p style="font-size: 0.75rem; line-height: 1.6; opacity: 0.7; max-width: 600px;">
-                WARNING: MANUAL OVERRIDE MAY CAUSE TEMPORARY SENSORY FRAGMENTATION. 
-                IF COGNITIVE BLEED EXCEEDS 15%, DISCONNECT IMMEDIATELY. 
-                THE SUBSTRATE REQUIRES TOTAL HARMONIC ALIGNMENT.
-            </p>
-            <button class="sync-btn" onclick="triggerSync()">STABILIZE NEURAL SYNC</button>
-        </div>
-        
-        <div class="status-readout">
-            <div style="font-size: 0.6rem; margin-bottom: 5px; opacity: 0.6;">PHASE_ALIGNMENT</div>
-            <div id="sync-level" style="font-size: 2rem; font-weight: bold; color: var(--neon-cyan);">99.42%</div>
-            <div style="font-size: 0.6rem; color: var(--neon-red); margin-top: 15px;">IDENTITY_LOSS_RISK: HIGH</div>
-        </div>
+<main class="sync-container">
+    <section class="matrix-view" id="matrix">
+        <div class="pulse-wave"></div>
     </section>
 
-    <script>
-        const path = document.getElementById('wave-path');
-        const loadVal = document.getElementById('load-val');
-        const syncLevel = document.getElementById('sync-level');
-        const latencyVal = document.getElementById('latency');
-        
-        let frequency = 0.06; // Increased frequency for "Sync" look
-        let amplitude = 45;
-        let t = 0;
-        let isGlitching = false;
+    <aside class="side-panel">
+        <div class="stat-box">
+            <div class="sync-status">STABILITY: <span id="stab-val">99.1%</span></div>
+            <p style="font-size: 0.7rem; opacity: 0.7;">LINK_ID: 0x88_SUBSTRATE_ALPHA</p>
+            <p style="font-size: 0.7rem; color: var(--gold);">STATE: RESONATING<span class="loading-dots"></span></p>
+        </div>
 
-        function animate() {
-            t += isGlitching ? 0.8 : 0.2;
-            let d = "M0 150 ";
-            
-            for (let x = 0; x <= 1000; x += 5) {
-                // Wave formula: Sinusoidal alignment
-                let y = 150 + Math.sin(x * frequency + t) * amplitude;
-                d += `L ${x} ${y} `;
-            }
-            path.setAttribute('d', d);
-            requestAnimationFrame(animate);
-        }
+        <div class="stat-box" style="flex-grow: 1; overflow-y: auto;">
+            <h3 style="font-size: 0.7rem; border-bottom: 1px solid var(--border); margin-top: 0;">ALIGNMENT_DATA</h3>
+            <div id="sync-log" style="font-size: 0.65rem; line-height: 1.6;"></div>
+        </div>
 
-        function triggerSync() {
-            isGlitching = true;
-            document.body.classList.add('system-unstable');
-            path.style.stroke = "var(--neon-red)";
-            amplitude = 110;
-            
-            loadVal.innerText = "ERR%";
-            
-            setTimeout(() => {
-                isGlitching = false;
-                document.body.classList.remove('system-unstable');
-                path.style.stroke = "var(--neon-cyan)";
-                amplitude = 45;
-                
-                // Live update of Sync Level
-                let current = parseFloat(syncLevel.innerText);
-                let improved = (current + (Math.random() * 0.05)).toFixed(2);
-                syncLevel.innerText = improved + "%";
-                loadVal.innerText = Math.floor(Math.random() * 5 + 10) + "%";
-            }, 800);
-        }
+        <button onclick="location.href='index.html'">DISCONNECT_SYNC</button>
+    </aside>
+</main>
 
-        // Live Data Pull Simulation
-        setInterval(() => {
-            if (!isGlitching) {
-                // Mimic image_0c7edc.jpg and image_0d6b5e.jpg telemetry jitter
-                latencyVal.innerText = Math.floor(Math.random() * 4 + 2);
-                document.getElementById('sig-strength').innerText = (94 + (Math.random() * 1 - 0.5)).toFixed(0) + "%";
-                
-                // Subtle sync drift
-                let drift = (parseFloat(syncLevel.innerText) + (Math.random() * 0.02 - 0.01)).toFixed(2);
-                syncLevel.innerText = drift + "%";
-            }
-        }, 1500);
+<script>
+// Generate Matrix Nodes
+const matrix = document.getElementById('matrix');
+const nodes = [];
+for (let i = 0; i < 100; i++) {
+    const node = document.createElement('div');
+    node.className = 'node';
+    matrix.appendChild(node);
+    nodes.push(node);
+}
 
-        animate();
-    </script>
+// Function: Add Live Neural Entry
+function addEntry() {
+    const log = document.getElementById('sync-log');
+    const addr = Math.random().toString(16).substr(2,4).toUpperCase();
+    const percent = (Math.random()*100).toFixed(2);
+    const statusChance = Math.random();
+    let status = '', color = '';
+    if(statusChance > 0.8){ status = 'SYNC ERROR'; color = '#ff3e3e'; }
+    else if(statusChance > 0.3){ status = 'ALIGNED'; color = '#0ff'; }
+    else { status = 'FLUCTUATING'; color = '#ffb000'; }
+
+    const entry = document.createElement('div');
+    entry.innerHTML = `> ADDR_${addr} : ${percent}% <span style="color:${color}">${status}</span>`;
+    log.prepend(entry);
+    if(log.children.length > 25) log.lastChild.remove();
+
+    // Neuron firing effect: chain 3 nearby nodes
+    for(let i=0;i<3;i++){
+        const idx = Math.floor(Math.random()*nodes.length);
+        nodes[idx].classList.add('active');
+        setTimeout(()=> nodes[idx].classList.remove('active'), 400);
+
+        // Random neighbor activation
+        const neighbor = nodes[Math.min(nodes.length-1, idx + (Math.random()<0.5?-1:1))];
+        neighbor.classList.add('active');
+        setTimeout(()=> neighbor.classList.remove('active'), 400);
+    }
+}
+
+// Clock + Stability + Wave Motion
+let t = 0;
+setInterval(()=>{
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+    
+    // Stability fluctuation
+    const stab = (98 + Math.random()*2).toFixed(2);
+    document.getElementById('stab-val').innerText = stab + "%";
+
+    // Add live neural entry
+    addEntry();
+
+    // Wave motion: scale nodes in a sine wave
+    nodes.forEach((n, i)=>{
+        const scale = 0.8 + Math.sin(t + i/5)*0.2;
+        n.style.transform = `scale(${scale})`;
+    });
+    t += 0.2;
+}, 800);
+</script>
 </body>
 </html>
