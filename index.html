@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ALDERSYTH // CORE_HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // CORE_HUB_V4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
     <style>
         :root { 
             --gold: #ffb000; 
@@ -12,133 +15,240 @@
             --ochre: #d97706;
             --teal: #14b8a6;
             --bg: #050505; 
-            --panel-bg: rgba(10, 10, 12, 0.85);
-            --panel-border: rgba(6, 182, 212, 0.3);
+            --panel-bg: rgba(10, 10, 12, 0.9);
+            --panel-border: rgba(6, 182, 212, 0.2);
+            --scanline: rgba(0, 0, 0, 0.5);
         }
+
+        /* --- GLOBAL RESET & SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border: 1px solid var(--cyan); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
 
         body { 
             background: var(--bg);
             color: #a3a3a3; 
-            font-family: 'Courier New', monospace; 
+            font-family: 'Share Tech Mono', monospace; 
             margin: 0; 
             line-height: 1.6;
             overflow-x: hidden;
+            font-size: 16px;
         }
 
-        /* --- HEADER & NAV --- */
+        /* --- CRT SCANLINE OVERLAY --- */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        /* --- HEADER --- */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--panel-border);
+            background: rgba(5, 5, 5, 0.95); 
+            border-bottom: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 30px; box-sizing: border-box;
+            padding: 15px 40px; box-sizing: border-box;
             backdrop-filter: blur(5px);
         }
-        .header-logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 2px; }
-        
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a {
-            color: #666; text-decoration: none; font-size: 0.75rem;
-            border: 1px solid transparent; padding: 5px 10px; transition: 0.3s;
+        .header-logo { 
+            color: var(--gold); 
+            font-size: 1.2rem; 
+            letter-spacing: 3px; 
+            text-shadow: 0 0 5px rgba(255, 176, 0, 0.3);
         }
-        .nav-links a:hover { color: var(--cyan); border-color: var(--cyan); }
-        .active-link { border-color: var(--gold) !important; color: var(--gold) !important; }
+        
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a {
+            color: #555; text-decoration: none; font-size: 0.9rem;
+            position: relative; transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+        .nav-links a.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
 
         .live-indicator { 
-            color: var(--red); font-size: 0.6rem; border: 1px solid var(--red); 
-            padding: 2px 6px; animation: blink 2s infinite; 
+            color: var(--red); font-size: 0.7rem; border: 1px solid var(--red); 
+            padding: 4px 8px; animation: blink 2s infinite; 
+            background: rgba(255, 62, 62, 0.1);
         }
 
-        /* --- CRT OVERLAY --- */
-        body::after { 
-            content: ""; position: fixed; inset: 0; z-index: 999; pointer-events: none;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.05) 50%);
-            background-size: 100% 4px;
+        /* --- PAGE LAYOUT --- */
+        .page-wrapper { 
+            padding-top: 120px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding-bottom: 100px;
         }
 
-        .page-wrapper { padding: 100px 40px 0 40px; max-width: 1100px; margin: 0 auto; }
-
-        /* --- LIVE TELEMETRY DASHBOARD --- */
-        .hero-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; margin-bottom: 60px; }
+        /* --- HERO SECTION --- */
+        .hero-layout { 
+            display: grid; 
+            grid-template-columns: 300px 1fr; 
+            gap: 40px; 
+            margin-bottom: 100px; 
+            padding: 0 20px;
+        }
         
         .sidebar-viz { 
-            background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 20px; 
-            display: flex; flex-direction: column; gap: 20px; height: fit-content;
-            position: sticky; top: 100px;
+            background: var(--panel-bg); 
+            border: 1px solid #333; 
+            padding: 25px; 
+            display: flex; flex-direction: column; gap: 25px; 
+            height: fit-content;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: sticky; top: 120px;
         }
 
-        .metric-box { border-left: 2px solid var(--cyan); padding-left: 10px; }
-        .metric-label { font-size: 0.6rem; color: #666; display: block; margin-bottom: 2px; }
-        .metric-value { font-size: 1.1rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+        .metric-box { border-left: 2px solid var(--cyan); padding-left: 15px; }
+        .metric-label { font-size: 0.7rem; color: #555; display: block; margin-bottom: 5px; letter-spacing: 1px; }
+        .metric-value { font-size: 1.4rem; color: #eee; font-weight: 400; text-shadow: 0 0 5px rgba(255,255,255,0.1); }
 
         .main-viz { 
-            border: 1px solid var(--panel-border); background: rgba(0,0,0,0.6); 
-            position: relative; height: 350px; overflow: hidden;
+            border: 1px solid #333; 
+            background: radial-gradient(circle at center, #111 0%, #000 100%); 
+            position: relative; height: 500px; 
+            overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 50px #000;
         }
 
-        /* --- INTERACTIVE SPHERE --- */
+        /*Grid Background for Viz*/
+        .grid-bg {
+            position: absolute; inset: 0;
+            background-image: 
+                linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* --- LEAD SPHERE --- */
         #lead-sphere {
-            position: absolute; width: 60px; height: 60px;
-            background: radial-gradient(circle at 30% 30%, #eee, #111);
+            position: absolute; width: 80px; height: 80px;
+            background: radial-gradient(circle at 35% 35%, #e0e0e0, #555, #000);
             border-radius: 50%; cursor: grab; z-index: 50; 
-            box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.4);
             transition: transform 0.1s;
         }
-        #lead-sphere:active { transform: scale(0.95); cursor: grabbing; }
+        #lead-sphere:active { transform: scale(0.9); cursor: grabbing; filter: blur(1px); }
+
+        /* --- DIAGNOSTIC SPACER (For Scroll Length) --- */
+        .system-diag {
+            margin: 0 20px 80px 20px;
+            border-top: 1px dashed #333;
+            border-bottom: 1px dashed #333;
+            padding: 40px 0;
+            color: #444;
+            font-size: 0.8rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        .diag-col h4 { color: var(--gold); margin: 0 0 10px 0; }
+        .code-stream { opacity: 0.5; font-size: 0.7rem; white-space: pre-wrap; }
 
         /* --- LOG ARCHIVES --- */
         .archive-header {
-            border-bottom: 1px solid var(--gold); margin-bottom: 40px; padding-bottom: 10px;
+            margin: 0 20px 60px 20px;
+            border-bottom: 2px solid var(--gold); 
+            padding-bottom: 10px;
             display: flex; justify-content: space-between; align-items: end;
         }
+        .archive-title { font-size: 2rem; color: #fff; margin: 0; text-transform: uppercase; }
 
-        /* Links wrap the entire card now */
+        .log-container { padding: 0 20px; }
+
         a.card-link { text-decoration: none; display: block; color: inherit; }
 
         .log-card {
-            background: rgba(15, 15, 18, 0.9);
-            border: 1px solid #333;
-            border-left: 4px solid #555; 
-            margin-bottom: 50px; padding: 25px;
+            background: rgba(15, 15, 18, 0.95);
+            border: 1px solid #222;
+            border-left-width: 4px; 
+            margin-bottom: 80px; /* Big gap for scroll effect */
+            padding: 30px;
             position: relative;
             cursor: pointer;
-            opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            opacity: 0; 
+            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .log-card:hover { background: rgba(25, 25, 30, 1); transform: translateX(5px); }
         
-        /* Thematic Coloring */
-        .log-card.teal { border-left-color: var(--teal); box-shadow: -15px 0 40px -30px var(--teal); }
-        .log-card.ochre { border-left-color: var(--ochre); box-shadow: -15px 0 40px -30px var(--ochre); }
-        .log-card.grey { border-left-color: #888; box-shadow: -15px 0 40px -30px #888; }
-        .log-card.violet { border-left-color: var(--violet); box-shadow: -15px 0 40px -30px var(--violet); }
-        .log-card.gold { border-left-color: var(--gold); box-shadow: -15px 0 40px -30px var(--gold); }
+        /* Alternating Slide-ins */
+        .log-card:nth-child(odd) { transform: translateX(-50px); }
+        .log-card:nth-child(even) { transform: translateX(50px); }
+        
+        .log-card.reveal-visible { opacity: 1; transform: translateX(0); }
+
+        .log-card:hover { 
+            background: #111; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transform: scale(1.01);
+        }
+
+        /* THEMES */
+        .teal { border-left-color: var(--teal); }
+        .ochre { border-left-color: var(--ochre); }
+        .grey { border-left-color: #888; }
+        .violet { border-left-color: var(--violet); }
+        .gold { border-left-color: var(--gold); }
 
         .log-meta {
-            display: flex; justify-content: space-between; color: #555; font-size: 0.7rem;
-            margin-bottom: 15px; border-bottom: 1px dashed #333; padding-bottom: 5px;
+            display: flex; justify-content: space-between; 
+            color: #555; font-size: 0.75rem;
+            margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px;
         }
         
-        .log-title { color: #fff; font-size: 1.2rem; margin: 0 0 15px 0; letter-spacing: 1px; }
-
-        .prompt-block {
-            display: block; background: #000; color: var(--cyan);
-            padding: 15px; font-size: 0.75rem; border: 1px solid #333;
-            white-space: pre-wrap; font-family: 'Courier New', Courier, monospace;
+        .log-title { 
+            color: #fff; font-size: 1.5rem; margin: 0 0 15px 0; letter-spacing: 1px; 
+            display: flex; align-items: center; gap: 10px;
         }
+        
+        .prompt-block {
+            display: block; 
+            background: #080808; 
+            color: #ccc;
+            padding: 20px; 
+            font-size: 0.85rem; 
+            border: 1px solid #333;
+            white-space: pre-wrap; 
+            font-family: 'Share Tech Mono', monospace;
+        }
+        /* Color the prompt text based on theme */
+        .teal .prompt-block { color: var(--teal); border-color: rgba(20, 184, 166, 0.3); }
+        .ochre .prompt-block { color: var(--ochre); border-color: rgba(217, 119, 6, 0.3); }
+        .grey .prompt-block { color: #aaa; border-color: #444; }
+        .violet .prompt-block { color: var(--violet); border-color: rgba(217, 70, 239, 0.3); }
+        .gold .prompt-block { color: var(--gold); border-color: rgba(255, 176, 0, 0.3); }
 
-        .tags { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .tag { font-size: 0.6rem; padding: 2px 8px; border: 1px solid #444; color: #888; text-transform: uppercase; }
-
-        .reveal-visible { opacity: 1; transform: translateY(0); }
+        .tags { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .tag { 
+            font-size: 0.7rem; padding: 4px 10px; 
+            border: 1px solid #333; color: #666; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
 
         /* --- FOOTER --- */
         footer {
-            margin-top: 80px; padding: 50px 30px; border-top: 1px solid var(--panel-border);
-            background: #000; font-family: monospace; font-size: 0.7rem;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            margin-top: 100px; padding: 60px 40px; 
+            border-top: 1px solid var(--panel-border);
+            background: #020202; 
+            font-size: 0.75rem;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
         }
+        footer h5 { color: var(--cyan); margin: 0 0 15px 0; font-size: 0.9rem; }
 
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        
+        /* Mobile Adjustments */
+        @media(max-width: 800px) {
+            .hero-layout { grid-template-columns: 1fr; }
+            .sidebar-viz { position: relative; top: 0; flex-direction: row; flex-wrap: wrap; }
+            .metric-box { flex: 1; min-width: 120px; }
+            .main-viz { height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -146,7 +256,7 @@
     <header>
         <div class="header-logo">ALDERSYTH // OS</div>
         <nav class="nav-links">
-            <a href="index.html" class="active-link">CORE</a>
+            <a href="index.html" class="active">CORE</a>
             <a href="market.html">MARKET</a>
             <a href="residential.html">RESIDENTIAL</a>
             <a href="observatory.html">OBSERVATORY</a>
@@ -158,7 +268,7 @@
         
         <section class="hero-layout">
             <aside class="sidebar-viz">
-                <div style="font-size:0.7rem; color:var(--gold); border-bottom:1px solid #333; padding-bottom:5px;">LIVE_TELEMETRY</div>
+                <div style="font-size:0.8rem; color:var(--gold); border-bottom:1px solid #444; padding-bottom:5px; width:100%;">LIVE_TELEMETRY</div>
                 
                 <div class="metric-box">
                     <span class="metric-label">SYSTEM_TIME</span>
@@ -167,7 +277,7 @@
 
                 <div class="metric-box">
                     <span class="metric-label">GLOBAL_TETHER (BTC)</span>
-                    <span id="btc-val" class="metric-value" style="color:var(--gold);">CONNECTING...</span>
+                    <span id="btc-val" class="metric-value" style="color:var(--gold);">INIT...</span>
                 </div>
 
                 <div class="metric-box">
@@ -182,121 +292,141 @@
             </aside>
 
             <main class="main-viz">
+                <div class="grid-bg"></div>
                 <div id="lead-sphere"></div>
-                <div style="text-align: center; pointer-events: none;">
-                    <h2 style="font-size: 0.9rem; letter-spacing: 4px; color: var(--cyan); margin:0;">METRIC_STABILIZER</h2>
-                    <p style="font-size: 0.65rem; color: #666; margin-top:5px;">MANUAL INPUT REQUIRED</p>
+                <div style="text-align: center; pointer-events: none; z-index: 10;">
+                    <h2 style="font-size: 1.2rem; letter-spacing: 6px; color: var(--cyan); margin:0; text-shadow:0 0 10px var(--cyan);">METRIC_STABILIZER</h2>
+                    <p style="font-size: 0.7rem; color: #666; margin-top:5px;">MANUAL INPUT REQUIRED // DRAG TO CALIBRATE</p>
                 </div>
             </main>
         </section>
 
+        <section class="system-diag">
+            <div class="diag-col">
+                <h4>// SYSTEM_DIAGNOSTICS</h4>
+                <p>Scanning local strata layers for corruption...</p>
+                <p style="color:var(--red);">[WARNING] Sector 7 Gravity Variance detected.</p>
+                <p>Rerouting power to residential dampeners.</p>
+            </div>
+            <div class="diag-col">
+                <div class="code-stream">
+0x884A -> NULL POINTER EXCEPTION
+MEM_LEAK DETECTED IN SUBSTRATE_V2
+RECOVERING FRAGMENTS...
+...
+...
+5 LOG FILES FOUND.
+DISPLAYING RECOVERED DATA:
+                </div>
+            </div>
+        </section>
+
         <div class="archive-header">
-            <h1 style="font-size:1.5rem; margin:0; color:#fff;">NEURAL_ARCHIVE_STACK</h1>
-            <span style="font-size:0.7rem; color:var(--red);">[5] FRAGMENTS_LOADED</span>
+            <h1 class="archive-title">NEURAL_ARCHIVE_STACK</h1>
+            <span style="font-size:0.8rem; color:var(--red); border:1px solid var(--red); padding:5px 10px;">[5] CORRUPTED_FRAGMENTS_LOADED</span>
         </div>
 
-        <a href="spire.html" class="card-link">
-            <article class="log-card teal">
+        <div class="log-container">
+
+            <a href="spire.html" class="card-link">
+                <article class="log-card teal">
+                    <div class="log-meta">
+                        <span>ID: LOG_01 // SPIRE_DISTRICT</span>
+                        <span>THEME: MUTED_TEAL // ELECTRIC_GREEN</span>
+                    </div>
+                    <h3 class="log-title">THE SPIRE DISTRICT</h3>
+                    <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air, caught in a "metric shift"—it is unnaturally elongated, partially blurring into silver digital static. Gravity-defying threads of neon-green melon juice trace invisible geometric stress-lines in the air like a spiderweb. In the middle ground, the silhouette of a structural analyst (Kael) is seen from behind, his body slightly glitching at the edges. Far above on a looming, brutalist gantry, a sharp, motionless figure (Vera) stares down. Aesthetic: Gritty, industrial, muted teal and charcoal color palette with sharp electric-green accents. Style: Blame! meets Ghost in the Shell, high-contrast, atmospheric haze, ultra-detailed textures.</code>
+                    <div class="tags"><span class="tag">KAEL</span><span class="tag">VERA</span><span class="tag">METRIC_SHIFT</span></div>
+                </article>
+            </a>
+
+            <a href="sync.html" class="card-link">
+                <article class="log-card ochre">
+                    <div class="log-meta">
+                        <span>ID: LOG_02 // SUB_STRATA</span>
+                        <span>THEME: INDUSTRIAL_RUST // HEAT</span>
+                    </div>
+                    <h3 class="log-title">SUB-STRATA SYNC</h3>
+                    <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor. In the foreground, heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge. Through a red, capillary-burst haze filter, we see the silhouette of a man from the chest up; his chest is open-wired, glowing with orange pulse-modulated light as it syncs to the city grid. In the background, a massive vertical magnetic containment bottle holds a vortex of water screaming into steam, glowing with a violent, white-hot thermodynamic energy. Aesthetic: Brutalist, high-heat distortion, deep ochre and industrial rust palette with blinding white-blue highlights. Style: Hyper-realistic, macro-photography textures, cinematic lens flare, glitch-art overlays.</code>
+                    <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
+                </article>
+            </a>
+
+            <a href="residential.html" class="card-link">
+                <article class="log-card grey">
+                    <div class="log-meta">
+                        <span>ID: LOG_03 // RESI_RINGS</span>
+                        <span>THEME: MONOCHROME // LEMONADE_HAZE</span>
+                    </div>
+                    <h3 class="log-title">RESIDENTIAL RINGS</h3>
+                    <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze. In the foreground, a man’s hand presses against a perfectly smooth, seamless composite wall where a door used to be—no cracks, no hinges, just absolute deletion. In the middle ground, a person is suspended in mid-air by a thin, magnetic tether, limbs hanging with unnatural mechanical grace in a near-vacuum. The background shows the city architecture beginning to fold like obsidian origami. Aesthetic: Liminal space, haunting, surgical, muted monochromatic greys and pale orange. Style: High-contrast, minimalist, ultra-sharp focus on the textures of the "deleted" wall. Eerie and silent.</code>
+                    <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">ORIGAMI</span></div>
+                </article>
+            </a>
+
+            <a href="observatory.html" class="card-link">
+                <article class="log-card violet">
+                    <div class="log-meta">
+                        <span>ID: LOG_04 // VECTOR_CRISIS</span>
+                        <span>THEME: DEEP_VIOLET // GLITCH</span>
+                    </div>
+                    <h3 class="log-title">VECTOR CRISIS</h3>
+                    <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm. The arm is mid-air, its physical flesh unspooling into a silver ribbon of subatomic wire, flickering in and out of existence. In the foreground, a heavy lead sphere is undergoing "dimensional shearing," stretched into a long, impossible needle of liquid metal. The background shows a brutalist observatory corridor folding inward like obsidian origami, the floor and ceiling merging into a 4D knot. A bio-mimetic crow with a glowing red iris is perched on a glitching metal pipe. Aesthetic: Cosmic horror, glitch-art, high-contrast, deep violet and matte black with sharp crimson accents. Style: Surrealist-brutalism, motion blur, hyper-detailed particle disintegration.</code>
+                    <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
+                </article>
+            </a>
+
+            <article class="log-card gold" onclick="alert('ACCESS DENIED: ROOT PRIVILEGES REQUIRED. \n\nHint: Type the magic word on your keyboard.')">
                 <div class="log-meta">
-                    <span>ID: LOG_01 // SPIRE_DISTRICT</span>
-                    <span>THEME: MUTED_TEAL</span>
+                    <span>ID: LOG_05 // THE_SUBSTRATE</span>
+                    <span>THEME: DIGITAL_GOLD // ASCENSION</span>
                 </div>
-                <h3 class="log-title">THE SPIRE DISTRICT</h3>
-                <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air...</code>
-                <div class="tags"><span class="tag">INDUSTRIAL</span><span class="tag">TEAL</span><span class="tag">GRAVITY_SHIFT</span></div>
+                <h3 class="log-title">THE SUBSTRATE [LOCKED]</h3>
+                <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition. In the center, a human figure is caught in a mid-dissolve—his body is composed of shimmering, high-fidelity gold telemetry and scrolling data-streams. He is reaching out for a phantom "lead sphere" that is now just a wireframe ghost. In the background, the "frozen" statues of other citizens are visible as 4D solids, glowing with a hard, diamond-like static. A colossal, HUD-like architectural overlay looms over the entire reality. Aesthetic: "Digital Gold," translucent, layered, ethereal yet cold. Style: Data-visualization art meets brutalist architecture, ultra-sharp resolution.</code>
+                <div class="tags"><span class="tag">NULL-SPACE</span><span class="tag">GOLD</span><span class="tag">ASCENSION</span></div>
             </article>
-        </a>
 
-        <a href="sync.html" class="card-link">
-            <article class="log-card ochre">
-                <div class="log-meta">
-                    <span>ID: LOG_02 // SUB_STRATA</span>
-                    <span>THEME: INDUSTRIAL_RUST</span>
-                </div>
-                <h3 class="log-title">SUB-STRATA SYNC</h3>
-                <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor... heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge...</code>
-                <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
-            </article>
-        </a>
-
-        <a href="residential.html" class="card-link">
-            <article class="log-card grey">
-                <div class="log-meta">
-                    <span>ID: LOG_03 // RESI_RINGS</span>
-                    <span>THEME: MONOCHROME</span>
-                </div>
-                <h3 class="log-title">RESIDENTIAL RINGS</h3>
-                <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze...</code>
-                <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">SILENT</span></div>
-            </article>
-        </a>
-
-        <a href="observatory.html" class="card-link">
-            <article class="log-card violet">
-                <div class="log-meta">
-                    <span>ID: LOG_04 // VECTOR_CRISIS</span>
-                    <span>THEME: DEEP_VIOLET</span>
-                </div>
-                <h3 class="log-title">VECTOR CRISIS</h3>
-                <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm... unspooling into a silver ribbon of subatomic wire...</code>
-                <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
-            </article>
-        </a>
-
-        <article class="log-card gold" onclick="alert('ACCESS DENIED: ROOT PRIVILEGES REQUIRED')">
-            <div class="log-meta">
-                <span>ID: LOG_05 // THE_SUBSTRATE</span>
-                <span>THEME: DIGITAL_GOLD</span>
-            </div>
-            <h3 class="log-title">THE SUBSTRATE</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition...</code>
-            <div class="tags"><span class="tag">NULL-SPACE</span><span class="tag">GOLD</span><span class="tag">ASCENSION</span></div>
-        </article>
-
+        </div>
     </div>
 
     <footer>
         <div>
-            <div style="color: var(--cyan); margin-bottom: 10px;">OS_VERSION</div>
+            <h5>OS_VERSION</h5>
             <p style="color:#666;">ALDERSYTH_OS v4.0.2<br>Build: 0x88_ALPHA</p>
         </div>
         <div>
-            <div style="color: var(--gold); margin-bottom: 10px;">QUICK_LINKS</div>
+            <h5>QUICK_LINKS</h5>
             <a href="market.html" style="color:#666; text-decoration:none; display:block;">MARKET_HUB</a>
             <a href="observatory.html" style="color:#666; text-decoration:none; display:block;">VOID_SENSORS</a>
             <a href="login.html" style="color:#666; text-decoration:none; display:block; margin-top:5px;">MANUAL_LOGIN</a>
         </div>
         <div>
-            <div style="color: var(--red); margin-bottom: 10px;">SYSTEM_STATUS</div>
+            <h5 style="color: var(--red);">SYSTEM_STATUS</h5>
             <p style="color:#444;">Substrate Connection Active.<br>Report all memory leaks to Sloane.</p>
         </div>
     </footer>
 
     <script>
-        // HIDDEN ACCESS: Type 'ROOT' anywhere to access the backdoor
+        // --- 1. BACKDOOR (Type 'ROOT') ---
         let secretCode = '';
         window.addEventListener('keydown', (e) => {
             secretCode += e.key.toUpperCase();
             if (secretCode.includes('ROOT')) {
-                // Visual Glitch Effect before redirect
                 document.body.style.filter = 'invert(1) hue-rotate(180deg)';
                 document.body.style.transform = 'scale(1.02) skewX(2deg)';
-                setTimeout(() => {
-                    // LINKED TO backdoor.html
-                    window.location.href = "backdoor.html"; 
-                }, 300);
+                setTimeout(() => { window.location.href = "backdoor.html"; }, 300);
                 secretCode = ''; 
             }
             if (secretCode.length > 10) secretCode = secretCode.slice(-4);
         });
 
-        // 1. CLOCK
+        // --- 2. CLOCK ---
         setInterval(() => { 
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString(); 
         }, 1000);
 
-        // 2. LIVE BTC FETCH (Global Tether)
+        // --- 3. LIVE BTC FETCH ---
         async function fetchLiveMetrics() {
             try {
                 const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
@@ -310,7 +440,7 @@
         fetchLiveMetrics();
         setInterval(fetchLiveMetrics, 60000);
 
-        // 3. NETWORK SPEED
+        // --- 4. NETWORK ---
         function updateNetwork() {
             const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (conn) {
@@ -322,7 +452,7 @@
         }
         updateNetwork();
 
-        // 4. BATTERY STATUS
+        // --- 5. BATTERY ---
         if(navigator.getBattery) {
             navigator.getBattery().then(b => {
                 const up = () => document.getElementById('batt-val').innerText = Math.floor(b.level*100) + "%";
@@ -330,12 +460,13 @@
             });
         }
 
-        // 5. INTERACTIVE SPHERE DRAG
+        // --- 6. DRAGGABLE SPHERE ---
         const sphere = document.getElementById('lead-sphere');
         let drag = false, startX, startY, initLeft, initTop;
 
-        sphere.style.left = "calc(50% - 30px)";
-        sphere.style.top = "calc(50% - 30px)";
+        // Center initially
+        sphere.style.left = "calc(50% - 40px)";
+        sphere.style.top = "calc(50% - 40px)";
 
         sphere.onmousedown = (e) => { 
             drag = true; 
@@ -359,14 +490,14 @@
             }
         };
 
-        // 6. SCROLL REVEAL LOGIC
+        // --- 7. SCROLL REVEAL (Intersection Observer) ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('reveal-visible');
                 }
             });
-        }, { threshold: 0.15 });
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.log-card').forEach(card => observer.observe(card));
     </script>
