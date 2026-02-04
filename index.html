@@ -21,7 +21,7 @@
             overflow: hidden;
             text-transform: uppercase;
             background-image: radial-gradient(circle, rgba(255, 176, 0, 0.05) 1px, transparent 1px);
-            background-size: 25px 25px;
+            background-size: 30px 30px; /* Scaled up background */
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -36,48 +36,48 @@
         }
 
         .scanline {
-            width: 100%; height: 2px; background: rgba(255, 176, 0, 0.1);
+            width: 100%; height: 3px; background: rgba(255, 176, 0, 0.1);
             position: fixed; top: 0; z-index: 1001; pointer-events: none;
-            animation: scanline 8s linear infinite;
+            animation: scanline 6s linear infinite;
         }
 
         @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- GRID LAYOUT --- */
+        /* --- SCALED GRID LAYOUT --- */
         header.top-bar {
-            margin: 20px;
+            margin: 25px;
             border-bottom: 2px solid var(--neon-gold);
-            font-size: 0.8rem;
+            font-size: 1rem; /* Bigger font */
             flex-shrink: 0;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 380px 1fr; /* Wider sidebar */
             grid-template-rows: 1fr auto;
             grid-template-areas: "sidebar hero" "sidebar table";
-            gap: 20px; 
-            padding: 0 20px 20px 20px; 
+            gap: 30px; /* Increased gap */
+            padding: 0 25px 25px 25px; 
             box-sizing: border-box;
             flex-grow: 1;
             overflow: hidden;
         }
 
-        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden;}
-        .visual-core { grid-area: hero; position: relative; height: 100%; min-height: 300px; }
-        .table-module { grid-area: table; margin-top: 10px; }
+        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden;}
+        .visual-core { grid-area: hero; position: relative; height: 100%; min-height: 400px; }
+        .table-module { grid-area: table; margin-top: 15px; }
 
         /* --- MODULE STYLING --- */
         .module-box {
             border: 1px solid var(--panel-border);
-            padding: 15px; background: rgba(255, 176, 0, 0.02);
+            padding: 20px; background: rgba(255, 176, 0, 0.02);
             position: relative;
             clip-path: polygon(0 0, 97% 0, 100% 3%, 100% 100%, 3% 100%, 0 97%);
         }
 
         .module-box h2 {
-            font-size: 0.85rem; margin: 0 0 10px 0; border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 5px; letter-spacing: 2px; color: #fff;
+            font-size: 1rem; margin: 0 0 15px 0; border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px; letter-spacing: 3px; color: #fff;
         }
 
         /* --- HERO --- */
@@ -94,28 +94,28 @@
         }
 
         .glitch-title {
-            position: absolute; font-size: 4rem; font-weight: bold;
-            letter-spacing: 15px; z-index: 2; text-shadow: 0 0 10px var(--neon-gold);
+            position: absolute; font-size: 5.5rem; font-weight: bold;
+            letter-spacing: 20px; z-index: 2; text-shadow: 0 0 15px var(--neon-gold);
         }
 
         /* --- LOG FEED --- */
         #logScroll {
-            font-size: 0.65rem; line-height: 1.4; opacity: 0.9;
+            font-size: 0.8rem; line-height: 1.6; opacity: 0.9;
             overflow: hidden; display: flex; flex-direction: column;
         }
 
         /* --- TABLE --- */
-        #anomaliesTable { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        #anomaliesTable th { text-align: left; padding: 8px; border-bottom: 1px solid var(--panel-border); opacity: 0.6; }
-        #anomaliesTable td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        #anomaliesTable { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        #anomaliesTable th { text-align: left; padding: 12px; border-bottom: 1px solid var(--panel-border); opacity: 0.6; }
+        #anomaliesTable td { padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .row-link { cursor: pointer; transition: 0.2s; }
         .row-link:hover { background: rgba(255, 176, 0, 0.15); color: #fff; }
 
-        .status-tag { border: 1px solid currentColor; padding: 2px 6px; font-size: 0.7rem; }
+        .status-tag { border: 1px solid currentColor; padding: 4px 8px; font-size: 0.8rem; }
 
         /* --- UTILS --- */
-        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.75rem; }
+        .stat { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
         .val { color: var(--neon-gold); font-weight: bold; }
         .chromatic-break { text-shadow: 2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7); filter: contrast(1.2); }
     </style>
@@ -168,9 +168,9 @@
                         <td>RESIDENTIAL_RINGS</td><td>#UNT-402</td>
                         <td><span class="status-tag" style="color:var(--neon-red)">PURGING</span></td>
                     </tr>
-                    <tr style="opacity: 0.4;">
+                    <tr class="row-link" onclick="window.location.href='spire.html'">
                         <td>SPIRE_CENTRAL</td><td>#SPR-42</td>
-                        <td><span class="status-tag">LOCKED</span></td>
+                        <td><span class="status-tag" style="color:var(--neon-gold)">ACTIVE</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -185,21 +185,18 @@
             const sync = document.getElementById('syncVal');
             const logScroll = document.getElementById('logScroll');
             
-            // Stats
             if(bpm) bpm.innerText = (140 + Math.floor(Math.random() * 15)) + " BPM";
             let currentSync = parseFloat(sync.innerText);
             if(currentSync < 99.9) sync.innerText = (currentSync + 0.01).toFixed(2) + "%";
 
-            // Logs
             const entry = document.createElement('div');
             const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             entry.innerHTML = `<span style="opacity:0.5">[${timestamp}]</span> > ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
             logScroll.prepend(entry);
 
-            if (logScroll.children.length > 18) logScroll.removeChild(logScroll.lastChild);
+            if (logScroll.children.length > 20) logScroll.removeChild(logScroll.lastChild);
         }
 
-        // Parallax
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX - window.innerWidth / 2) * 0.01;
             const y = (e.clientY - window.innerHeight / 2) * 0.01;
@@ -207,7 +204,6 @@
             if(img) img.style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
         });
 
-        // Glitch
         setInterval(() => {
             if(Math.random() > 0.985) {
                 document.body.classList.add('chromatic-break');
