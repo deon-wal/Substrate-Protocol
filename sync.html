@@ -2,124 +2,134 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ALDERSYTH // NEURAL_SYNC</title>
+<title>ALDERSYTH // OBSERVATORY_VECTOR</title>
 <style>
-:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #01080a; --border: rgba(6, 182, 212, 0.3); }
-body { background: var(--bg); color: var(--cyan); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; text-transform: uppercase; height: 100vh; display: flex; flex-direction: column; }
+:root { --gold: #ffb000; --cyan: #06b6d4; --red: #ff3e3e; --bg: #01080a; }
+body { 
+    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
+    color: var(--cyan); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh;
+}
 
-/* CRT Overlay */
-.crt::before { content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; background: linear-gradient(rgba(6, 182, 212, 0.05) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(0,255,255,0.02), rgba(0,0,0,0), rgba(0,255,255,0.02)); background-size: 100% 3px, 3px 100%; }
+/* THE ORIGAMI FOLD EFFECT */
+.fold-layer {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(45deg, transparent 48%, var(--cyan) 50%, transparent 52%);
+    background-size: 200% 200%; opacity: 0.1;
+    animation: foldShift 10s ease-in-out infinite alternate;
+}
+@keyframes foldShift { from { transform: skewX(-5deg) scale(1); } to { transform: skewX(5deg) scale(1.05); } }
 
-header { padding: 15px 25px; border-bottom: 2px solid var(--cyan); display: flex; justify-content: space-between; font-size: 0.8rem; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+.container { display: grid; grid-template-columns: 1fr 300px; height: 100vh; backdrop-filter: brightness(0.5) blur(15px); }
 
-.sync-container { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 25px; flex-grow: 1; }
+/* THE DE-REZZING LOG */
+#vector-log {
+    padding: 40px; font-size: 0.85rem; line-height: 1.6; max-width: 700px;
+    position: relative; z-index: 10;
+}
+.de-rez { transition: opacity 2s, filter 2s; display: inline-block; margin-right: 4px; }
+.faded { opacity: 0; filter: blur(10px); }
 
-/* Matrix Grid */
-.matrix-view { border: 1px solid var(--border); background: rgba(0,0,0,0.8); display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 5px; padding: 20px; position: relative; }
-.node { border: 1px solid var(--border); background: rgba(6, 182, 212, 0.05); transition: 0.3s; width: 100%; height: 100%; }
-.node.active { background: var(--cyan); box-shadow: 0 0 12px var(--cyan); transform: scale(1.2); }
+/* HUD COMPONENTS */
+aside { border-left: 1px solid var(--cyan); background: rgba(0,0,0,0.8); padding: 20px; display: flex; flex-direction: column; }
+.hud-item { border: 1px solid var(--cyan); padding: 15px; margin-bottom: 20px; position: relative; }
+.warning { color: var(--red); font-size: 0.6rem; animation: blink 0.5s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
-.pulse-wave { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; box-shadow: 0 0 40px rgba(6,182,212,0.3); animation: pulse 2s infinite alternate; }
-@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0.6; } }
+/* VECTOR VISUALIZER */
+#vector-canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.4; }
 
-.side-panel { display: flex; flex-direction: column; gap: 15px; }
-.stat-box { border: 1px solid var(--border); padding: 15px; background: rgba(6, 182, 212, 0.02); }
-
-.sync-status { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
-.loading-dots::after { content: '...'; animation: dots 1.5s steps(3, end) infinite; }
-@keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } }
-
-button { background: none; border: 1px solid var(--cyan); color: var(--cyan); padding: 10px; cursor: pointer; font-family: inherit; width: 100%; margin-top: auto; }
-button:hover { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
+button { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px; cursor: pointer; font-family: inherit; margin-top: auto; }
+button:hover { background: var(--gold); color: #000; }
 </style>
 </head>
-<body class="crt">
+<body>
 
-<header>
-    <span>ALDERSYTH // SECTOR_05 // NEURAL_SYNC_PROTOCOL</span>
-    <span id="clock">00:00:00</span>
-</header>
+<div class="fold-layer"></div>
+<canvas id="vector-canvas"></canvas>
 
-<main class="sync-container">
-    <section class="matrix-view" id="matrix">
-        <div class="pulse-wave"></div>
-    </section>
+<div class="container">
+    <main id="vector-log">
+        <h2 style="color:var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px;">LOG_04 // VECTOR_CRISIS</h2>
+        <div id="story-text"></div>
+    </main>
 
-    <aside class="side-panel">
-        <div class="stat-box">
-            <div class="sync-status">STABILITY: <span id="stab-val">99.1%</span></div>
-            <p style="font-size: 0.7rem; opacity: 0.7;">LINK_ID: 0x88_SUBSTRATE_ALPHA</p>
-            <p style="font-size: 0.7rem; color: var(--gold);">STATE: RESONATING<span class="loading-dots"></span></p>
+    <aside>
+        <div class="hud-item">
+            <span class="warning">!! HIGGS_DECOHERENCE !!</span>
+            <div style="font-size: 1.2rem; font-weight: bold;" id="wind-live">-- MPH</div>
+            <div style="font-size: 0.5rem; opacity: 0.7;">LOCAL_KINETIC_SURGE (RICHMOND)</div>
         </div>
 
-        <div class="stat-box" style="flex-grow: 1; overflow-y: auto;">
-            <h3 style="font-size: 0.7rem; border-bottom: 1px solid var(--border); margin-top: 0;">ALIGNMENT_DATA</h3>
-            <div id="sync-log" style="font-size: 0.65rem; line-height: 1.6;"></div>
+        <div class="hud-item" style="flex-grow: 1;">
+            <p style="font-size: 0.6rem; color: var(--gold);">"Telemetry is a delusion of control. Interpret the variables with your biology, or the city will erase the anomaly."</p>
+            <div style="margin-top: 20px; font-size: 0.6rem;">
+                MARKET_TETHER: <span id="btc-val">$---</span>
+            </div>
         </div>
 
-        <button onclick="location.href='index.html'">DISCONNECT_SYNC</button>
+        <button onclick="location.href='index.html'">RE-SYNC_CORE</button>
     </aside>
-</main>
+</div>
 
 <script>
-// Generate Matrix Nodes
-const matrix = document.getElementById('matrix');
-const nodes = [];
-for (let i = 0; i < 100; i++) {
-    const node = document.createElement('div');
-    node.className = 'node';
-    matrix.appendChild(node);
-    nodes.push(node);
-}
+/* 1. The Story (Fading away word by word) */
+const story = "Midnight brought total Higgs-decoherence. The air smelled of scorched copper and ozone. The kinetic surge hit—not a breeze, but a vacuum. It ripped the notebook from my hand. I lunged for it, but a gravity flip sent it spiraling upward, its pages fluttering like the wings of a dying bird. Without the data, I was blind. The city began to fold like origami. Buildings leaned at impossible 45-degree angles. Sloane’s voice crackled: 'Data is a crutch, Analyst.' I followed a calibration orb through a shimmering refraction aperture, my body feeling the sickening stretch of quantum tunneling.";
 
-// Function: Add Live Neural Entry
-function addEntry() {
-    const log = document.getElementById('sync-log');
-    const addr = Math.random().toString(16).substr(2,4).toUpperCase();
-    const percent = (Math.random()*100).toFixed(2);
-    const statusChance = Math.random();
-    let status = '', color = '';
-    if(statusChance > 0.8){ status = 'SYNC ERROR'; color = '#ff3e3e'; }
-    else if(statusChance > 0.3){ status = 'ALIGNED'; color = '#0ff'; }
-    else { status = 'FLUCTUATING'; color = '#ffb000'; }
+const storyContainer = document.getElementById('story-text');
 
-    const entry = document.createElement('div');
-    entry.innerHTML = `> ADDR_${addr} : ${percent}% <span style="color:${color}">${status}</span>`;
-    log.prepend(entry);
-    if(log.children.length > 25) log.lastChild.remove();
+// Initialize story words
+story.split(" ").forEach(word => {
+    const span = document.createElement('span');
+    span.className = 'de-rez';
+    span.innerText = word;
+    storyContainer.appendChild(span);
+});
 
-    // Neuron firing effect: chain 3 nearby nodes
-    for(let i=0;i<3;i++){
-        const idx = Math.floor(Math.random()*nodes.length);
-        nodes[idx].classList.add('active');
-        setTimeout(()=> nodes[idx].classList.remove('active'), 400);
-
-        // Random neighbor activation
-        const neighbor = nodes[Math.min(nodes.length-1, idx + (Math.random()<0.5?-1:1))];
-        neighbor.classList.add('active');
-        setTimeout(()=> neighbor.classList.remove('active'), 400);
+// De-rez logic: Randomly fade words over time
+setInterval(() => {
+    const spans = document.querySelectorAll('.de-rez:not(.faded)');
+    if (spans.length > 0) {
+        const target = spans[Math.floor(Math.random() * spans.length)];
+        target.classList.add('faded');
     }
+}, 800);
+
+/* 2. Live Telemetry (Richmond Wind & BTC) */
+async function getTelemetry() {
+    try {
+        const weather = await fetch('https://wttr.in/Richmond?format=j1').then(r => r.json());
+        document.getElementById('wind-live').innerText = weather.current_condition[0].windspeedMiles + " MPH";
+        
+        const btc = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json').then(r => r.json());
+        document.getElementById('btc-val').innerText = "$" + Math.floor(btc.bpi.USD.rate_float).toLocaleString();
+    } catch(e) {}
+}
+getTelemetry();
+
+/* 3. Vector Canvas (The fluttering pages) */
+const canvas = document.getElementById('vector-canvas');
+const ctx = canvas.getContext('2d');
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.onresize = resize; resize();
+
+let particles = [];
+for(let i=0; i<15; i++) {
+    particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: 2, vy: -2 });
 }
 
-// Clock + Stability + Wave Motion
-let t = 0;
-setInterval(()=>{
-    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-    
-    // Stability fluctuation
-    const stab = (98 + Math.random()*2).toFixed(2);
-    document.getElementById('stab-val').innerText = stab + "%";
-
-    // Add live neural entry
-    addEntry();
-
-    // Wave motion: scale nodes in a sine wave
-    nodes.forEach((n, i)=>{
-        const scale = 0.8 + Math.sin(t + i/5)*0.2;
-        n.style.transform = `scale(${scale})`;
+function draw() {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.strokeStyle = '#06b6d4';
+    particles.forEach(p => {
+        ctx.strokeRect(p.x, p.y, 10, 14); // "Pages" of the notebook
+        p.x += p.vx + Math.sin(Date.now()/500);
+        p.y += p.vy;
+        if(p.y < -20) p.y = canvas.height + 20;
+        if(p.x > canvas.width) p.x = -20;
     });
-    t += 0.2;
-}, 800);
+    requestAnimationFrame(draw);
+}
+draw();
 </script>
 </body>
 </html>
