@@ -7,167 +7,212 @@
     <style>
         :root {
             --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-dark: #070a0c; --panel-border: rgba(6, 182, 212, 0.2);
+            --bg-dark: #05070a; --panel-border: rgba(6, 182, 212, 0.3);
         }
 
         body {
             background-color: var(--bg-dark); color: #cffafe;
-            font-family: 'Courier New', Courier, monospace; margin: 0; line-height: 1.6;
-            overflow-x: hidden; display: flex; flex-direction: column; height: 100vh;
+            font-family: 'Courier New', monospace; margin: 0;
+            overflow: hidden; height: 100vh; display: flex;
         }
 
-        /* --- ATMOSPHERIC EFFECTS --- */
+        /* --- BRUTALIST UI OVERLAYS --- */
         .crt-overlay {
-            position: fixed; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1000;
+            position: fixed; inset: 0; z-index: 1000; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 4px 100%;
         }
 
-        /* --- NAVIGATION SIDEBAR --- */
+        /* Corruption Grain */
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: 999; opacity: 0.03;
+            background: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+            pointer-events: none;
+        }
+
+        /* --- NAVIGATION SIDEBAR (Collapsed) --- */
         .nav-sidebar {
-            position: fixed; left: 0; top: 0; bottom: 0; width: 60px;
-            background: #000; border-right: 1px solid var(--panel-border);
-            display: flex; flex-direction: column; align-items: center; padding-top: 80px; gap: 30px;
-            z-index: 900; transition: width 0.3s; overflow: hidden;
+            width: 50px; background: #000; border-right: 2px solid var(--neon-cyan);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 40px; z-index: 1100; transition: 0.4s cubic-bezier(0.8, 0, 0.2, 1);
         }
-        .nav-sidebar:hover { width: 200px; }
-        .nav-icon { color: var(--neon-cyan); text-decoration: none; font-size: 0.7rem; white-space: nowrap; width: 100%; padding: 10px 20px; transition: 0.2s; }
-        .nav-icon:hover { background: var(--neon-cyan); color: #000; }
-
-        header {
-            padding: 15px 25px 15px 85px; border-bottom: 1px solid var(--panel-border);
-            display: flex; justify-content: space-between; font-size: 0.75rem;
-            background: #000; position: sticky; top: 0; z-index: 800;
+        .nav-sidebar:hover { width: 180px; }
+        .nav-item { 
+            color: var(--neon-cyan); text-decoration: none; font-size: 0.7rem; 
+            writing-mode: vertical-rl; transform: rotate(180deg); opacity: 0.5; transition: 0.3s;
         }
+        .nav-sidebar:hover .nav-item { writing-mode: horizontal-tb; transform: rotate(0); opacity: 1; }
+        .nav-item:hover { color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
 
-        .content-wrap { max-width: 1100px; margin: 0 auto 0 80px; padding: 40px 20px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
-
-        .report-header {
-            grid-column: span 2; border: 1px solid var(--neon-cyan); padding: 20px;
-            background: rgba(6, 182, 212, 0.03); position: relative;
+        /* --- MAIN ARCHITECTURE --- */
+        main {
+            flex-grow: 1; position: relative; padding: 40px;
+            display: grid; grid-template-columns: 1fr 320px; grid-template-rows: auto 1fr; gap: 20px;
         }
 
-        /* --- SCAN FUNCTIONALITY --- */
-        .scan-btn {
-            background: none; border: 1px solid var(--neon-red); color: var(--neon-red);
-            padding: 10px 20px; cursor: pointer; font-family: inherit; font-size: 0.7rem;
-            margin-bottom: 20px; transition: 0.3s;
-        }
-        .scan-btn:hover { background: var(--neon-red); color: #000; box-shadow: 0 0 15px var(--neon-red); }
-
-        .glitch-active { animation: shake 0.2s infinite; filter: hue-rotate(90deg) contrast(2); }
-        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px, -2px); } 50% { transform: translate(-2px, 2px); } 100% { transform: translate(0); } }
-
-        .hero-img {
-            width: 100%; height: 350px; object-fit: cover;
-            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.6);
-            margin-bottom: 20px;
+        .header-skew {
+            grid-column: 1 / -1; background: #000; border: 1px solid var(--neon-cyan);
+            padding: 15px 40px; transform: skewX(-10deg); margin-left: 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .sidebar-stats {
-            background: rgba(0,0,0,0.6); border: 1px solid var(--panel-border); padding: 20px;
-            font-size: 0.7rem; height: fit-content;
+        .content-box {
+            border: 1px solid var(--panel-border); background: rgba(0,0,0,0.8);
+            position: relative; overflow: hidden;
         }
 
-        .grav-meter { height: 150px; width: 100%; background: #111; position: relative; border: 1px solid #333; margin: 10px 0; }
-        .grav-level { position: absolute; bottom: 0; width: 100%; background: var(--neon-red); height: 62%; transition: height 0.1s; }
+        /* Geometric Leak Effect */
+        .content-box::after {
+            content: "SUBSTRATE_LEAK"; position: absolute; bottom: -10px; right: 10px;
+            font-size: 4rem; opacity: 0.03; color: var(--neon-cyan); pointer-events: none;
+        }
 
-        .story-text { font-size: 1rem; border-left: 2px solid var(--neon-cyan); padding-left: 30px; min-height: 200px; }
-        .warning-block { color: var(--neon-red); font-weight: bold; background: rgba(255, 62, 62, 0.1); }
+        .hero-viewport { position: relative; height: 300px; border-bottom: 4px solid var(--neon-red); }
+        .hero-img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.5) grayscale(1); mix-blend-mode: screen; }
+
+        /* --- LIVE DATA CHART --- */
+        .gravity-chart {
+            height: 120px; display: flex; align-items: flex-end; gap: 2px; padding: 10px; background: #000;
+        }
+        .chart-bar { flex: 1; background: var(--neon-red); min-height: 2px; transition: height 0.1s; }
+
+        .story-text {
+            padding: 30px; font-size: 0.95rem; line-height: 1.8; color: #88a;
+            max-height: 400px; overflow-y: auto;
+        }
+
+        .status-sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+        .brutalist-card {
+            background: #000; border-left: 5px solid var(--neon-gold); padding: 20px;
+            font-size: 0.7rem; letter-spacing: 1px;
+        }
+
+        .scan-trigger {
+            background: var(--neon-red); color: #000; border: none; width: 100%;
+            padding: 15px; cursor: pointer; font-weight: bold; font-family: inherit;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+        }
+        .scan-trigger:hover { filter: brightness(1.2); letter-spacing: 3px; }
+
+        /* --- ANIMATIONS --- */
+        .glitch-flash { animation: flash 0.1s steps(2) infinite; }
+        @keyframes flash { from { opacity: 1; } to { opacity: 0.7; filter: invert(1); } }
+
     </style>
 </head>
-<body>
+<body id="body-root">
     <div class="crt-overlay"></div>
 
     <nav class="nav-sidebar">
-        <a href="login.html" class="nav-icon"> [00] LOGOUT</a>
-        <a href="index.html" class="nav-icon"> [01] DASHBOARD</a>
-        <a href="market.html" class="nav-icon"> [02] MARKET</a>
-        <a href="residential.html" class="nav-icon"> [03] RESIDENTIAL</a>
-        <a href="sync.html" class="nav-icon"> [04] NEURAL_SYNC</a>
-        <a href="terminal.html" class="nav-icon"> [05] TERMINAL</a>
+        <a href="index.html" class="nav-item">01_DASHBOARD</a>
+        <a href="market.html" class="nav-item">02_MARKET</a>
+        <a href="residential.html" class="nav-item">03_RESIDENTIAL</a>
+        <a href="sync.html" class="nav-item">04_SYNC</a>
+        <a href="terminal.html" class="nav-item">05_TERMINAL</a>
+        <a href="login.html" class="nav-item" style="color:var(--neon-red)">00_EXIT</a>
     </nav>
 
-    <header>
-        <div>LOC: THE_SPIRE // STATUS: <span id="sys-status">STABLE</span></div>
-        <div id="telemetry-alert" style="color: var(--neon-red);">GRAVITY: 1.12G [UNSTABLE]</div>
-    </header>
+    <main id="main-ui">
+        <header class="header-skew">
+            <div>
+                <span style="color: var(--neon-cyan)">FILE: ARCH_01</span> // THE_SPIRE 
+            </div>
+            <div id="telemetry-clock" style="font-size: 0.8rem;">3:24:45 PM</div>
+        </header>
 
-    <div class="content-wrap" id="main-content">
-        <div class="report-header">
-            <h1 style="color: var(--neon-cyan); margin: 0; letter-spacing: 5px;">ARCH_01: THE_SPIRE</h1>
-            <div style="font-size: 0.6rem; margin-top: 10px;">CORE_ALTITUDE: 4,200M // SECTOR: VOID_ZERO</div>
-        </div>
-
-        <section>
-            <button class="scan-btn" onclick="triggerScan()">INITIATE STRUCTURAL SCAN</button>
-            <img src="images/market_thumbnail.jpg" class="hero-img" alt="The Spire Detail" id="spire-img">
-            <article id="typewriter" class="story-text"></article>
+        <section class="content-box">
+            <div class="hero-viewport">
+                <img src="https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1000&auto=format&fit=crop" class="hero-img" alt="Spire Interface">
+                <div style="position:absolute; top:20px; left:20px; background:rgba(255,0,0,0.8); padding:5px; font-size:0.6rem; color:#000;">LIVE_FEED_CORRUPTED</div>
+            </div>
+            <div id="typewriter" class="story-text"></div>
         </section>
 
-        <aside class="sidebar-stats">
-            <h4>GRAVITY_FLUX</h4>
-            <div class="grav-meter"><div class="grav-level" id="gravBar"></div></div>
-            <div style="text-align: center;" id="grav-val">1.12G</div>
-            
-            <h4>BIOMETRICS</h4>
-            <div>HR: <span id="bpm" style="color: var(--neon-red)">88</span> BPM</div>
-            <div>SYNC: <span style="color: var(--neon-gold)">94.2%</span></div>
+        <section class="status-sidebar">
+            <button class="scan-trigger" onclick="triggerScan()">INITIATE_DEEP_SCAN</button>
 
-            <h4 style="margin-top:20px;">CORE_DECAY</h4>
-            <div id="hex-stream" style="font-size: 0.5rem; color: var(--neon-gold); word-break: break-all;"></div>
-        </aside>
-    </div>
+            <div class="brutalist-card">
+                <h4 style="margin:0 0 10px 0; color:var(--neon-gold)">GRAVITY_FLUX_MAP</h4>
+                <div class="gravity-chart" id="chart-container"></div>
+                <div style="margin-top:10px; display:flex; justify-content: space-between;">
+                    <span>CURRENT: <span id="grav-val" style="color:var(--neon-red)">1.12G</span></span>
+                    <span id="load-pct">LOAD: 14%</span>
+                </div>
+            </div>
 
-    
+            <div class="brutalist-card" style="border-left-color: var(--neon-cyan);">
+                <h4 style="margin:0 0 10px 0;">NEURAL_LOAD_METRICS</h4>
+                <div style="display:flex; justify-content: space-between; font-size: 1.2rem;">
+                    <span id="bpm-val">88</span><span style="font-size:0.5rem; align-self: flex-end;">BPM</span>
+                    <span id="sync-val" style="color:var(--neon-cyan)">94.2%</span>
+                </div>
+                <div id="hex-leak" style="margin-top:10px; font-size:0.5rem; opacity:0.5; height:40px; overflow:hidden;"></div>
+            </div>
+        </section>
+    </main>
+
     <script>
-        const text = `### VISCOUS REALITY\n\nThe Spire didn't stand; it pierced. From the lower strata, it looked like a jagged needle sewing the grey clouds to the city floor.\n\n[!! WARNING: GRAVITY SPIKE DETECTED !!]\n\nHis HUD flickered red as the local gravity hit 1.12G. It was a subtle increase, but to a human frame, it was a crushing weight. The Substrate is eating the foundations.`;
+        const text = `> ARCHIVE_ACCESS: GRANTED
+> LOCATION: THE_SPIRE [CORE_SECTOR]
+> STATUS: CRITICAL_DRIFT
+
+The Spire is not a building. It is a mathematical error made of carbon and silicon. 
+
+As I ascend, the Substrate begins to liquefy. The lead sphere in my hand now weighs 3.36KG. The air is thick with the scent of ozone and copper.
+
+[!! WARNING: GRAVITY SPIKE !!]
+
+Structural integrity is at 88.2%. If the sync drops below 90%, the architecture will dissolve back into raw data. I am moving as fast as the gravity allows.`;
 
         let i = 0;
-        const container = document.getElementById("typewriter");
-        const gravBar = document.getElementById("gravBar");
+        const typewriter = document.getElementById("typewriter");
+        const chart = document.getElementById("chart-container");
+        
+        // Initialize Chart Bars
+        for(let j=0; j<30; j++) {
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar';
+            chart.appendChild(bar);
+        }
 
-        function typeWriter() {
+        function runUI() {
+            // Typewriter logic
             if (i < text.length) {
-                if (text.substring(i, i+1) === '[') container.innerHTML += '<span class="warning-block">';
-                else if (text.substring(i, i+1) === ']') container.innerHTML += '</span>';
-                
-                container.innerHTML += text.charAt(i);
+                typewriter.innerHTML += text.charAt(i);
                 i++;
-                
-                // Jitter effects
-                if (i % 5 === 0) {
-                    gravBar.style.height = (60 + Math.random() * 10) + "%";
-                    document.getElementById('bpm').innerText = Math.floor(85 + Math.random() * 15);
-                }
-                setTimeout(typeWriter, 20);
             }
+
+            // Chart & Data Jitter
+            const bars = document.getElementsByClassName('chart-bar');
+            for(let b of bars) {
+                if(Math.random() > 0.8) b.style.height = Math.random() * 100 + "%";
+            }
+            
+            document.getElementById('grav-val').innerText = (1.10 + Math.random() * 0.1).toFixed(2) + "G";
+            document.getElementById('bpm-val').innerText = Math.floor(85 + Math.random() * 20);
+            document.getElementById('load-pct').innerText = "LOAD: " + Math.floor(10 + Math.random() * 10) + "%";
+            
+            // Hex Leak
+            document.getElementById('hex-leak').innerText = Math.random().toString(16).substring(2, 50).toUpperCase();
+
+            setTimeout(runUI, 30);
         }
 
         function triggerScan() {
-            const stage = document.getElementById('main-content');
-            const status = document.getElementById('sys-status');
-            stage.classList.add('glitch-active');
-            status.innerText = "CORRUPTED";
-            status.style.color = "var(--neon-red)";
-            
-            setTimeout(() => {
-                stage.classList.remove('glitch-active');
-                status.innerText = "STABLE";
-                status.style.color = "var(--neon-cyan)";
-            }, 1500);
+            const ui = document.getElementById('main-ui');
+            ui.classList.add('glitch-flash');
+            setTimeout(() => ui.classList.remove('glitch-flash'), 800);
         }
 
-        // Hex Stream Logic
+        // Live Clock
         setInterval(() => {
-            const hex = "0123456789ABCDEF";
-            let str = "";
-            for(let j=0; j<20; j++) str += hex[Math.floor(Math.random()*16)];
-            document.getElementById('hex-stream').innerText = str;
-        }, 150);
+            const now = new Date();
+            document.getElementById('telemetry-clock').innerText = now.toLocaleTimeString();
+        }, 1000);
 
-        window.onload = typeWriter;
+        window.onload = runUI;
     </script>
 </body>
 </html>
