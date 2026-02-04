@@ -13,7 +13,7 @@
         body {
             background-color: var(--bg-dark); color: #cffafe;
             font-family: 'Courier New', Courier, monospace; margin: 0; line-height: 1.6;
-            overflow-x: hidden;
+            overflow-x: hidden; display: flex; flex-direction: column; height: 100vh;
         }
 
         /* --- ATMOSPHERIC EFFECTS --- */
@@ -24,163 +24,148 @@
             background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1000;
         }
 
-        .mist-layer {
-            position: fixed; inset: 0;
-            background: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-            opacity: 0.05; pointer-events: none; z-index: 500; animation: drift 60s linear infinite;
+        /* --- NAVIGATION SIDEBAR --- */
+        .nav-sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 60px;
+            background: #000; border-right: 1px solid var(--panel-border);
+            display: flex; flex-direction: column; align-items: center; padding-top: 80px; gap: 30px;
+            z-index: 900; transition: width 0.3s; overflow: hidden;
         }
-
-        @keyframes drift { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+        .nav-sidebar:hover { width: 200px; }
+        .nav-icon { color: var(--neon-cyan); text-decoration: none; font-size: 0.7rem; white-space: nowrap; width: 100%; padding: 10px 20px; transition: 0.2s; }
+        .nav-icon:hover { background: var(--neon-cyan); color: #000; }
 
         header {
-            padding: 15px 25px; border-bottom: 1px solid var(--panel-border);
+            padding: 15px 25px 15px 85px; border-bottom: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; font-size: 0.75rem;
             background: #000; position: sticky; top: 0; z-index: 800;
         }
 
-        .content-wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
+        .content-wrap { max-width: 1100px; margin: 0 auto 0 80px; padding: 40px 20px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
 
         .report-header {
             grid-column: span 2; border: 1px solid var(--neon-cyan); padding: 20px;
             background: rgba(6, 182, 212, 0.03); position: relative;
         }
 
+        /* --- SCAN FUNCTIONALITY --- */
+        .scan-btn {
+            background: none; border: 1px solid var(--neon-red); color: var(--neon-red);
+            padding: 10px 20px; cursor: pointer; font-family: inherit; font-size: 0.7rem;
+            margin-bottom: 20px; transition: 0.3s;
+        }
+        .scan-btn:hover { background: var(--neon-red); color: #000; box-shadow: 0 0 15px var(--neon-red); }
+
+        .glitch-active { animation: shake 0.2s infinite; filter: hue-rotate(90deg) contrast(2); }
+        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px, -2px); } 50% { transform: translate(-2px, 2px); } 100% { transform: translate(0); } }
+
         .hero-img {
-            width: 100%; height: 400px; object-fit: cover;
-            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.6) sepia(0.3);
-            margin-bottom: 30px; transition: filter 0.5s;
+            width: 100%; height: 350px; object-fit: cover;
+            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.6);
+            margin-bottom: 20px;
         }
 
-        .hero-img:hover { filter: grayscale(0.5) brightness(0.8) sepia(0); }
-
-        /* --- SIDEBAR & GAUGES --- */
         .sidebar-stats {
             background: rgba(0,0,0,0.6); border: 1px solid var(--panel-border); padding: 20px;
-            font-size: 0.7rem; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            font-size: 0.7rem; height: fit-content;
         }
 
-        .sidebar-stats h4 { margin: 20px 0 10px 0; border-bottom: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.8rem; }
-        .sidebar-stats h4:first-child { margin-top: 0; }
+        .grav-meter { height: 150px; width: 100%; background: #111; position: relative; border: 1px solid #333; margin: 10px 0; }
+        .grav-level { position: absolute; bottom: 0; width: 100%; background: var(--neon-red); height: 62%; transition: height 0.1s; }
 
-        .grav-meter {
-            height: 180px; width: 40px; background: #111; position: relative; border: 1px solid #333; margin: 10px auto;
-        }
-
-        .grav-level {
-            position: absolute; bottom: 0; width: 100%; background: var(--neon-red);
-            height: 62%; box-shadow: 0 0 15px var(--neon-red); transition: height 0.1s;
-        }
-
-        /* --- STORY TEXT --- */
-        .story-text { 
-            font-size: 1rem; white-space: pre-wrap; 
-            border-left: 2px solid rgba(6, 182, 212, 0.3); padding-left: 30px;
-            color: #b1d8da;
-        }
-
-        .warning-block { color: var(--neon-red); font-weight: bold; background: rgba(255, 62, 62, 0.1); padding: 5px; }
-
-        .nav-links {
-            grid-column: span 2; margin-top: 60px; padding: 20px 0;
-            border-top: 1px solid var(--panel-border);
-            display: flex; justify-content: space-between;
-        }
-
-        a { color: var(--neon-cyan); text-decoration: none; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; }
-        a:hover { color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
-
-        .pulse { animation: heart-pulse 1.5s infinite; }
-        @keyframes heart-pulse { 0% { color: var(--neon-red); } 50% { color: #500; } 100% { color: var(--neon-red); } }
+        .story-text { font-size: 1rem; border-left: 2px solid var(--neon-cyan); padding-left: 30px; min-height: 200px; }
+        .warning-block { color: var(--neon-red); font-weight: bold; background: rgba(255, 62, 62, 0.1); }
     </style>
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div class="mist-layer"></div>
+
+    <nav class="nav-sidebar">
+        <a href="login.html" class="nav-icon"> [00] LOGOUT</a>
+        <a href="index.html" class="nav-icon"> [01] DASHBOARD</a>
+        <a href="market.html" class="nav-icon"> [02] MARKET</a>
+        <a href="residential.html" class="nav-icon"> [03] RESIDENTIAL</a>
+        <a href="sync.html" class="nav-icon"> [04] NEURAL_SYNC</a>
+        <a href="terminal.html" class="nav-icon"> [05] TERMINAL</a>
+    </nav>
 
     <header>
-        <div>LOC: THE_SPIRE // ALT: 4,200M</div>
-        <div id="telemetry-alert" class="alert">GRAVITY: 1.12G [UNSTABLE]</div>
+        <div>LOC: THE_SPIRE // STATUS: <span id="sys-status">STABLE</span></div>
+        <div id="telemetry-alert" style="color: var(--neon-red);">GRAVITY: 1.12G [UNSTABLE]</div>
     </header>
 
-    <div class="content-wrap">
+    <div class="content-wrap" id="main-content">
         <div class="report-header">
             <h1 style="color: var(--neon-cyan); margin: 0; letter-spacing: 5px;">ARCH_01: THE_SPIRE</h1>
-            <div style="font-size: 0.6rem; margin-top: 10px;">NEURAL_SYNC_LINK: 94.2% // INTEGRITY: STABLE</div>
+            <div style="font-size: 0.6rem; margin-top: 10px;">CORE_ALTITUDE: 4,200M // SECTOR: VOID_ZERO</div>
         </div>
 
         <section>
-            
-            <img src="images/market_thumbnail.jpg" class="hero-img" alt="The Spire Detail">
+            <button class="scan-btn" onclick="triggerScan()">INITIATE STRUCTURAL SCAN</button>
+            <img src="images/market_thumbnail.jpg" class="hero-img" alt="The Spire Detail" id="spire-img">
             <article id="typewriter" class="story-text"></article>
         </section>
 
         <aside class="sidebar-stats">
-            <h4>PHYSICS_ENGINE</h4>
-            <div class="stat">LOCAL_GRAVITY: <span id="grav-val" style="color: var(--neon-red)">1.12G</span></div>
-            <div class="grav-meter">
-                <div class="grav-level" id="gravBar"></div>
-            </div>
+            <h4>GRAVITY_FLUX</h4>
+            <div class="grav-meter"><div class="grav-level" id="gravBar"></div></div>
+            <div style="text-align: center;" id="grav-val">1.12G</div>
             
-            <h4>NEURAL_STRESS</h4>
-            <div class="stat">HEART_RATE: <span id="bpm" class="pulse">88 BPM</span></div>
-            <div class="stat">ADRENALINE: <span style="color: var(--neon-gold)">HIGH</span></div>
+            <h4>BIOMETRICS</h4>
+            <div>HR: <span id="bpm" style="color: var(--neon-red)">88</span> BPM</div>
+            <div>SYNC: <span style="color: var(--neon-gold)">94.2%</span></div>
 
-            <h4>SUBSTRATE_LEAK</h4>
-            <div style="font-size: 0.6rem; line-height: 1.2; color: var(--neon-gold);">
-                > DETECTED AT FOUNDATION<br>
-                > GEOMETRIC_DRIFT: 0.04°<br>
-                > VAPOR_DENSITY: 88%
-            </div>
+            <h4 style="margin-top:20px;">CORE_DECAY</h4>
+            <div id="hex-stream" style="font-size: 0.5rem; color: var(--neon-gold); word-break: break-all;"></div>
         </aside>
-
-        <footer class="nav-links">
-            <a href="index.html">« RETURN_TO_CORE</a>
-            <a href="market.html">ARCH_02: THE_MARKET »</a>
-        </footer>
     </div>
 
+    
     <script>
-        const text = `### VISCOUS REALITY
-
-The Spire didn't stand; it pierced. From the lower strata, it looked like a jagged needle sewing the grey clouds to the city floor. By the time Kael reached the mid-tier catwalks, the air had turned into the Atomized Mist—a fine, silver-grey particulate that tasted like copper and old rain.
-
-[!! WARNING: GRAVITY SPIKE DETECTED !!]
-
-His HUD flickered red as the local gravity hit 1.12G. It was a subtle increase to the system, but to a human frame, it was a crushing weight. His knees popped. The 3.00KG lead sphere in his hand suddenly felt like a heavy anchor, its vector pulling him toward the edge of the railing.
-
-"Vera, the sync is holding," he grunted, his heartbeat thumping against the Neural Tether. "But the geometry is failing. The Spire is leaning, and I don't think it’s the wind. The Substrate is eating the foundations."
-
-[END_LOG]`;
+        const text = `### VISCOUS REALITY\n\nThe Spire didn't stand; it pierced. From the lower strata, it looked like a jagged needle sewing the grey clouds to the city floor.\n\n[!! WARNING: GRAVITY SPIKE DETECTED !!]\n\nHis HUD flickered red as the local gravity hit 1.12G. It was a subtle increase, but to a human frame, it was a crushing weight. The Substrate is eating the foundations.`;
 
         let i = 0;
         const container = document.getElementById("typewriter");
         const gravBar = document.getElementById("gravBar");
-        const gravVal = document.getElementById("grav-val");
-        const bpmVal = document.getElementById("bpm");
 
         function typeWriter() {
             if (i < text.length) {
-                // Formatting tags logic
-                if (text.substring(i, i+1) === '[') {
-                    container.innerHTML += '<span class="warning-block">';
-                } else if (text.substring(i, i+1) === ']') {
-                    container.innerHTML += '</span>';
-                }
-
+                if (text.substring(i, i+1) === '[') container.innerHTML += '<span class="warning-block">';
+                else if (text.substring(i, i+1) === ']') container.innerHTML += '</span>';
+                
                 container.innerHTML += text.charAt(i);
                 i++;
-
-                // Physics Jitter
-                if (i % 4 === 0) {
-                    let jitter = 62 + (Math.random() * 5);
-                    gravBar.style.height = jitter + "%";
-                    gravVal.innerText = (1.10 + (Math.random() * 0.05)).toFixed(2) + "G";
-                    bpmVal.innerText = Math.floor(85 + (Math.random() * 10)) + " BPM";
+                
+                // Jitter effects
+                if (i % 5 === 0) {
+                    gravBar.style.height = (60 + Math.random() * 10) + "%";
+                    document.getElementById('bpm').innerText = Math.floor(85 + Math.random() * 15);
                 }
-
-                setTimeout(typeWriter, 15);
+                setTimeout(typeWriter, 20);
             }
         }
+
+        function triggerScan() {
+            const stage = document.getElementById('main-content');
+            const status = document.getElementById('sys-status');
+            stage.classList.add('glitch-active');
+            status.innerText = "CORRUPTED";
+            status.style.color = "var(--neon-red)";
+            
+            setTimeout(() => {
+                stage.classList.remove('glitch-active');
+                status.innerText = "STABLE";
+                status.style.color = "var(--neon-cyan)";
+            }, 1500);
+        }
+
+        // Hex Stream Logic
+        setInterval(() => {
+            const hex = "0123456789ABCDEF";
+            let str = "";
+            for(let j=0; j<20; j++) str += hex[Math.floor(Math.random()*16)];
+            document.getElementById('hex-stream').innerText = str;
+        }, 150);
 
         window.onload = typeWriter;
     </script>
