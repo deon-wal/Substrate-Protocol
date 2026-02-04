@@ -4,195 +4,292 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALDERSYTH // MARKET_DISTRICT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #020202; --panel-border: rgba(6, 182, 212, 0.2); }
+        :root { 
+            --bg: #030303; 
+            --panel: #0a0a0e;
+            --border: rgba(255, 255, 255, 0.08);
+            --gold: #d4af37;        
+            --gold-dim: #6b5c2b;
+            --crimson: #d90d32;     
+            --teal: #14b8a6;        
+        }
+
         body { 
-            background: var(--bg); color: var(--gold); 
-            font-family: 'Courier New', monospace; margin: 0; line-height: 1.8;
-            overflow-x: hidden;
+            background: var(--bg);
+            color: #888; 
+            font-family: 'Space Mono', monospace; 
+            margin: 0; 
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 50px 30px 1fr 25px; 
+            font-size: 12px;
         }
 
-        /* --- GLOBAL HEADER --- */
+        /* --- BACKGROUND PARTICLES --- */
+        #dust-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.4; pointer-events: none; }
+
+        /* --- HEADER --- */
         header {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--cyan);
+            background: rgba(5, 5, 5, 0.95);
+            border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; box-sizing: border-box; backdrop-filter: blur(10px);
+            padding: 0 20px; z-index: 10;
         }
-        .nav-links a {
-            color: #fff; text-decoration: none; margin-left: 20px; font-size: 0.75rem;
-            border: 1px solid transparent; padding: 5px 10px;
-        }
-        .active-link { border-color: var(--gold) !important; color: var(--gold) !important; }
+        .logo { color: var(--gold); font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .nav a { color: #555; text-decoration: none; margin-left: 20px; transition: 0.2s; }
+        .nav a:hover { color: var(--teal); }
+        .nav a.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
+        .wallet { border: 1px solid #333; padding: 5px 15px; color: #eee; background: #000; }
 
-        /* --- HERO SECTION --- */
-        .hero {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            border-bottom: 1px solid var(--panel-border); position: relative;
-        }
-        .hero-content { z-index: 10; text-align: center; max-width: 800px; padding: 20px; }
-        .physics-bg { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: 0.4; }
+        /* --- TICKER --- */
+        .ticker-wrap { background: #000; border-bottom: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; }
+        .ticker { animation: scroll 40s linear infinite; display: flex; white-space: nowrap; }
+        .tick-item { margin-right: 40px; color: #444; font-size: 0.7rem; }
+        .up { color: var(--teal); } .down { color: var(--crimson); }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* --- NARRATIVE BLOCKS (SCROLLING) --- */
-        .content-section {
-            max-width: 900px; margin: 0 auto; padding: 100px 20px;
-            border-left: 1px solid var(--panel-border); border-right: 1px solid var(--panel-border);
-        }
-        .story-text { font-size: 1.2rem; color: #fff; margin-bottom: 50px; }
-        .story-text span { color: var(--cyan); }
-
-        /* --- DATA VISUALS --- */
-        .big-viz {
-            width: 100%; height: 500px; border: 1px solid var(--cyan);
-            margin: 40px 0; background: #000; position: relative;
-        }
-        
-        /* PHYSICS OBJECTS */
-        .variable { 
-            position: absolute; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-size: 0.7rem; cursor: grab; font-weight: bold;
-        }
-        .melon { width: 80px; height: 80px; background: #4caf50; box-shadow: 0 0 30px #4caf50; color: #000; }
-        .espresso { width: 60px; height: 60px; background: #6f4e37; border: 2px solid #fff; box-shadow: 0 0 25px var(--gold); }
-
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 60px 0; }
-        .data-card { border: 1px solid var(--panel-border); padding: 30px; background: rgba(6, 182, 212, 0.05); }
-
-        footer {
-            padding: 80px 30px; border-top: 2px solid var(--gold); background: #000;
-            font-size: 0.75rem;
+        /* --- MAIN LAYOUT --- */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 260px 1fr 300px;
+            overflow: hidden;
         }
 
-        .warning { color: var(--red); font-weight: bold; }
+        /* LEFT: COMMODITIES */
+        .panel { background: rgba(10,10,14,0.6); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .panel-head { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.7rem; color: var(--gold-dim); background: #08080a; font-weight: bold; }
+        .asset-list { overflow-y: auto; flex: 1; }
+        .asset-row {
+            padding: 12px 15px; border-bottom: 1px solid #151518; cursor: pointer;
+            display: flex; justify-content: space-between; transition: 0.2s;
+        }
+        .asset-row:hover { background: #151520; color: #fff; }
+        .asset-row.active { border-left: 2px solid var(--gold); background: #1a1a22; }
+        .sym { display: block; color: #ddd; font-weight: bold; font-size: 0.8rem; }
+
+        /* CENTER: CHART */
+        .center-stage { display: grid; grid-template-rows: 1fr 150px; position: relative; }
+        .chart-container { position: relative; background: #050505; border-bottom: 1px solid var(--border); }
+        #main-chart { width: 100%; height: 100%; }
+        .chart-overlay { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        .price-big { font-size: 2.5rem; color: #fff; margin: 0; font-weight: 300; }
+
+        /* NEWS FEED (The Narrative Layer) */
+        .news-feed { padding: 15px; background: #000; overflow-y: auto; border-top: 1px solid var(--border); }
+        .news-item { margin-bottom: 10px; font-size: 0.75rem; color: #666; border-left: 2px solid #333; padding-left: 10px; }
+        .news-highlight { color: var(--teal); }
+
+        /* RIGHT: TRADING */
+        .order-panel { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--panel); }
+        .trade-controls { padding: 20px; background: #08080a; border-top: 1px solid var(--border); margin-top: auto; }
+        .qty-input { background: #111; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 10px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { border: none; padding: 12px; cursor: pointer; font-weight: bold; color: #000; transition: 0.2s; }
+        .btn-buy { background: var(--teal); } .btn-sell { background: var(--crimson); color: #fff; }
+        .btn:hover { opacity: 0.8; }
+
+        /* FOOTER */
+        footer { background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-between; padding: 0 20px; align-items: center; color: #444; font-size: 0.65rem; }
     </style>
 </head>
 <body>
 
+    <canvas id="dust-canvas"></canvas>
+
     <header>
-        <div style="color: var(--cyan); font-weight: bold; letter-spacing: 2px;">ALDERSYTH_OS // MARKET_STABILITY</div>
-        <nav class="nav-links">
+        <div class="logo">ALDERSYTH // MARKET</div>
+        <nav class="nav">
             <a href="index.html">CORE</a>
-            <a href="market.html" class="active-link">MARKET</a>
+            <a href="market.html" class="active">EXCHANGE</a>
             <a href="residential.html">RESIDENTIAL</a>
             <a href="observatory.html">OBSERVATORY</a>
         </nav>
+        <div class="wallet">BAL: ₮ <span id="wallet-val">42,050.00</span></div>
     </header>
 
-    <section class="hero">
-        <div class="physics-bg" id="hero-physics">
-            <div class="variable melon" id="obj1" style="top:20%; left:10%;">MELON</div>
-            <div class="variable espresso" id="obj2" style="top:60%; left:80%;">FINN_CUP</div>
-        </div>
-        <div class="hero-content">
-            <h1 style="font-size: 3rem; margin-bottom: 10px;">SECTOR_02</h1>
-            <p class="warning">THERMODYNAMIC_STRESS_LEVEL: CRITICAL</p>
-            <p style="opacity: 0.6;">[ SCROLL TO DECRYPT LOG_02 ]</p>
-        </div>
-    </section>
+    <div class="ticker-wrap"><div class="ticker" id="ticker-feed"></div></div>
 
-    <main class="content-section">
-        <div class="story-text">
-            [ LOG_ENTRY_02 ] <br><br>
-            By midday, the Market was a nightmare. <span>Finn's espresso</span> launched itself at a pedestrian. I lunged, catching it mid-air. The heat on my palms was a reminder of the real-world consequences of these anomalies. 
-        </div>
+    <main class="dashboard">
+        <aside class="panel">
+            <div class="panel-head">COMMODITIES</div>
+            <div class="asset-list" id="asset-list"></div>
+        </aside>
 
-        
-
-        <div class="story-text">
-            Sloane didn't move. She didn't even blink. She just stood there with her tablet, watching the steam rise from my hands. <br><br>
-            "Your baseline is going to kill someone, Sloane!" I yelled, the ceramic still searing my skin. <br><br>
-            She didn't look up. <span>"The data requires a stress test,"</span> she replied. "If the market collapses, we find the leak. If you catch the cup, you’re just noise in the machine."
-        </div>
-
-        <div class="big-viz" id="main-physics-container">
-            <div style="padding: 20px; color: var(--cyan);">INTERACTIVE_ANOMALY_FIELD: [DRAG_TO_INTERFERE]</div>
-            <div class="variable melon" id="obj3" style="top:40%; left:20%;">STRESS_TEST_A</div>
-            <div class="variable espresso" id="obj4" style="top:70%; left:60%;">STRESS_TEST_B</div>
-        </div>
-
-        <div class="data-grid">
-            <div class="data-card">
-                <h4 style="color: var(--cyan);">TELEMETRY_A</h4>
-                <p>BTC_TETHER: <span id="btc">$---</span></p>
-                <p>LOCAL_TEMP: <span id="temp">--°C</span></p>
+        <section class="center-stage">
+            <div class="chart-container">
+                <div class="chart-overlay">
+                    <h1 class="price-big" id="main-price">---</h1>
+                    <div style="color:#666;" id="main-name">SELECT ASSET</div>
+                </div>
+                <canvas id="main-chart"></canvas>
             </div>
-            <div class="data-card">
-                <h4 style="color: var(--red);">STABILITY_FEED</h4>
-                <p>> ESPRESSO DRIFT: 88%</p>
-                <p>> CERAMIC INTEGRITY: <span class="warning">FAILING</span></p>
-            </div>
-        </div>
+            <div class="news-feed" id="news-feed">
+                <div style="color:var(--gold); margin-bottom:8px; font-weight:bold;">// MARKET_NEWS_WIRE</div>
+                </div>
+        </section>
 
-        <div class="story-text">
-            The Strangers are watching. I can feel them in the ozone spike. They don't care about Finn's cart or the people in the rings. They care about the <span>Bridge Dataset</span>. And Sloane is their architect.
-        </div>
+        <aside class="order-panel">
+            <div class="panel-head">ORDER BOOK (L2)</div>
+            <div id="order-book" style="flex:1; overflow:hidden; padding:10px;"></div>
+            <div class="trade-controls">
+                <input type="number" class="qty-input" id="trade-qty" value="1" min="1">
+                <div class="btn-grid">
+                    <button class="btn btn-buy" onclick="trade('BUY')">BUY</button>
+                    <button class="btn btn-sell" onclick="trade('SELL')">SELL</button>
+                </div>
+            </div>
+        </aside>
     </main>
 
     <footer>
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px;">
-            <div>
-                <div style="color: var(--red); margin-bottom: 10px;">LEGAL_PROTOCOL_33</div>
-                <p style="color:#666; font-size: 0.65rem;">Thermodynamic spikes in the Market District are authorized for data collection purposes. Any heat transfer to palms from espresso units is a voluntary biometric contribution to the Bridge Dataset. The Council assumes no liability for physics decoherence.</p>
-            </div>
-            <div>
-                <div style="color: var(--cyan); margin-bottom: 10px;">NAVIGATION</div>
-                <a href="index.html" style="color:#444; display:block; text-decoration:none;">00_CORE</a>
-                <a href="residential.html" style="color:#444; display:block; text-decoration:none;">03_RESI</a>
-            </div>
-            <div style="text-align: right;">
-                <div style="color: var(--gold); margin-bottom: 10px;">ENVIRONMENTAL</div>
-                <p style="color:#444; margin:0;">OZONE: PEAKING</p>
-                <p style="color:#444; margin:0;">GRAVITY: FLUCTUATING</p>
-            </div>
-        </div>
+        <span>STATUS: VOLATILE</span>
+        <span>LATENCY: 12ms</span>
     </footer>
 
     <script>
-        // Data Fetching
-        async function updateLive() {
-            try {
-                const btc = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json').then(r => r.json());
-                document.getElementById('btc').innerText = "$" + Math.floor(btc.bpi.USD.rate_float).toLocaleString();
-                const weather = await fetch('https://wttr.in/Richmond?format=j1').then(r => r.json());
-                document.getElementById('temp').innerText = weather.current_condition[0].temp_C + "°C";
-            } catch(e) {}
-        }
-        updateLive();
+        // CONFIG
+        const assets = [
+            { sym: "LDS-03", name: "LEAD SPHERE (3KG)", price: 1420.00, vol: 5.0 },
+            { sym: "V-DRIFT", name: "VECTOR DRIFT RAW", price: 850.50, vol: 8.0 },
+            { sym: "SLUDGE", name: "SUB-STRATA WASTE", price: 42.00, vol: 1.5 },
+            { sym: "O-GAMI", name: "ORIGAMI FRAGMENT", price: 4200.00, vol: 20.0 },
+            { sym: "ESPRESSO", name: "FINN'S BREW (HOT)", price: 15.00, vol: 0.5 }
+        ];
 
-        // Multi-Container Physics
-        let drag = null;
-        function initPhysics(containerId) {
-            const container = document.getElementById(containerId);
-            container.querySelectorAll('.variable').forEach(obj => {
-                let vx = (Math.random() - 0.5) * 3;
-                let vy = (Math.random() - 0.5) * 3;
-                function move() {
-                    if (drag !== obj) {
-                        let t = obj.offsetTop + vy;
-                        let l = obj.offsetLeft + vx;
-                        if (t <= 0 || t >= container.offsetHeight - obj.offsetHeight) vy *= -1;
-                        if (l <= 0 || l >= container.offsetWidth - obj.offsetWidth) vx *= -1;
-                        obj.style.top = t + 'px';
-                        obj.style.left = l + 'px';
-                    }
-                    requestAnimationFrame(move);
-                }
-                move();
-                obj.onmousedown = (e) => { drag = obj; e.preventDefault(); };
+        const newsItems = [
+            "Log 02: Finn's espresso cart reported 88% drift deviation.",
+            "Market volatility spike detected in Sector 04.",
+            "Sloane: 'The data requires a stress test.'",
+            "Thermodynamic stress critical in lower market rings.",
+            "Visual anomaly detected: Steam freezing mid-air."
+        ];
+
+        let selected = assets[0];
+        let wallet = 42050.00;
+        let chartData = [];
+        let canvas, ctx;
+
+        // INIT
+        function init() {
+            canvas = document.getElementById('main-chart');
+            ctx = canvas.getContext('2d');
+            window.addEventListener('resize', resize);
+            resize();
+            
+            renderAssets();
+            renderNews();
+            changeAsset(assets[0]);
+            
+            // Ticker
+            const t = document.getElementById('ticker-feed');
+            let html = "";
+            [...assets, ...assets].forEach(a => html += `<div class="tick-item">${a.sym} <span class="up">▲ ${(Math.random()*5).toFixed(2)}%</span></div>`);
+            t.innerHTML = html;
+
+            setInterval(gameLoop, 50); // Chart loop
+            setInterval(updateSim, 1000); // Data loop
+        }
+
+        function resize() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        }
+
+        // VISUALS
+        function gameLoop() {
+            // Shift Chart
+            let last = chartData[chartData.length-1] || selected.price;
+            let next = last + (Math.random()-0.5) * selected.vol;
+            chartData.push(next);
+            if(chartData.length > canvas.width/5) chartData.shift();
+            
+            // Draw
+            ctx.fillStyle = "#050505";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            ctx.beginPath();
+            let min = Math.min(...chartData);
+            let max = Math.max(...chartData);
+            let range = max - min || 1;
+            
+            let color = next > chartData[0] ? "#14b8a6" : "#d90d32";
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+
+            for(let i=0; i<chartData.length; i++) {
+                let x = (i/(chartData.length-1)) * canvas.width;
+                let y = canvas.height - ((chartData[i] - min) / range) * (canvas.height - 100) - 50;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+            
+            // Update Text
+            document.getElementById('main-price').innerText = "₮ " + next.toFixed(2);
+            document.getElementById('main-price').style.color = color;
+            selected.price = next;
+        }
+
+        // LOGIC
+        function changeAsset(a) {
+            selected = a;
+            document.getElementById('main-name').innerText = a.name;
+            chartData = [a.price];
+            renderAssets();
+            renderBook();
+        }
+
+        function renderAssets() {
+            const list = document.getElementById('asset-list');
+            list.innerHTML = "";
+            assets.forEach(a => {
+                let div = document.createElement('div');
+                div.className = `asset-row ${a === selected ? 'active' : ''}`;
+                div.innerHTML = `<div><span class="sym">${a.sym}</span></div><div>₮ ${a.price.toFixed(2)}</div>`;
+                div.onclick = () => changeAsset(a);
+                list.appendChild(div);
             });
         }
 
-        initPhysics('hero-physics');
-        initPhysics('main-physics-container');
+        function renderNews() {
+            const feed = document.getElementById('news-feed');
+            newsItems.forEach(n => {
+                let div = document.createElement('div');
+                div.className = "news-item";
+                div.innerText = "> " + n;
+                feed.appendChild(div);
+            });
+        }
 
-        window.onmouseup = () => { drag = null; };
-        window.onmousemove = (e) => {
-            if(drag) {
-                const rect = drag.parentElement.getBoundingClientRect();
-                drag.style.left = (e.clientX - rect.left - (drag.offsetWidth/2)) + 'px';
-                drag.style.top = (e.clientY - rect.top - (drag.offsetHeight/2)) + 'px';
-            }
-        };
+        function renderBook() {
+            const book = document.getElementById('order-book');
+            let html = "";
+            let p = selected.price;
+            for(let i=0; i<5; i++) html += `<div style="display:flex; justify-content:space-between; color:#d90d32; font-size:0.7rem; margin-bottom:2px;"><span>₮ ${(p+i+1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
+            html += `<hr style="border:0; border-top:1px dashed #333; margin:5px 0;">`;
+            for(let i=0; i<5; i++) html += `<div style="display:flex; justify-content:space-between; color:#14b8a6; font-size:0.7rem; margin-bottom:2px;"><span>₮ ${(p-i-1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
+            book.innerHTML = html;
+        }
+
+        function updateSim() {
+            assets.forEach(a => { if(a!==selected) a.price += (Math.random()-0.5)*a.vol; });
+            renderAssets();
+            renderBook();
+        }
+
+        function trade(type) {
+            const qty = parseInt(document.getElementById('trade-qty').value);
+            const cost = qty * selected.price;
+            if(type === 'BUY') {
+                if(wallet >= cost) wallet -= cost; else return alert("NO FUNDS");
+            } else wallet += cost;
+            document.getElementById('wallet-val').innerText = wallet.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        init();
     </script>
 </body>
 </html>
