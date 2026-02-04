@@ -2,194 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALDERSYTH :: INDEX</title>
-
+<title>ALDERSYTH // CORE_RECOVERY</title>
 <style>
-:root {
-    --bg: #05070b;
-    --panel: rgba(10,14,20,0.88);
-    --cyan: #06b6d4;
-    --red: #ef4444;
-    --muted: #94a3b8;
-    --border: rgba(6,182,212,0.22);
+:root { --gold: #ffb000; --cyan: #06b6d4; --red: #ff3e3e; --bg: #020202; }
+body { 
+    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
+    color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh;
 }
 
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #e5e7eb;
-
-    /* ✅ SINGLE BACKGROUND IMAGE */
-    background: url("images/images/wallpaper.jpg.png") center / cover fixed;
+/* CRT SCANLINE OVERLAY */
+body::after { 
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,0,0,0), rgba(0,0,255,0.02));
+    background-size: 100% 3px, 3px 100%;
 }
 
-/* ---------- LAYOUT ---------- */
+.container { display: grid; grid-template-columns: 280px 1fr; height: 100vh; backdrop-filter: blur(10px); }
 
-.container {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    height: 100vh;
-    backdrop-filter: blur(2px);
+/* SIDEBAR & TELEMETRY */
+nav { background: rgba(0,10,15,0.92); border-right: 1px solid var(--cyan); padding: 25px; display: flex; flex-direction: column; z-index: 10; }
+.nav-item { 
+    border: 1px solid rgba(6,182,212,0.2); padding: 15px; margin-bottom: 10px; text-decoration: none; 
+    color: var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; transition: 0.2s;
+}
+.nav-item:hover { background: rgba(6,182,212,0.1); border-color: var(--cyan); color: #fff; }
+
+/* MAIN INTERFACE */
+main { padding: 20px; display: grid; grid-template-rows: 150px 1fr; gap: 20px; position: relative; }
+.header-viz { 
+    border: 1px solid var(--cyan); background: url('index_Header.jpg') center/cover; 
+    display: flex; align-items: flex-end; padding: 15px; position: relative;
+}
+.log-feed { 
+    background: rgba(0,0,0,0.8) url('index_Header2.jpg') center/cover;
+    background-blend-mode: overlay; border: 1px solid var(--cyan); padding: 20px; overflow-y: auto;
+}
+.log-entry { 
+    background: rgba(0,15,20,0.85); border: 1px solid var(--cyan); padding: 12px; 
+    margin-bottom: 10px; font-size: 0.75rem; color: var(--cyan); border-left: 4px solid var(--cyan);
 }
 
-/* ---------- NAV ---------- */
-
-nav {
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    padding: 18px;
+/* INTERACTIVE LEAD SPHERE */
+#lead-sphere {
+    position: absolute; width: 80px; height: 80px; top: 40%; left: 50%;
+    background: radial-gradient(circle at 30% 30%, #999, #222);
+    border-radius: 50%; cursor: grab; z-index: 50; 
+    box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);
 }
 
-nav h3 {
-    margin: 0 0 16px;
-    font-size: 0.85rem;
-    letter-spacing: 0.18em;
-    color: var(--cyan);
-}
-
-.nav-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 9px 11px;
-    margin-bottom: 6px;
-    text-decoration: none;
-    color: #e5e7eb;
-    border: 1px solid transparent;
-}
-
-.nav-item:hover {
-    border-color: var(--border);
-    background: rgba(6,182,212,0.05);
-}
-
-.status-tag {
-    font-size: 0.65rem;
-    color: var(--muted);
-}
-
-/* ---------- MAIN ---------- */
-
-main {
-    padding: 22px;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 16px;
-}
-
-/* ---------- HEADER (NO IMAGE) ---------- */
-
-.header {
-    height: 120px;
-    border: 1px solid var(--border);
-    background: linear-gradient(
-        180deg,
-        rgba(6,182,212,0.08),
-        rgba(0,0,0,0.4)
-    );
-    display: flex;
-    align-items: flex-end;
-}
-
-.header h1 {
-    margin: 14px;
-    font-size: 1rem;
-    letter-spacing: 0.2em;
-    color: var(--cyan);
-}
-
-/* ---------- LOG FEED ---------- */
-
-.log-feed {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 14px;
-    overflow-y: auto;
-}
-
-.log-entry {
-    margin-bottom: 14px;
-    border: 1px solid var(--border);
-    background: rgba(0,0,0,0.55);
-    padding: 10px 12px;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    opacity: 0;
-    transform: translateY(4px);
-    animation: fadeIn 1.2s ease forwards;
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* scrollbar */
-.log-feed::-webkit-scrollbar {
-    width: 6px;
-}
-.log-feed::-webkit-scrollbar-thumb {
-    background: rgba(6,182,212,0.25);
-}
+.stat-box { margin-top: auto; border-top: 1px solid var(--cyan); padding-top: 20px; }
+.val { font-size: 1.4rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px var(--cyan); }
 </style>
 </head>
-
 <body>
 
+<div id="lead-sphere" title="METRIC_STABILIZER"></div>
+
 <div class="container">
-
-<nav>
-    <h3>SECTOR_NAV</h3>
-
-    <a class="nav-item" href="market.html">01_MARKET <span class="status-tag">$---</span></a>
-    <a class="nav-item" href="residential.html">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
-    <a class="nav-item" href="observatory.html">03_OBSERVATORY <span class="status-tag">TRACKING</span></a>
-    <a class="nav-item" href="sync.html">04_SYNC <span class="status-tag">ACTIVE</span></a>
-    <a class="nav-item" href="spire.html">05_SPIRE <span class="status-tag">LOCKED</span></a>
-</nav>
-
-<main>
-
-    <div class="header">
-        <h1>INDEX / SYSTEM MEMORY</h1>
-    </div>
-
-    <div class="log-feed" id="logFeed"></div>
-
-</main>
+    <nav>
+        <h3 style="color:var(--cyan); font-size:0.7rem; letter-spacing: 2px;">SYSTEM_SENSORS</h3>
+        <a class="nav-item" href="market.html">01_MARKET <span id="btc" style="color:var(--cyan)">$---</span></a>
+        <a class="nav-item" href="residential.html">02_RESID <span style="color:var(--red); font-size: 0.6rem;">PURGING</span></a>
+        <a class="nav-item" href="sync.html">03_SYNC <span>ACTIVE</span></a>
+        <a class="nav-item" href="spire.html">04_SPIRE <span>LOCKED</span></a>
+        
+        <div class="stat-box">
+            <span class="val" id="batt">--%</span><span style="font-size:0.55rem; opacity:0.6; display:block;">BATTERY_RESERVE</span>
+            <div style="margin-top:15px;"><span class="val" id="clock">00:00:00</span><span style="font-size:0.55rem; opacity:0.6; display:block;">LOCAL_SYNC</span></div>
+        </div>
+    </nav>
+    <main>
+        <div class="header-viz"><h1 style="font-size:1rem; letter-spacing:4px; margin:0; text-shadow: 2px 2px #000;">CORE // SYSTEM_MEMORY</h1></div>
+        <div class="log-feed" id="logFeed"></div>
+    </main>
 </div>
 
 <script>
-const logs = [
-    "LOG_01 :: INITIAL BREACH DETECTED",
-    "LOG_02 :: SIGNAL FRAGMENT RECOVERED",
-    "LOG_03 :: MARKET ANOMALY ESCALATING",
-    "LOG_04 :: RESIDENTIAL SECTOR FROZEN",
-    "LOG_05 :: OBSERVATORY TRACE ACTIVE"
-];
+    // 1. Live Clock & Battery
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    if(navigator.getBattery) navigator.getBattery().then(b => {
+        const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
+        up(); b.onlevelchange = up;
+    });
 
-const feed = document.getElementById("logFeed");
-let i = 0;
+    // 2. Live Market Data
+    async function getBTC() {
+        try {
+            const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+            const data = await res.json();
+            document.getElementById('btc').innerText = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
+        } catch(e) { }
+    }
+    getBTC(); setInterval(getBTC, 60000);
 
-function addLog() {
-    const entry = document.createElement("div");
-    entry.className = "log-entry";
-    entry.textContent = logs[i];
+    // 3. Terminal Log Feed
+    const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> PHYSICS_LEAK_DETECTION: ON", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE", "> ANALYZING_CHRONOS_DRIFT"];
+    const feed = document.getElementById("logFeed");
+    setInterval(() => {
+        const div = document.createElement("div"); div.className = "log-entry";
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${logData[Math.floor(Math.random()*logData.length)]}`;
+        feed.prepend(div);
+        if(feed.children.length > 12) feed.lastChild.remove();
+    }, 4000);
 
-    feed.appendChild(entry);
-    feed.scrollTop = feed.scrollHeight;
-
-    i = (i + 1) % logs.length;
-}
-
-addLog();
-setInterval(addLog, 6000);
+    // 4. Lead Sphere Drag Logic
+    const sphere = document.getElementById('lead-sphere');
+    let drag = false, offX, offY;
+    sphere.onmousedown = (e) => { drag = true; offX = e.offsetX; offY = e.offsetY; sphere.style.cursor = 'grabbing'; };
+    window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
+    window.onmousemove = (e) => {
+        if(drag) {
+            sphere.style.left = (e.clientX - offX) + 'px';
+            sphere.style.top = (e.clientY - offY) + 'px';
+        }
+    };
 </script>
-
 </body>
 </html>
