@@ -85,12 +85,13 @@
         /* --- NEURAL WAVEFORM CORE --- */
         #neural-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.6; pointer-events: none;
+            opacity: 0.8; pointer-events: none;
         }
 
         .hero-overlay-text {
             position: absolute; bottom: 20px; left: 20px; z-index: 5;
             font-size: 0.7rem; color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
         }
 
         /* --- TABLE & NAV --- */
@@ -105,7 +106,6 @@
 
         .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
         .val { color: var(--neon-gold); font-weight: bold; }
-        .chromatic-break { filter: contrast(1.5) hue-rotate(90deg); }
 
         #logScroll { font-size: 0.75rem; line-height: 1.4; opacity: 0.8; overflow: hidden; }
     </style>
@@ -124,7 +124,7 @@
             <div class="module-box">
                 <h2>NEURAL_TELEMETRY</h2>
                 <div class="stat"><span>SYNC_RATE</span><span class="val" id="syncVal">99.58%</span></div>
-                <div class="stat"><span>CEREBRAL_LOAD</span><span class="val">12%</span></div>
+                <div class="stat"><span>SIGNAL_STRENGTH</span><span class="val">94%</span></div>
                 <div class="stat"><span>IDENTITY_RISK</span><span class="val" style="color:var(--neon-red)">HIGH</span></div>
             </div>
 
@@ -134,7 +134,7 @@
             </div>
             
             <div class="module-box">
-                <button onclick="window.location.href='login.html'" style="width:100%; background:none; border:1px solid var(--neon-red); color:var(--neon-red); padding:10px; cursor:pointer; font-family:inherit;">TERMINATE_LINK</button>
+                <button onclick="window.location.href='login.html'" style="width:100%; background:none; border:1px solid var(--neon-red); color:var(--neon-red); padding:10px; cursor:pointer; font-family:inherit; text-transform: uppercase;">TERMINATE_LINK</button>
             </div>
         </aside>
 
@@ -142,9 +142,10 @@
             <canvas id="neural-canvas"></canvas>
             <div class="hero-overlay-text">
                 [ NEURAL_STABILIZATION_PROTOCOL: ACTIVE ]<br>
-                COGNITIVE_DRIFT: 0.0004%
+                COGNITIVE_DRIFT: 0.0004%<br>
+                SUBSTRATE_ECHO: <span style="color:var(--neon-gold)">DETECTED</span>
             </div>
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0.1; letter-spacing: 15px; pointer-events: none;">ALDERSYTH</div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0.1; letter-spacing: 15px; pointer-events: none; color: white;">ALDERSYTH</div>
         </section>
 
         <section class="module-box table-module">
@@ -156,7 +157,7 @@
                 <tbody>
                     <tr class="row-link" onclick="window.location.href='market.html'">
                         <td>02_MARKET_DISTRICT</td><td>#FNN-09</td>
-                        <td><span class="status-tag">ACCESS</span></td>
+                        <td><span class="status-tag" style="color:var(--neon-gold)">VOLATILE</span></td>
                     </tr>
                     <tr class="row-link" onclick="window.location.href='residential.html'">
                         <td>03_RESIDENTIAL_RINGS</td><td>#UNT-402</td>
@@ -164,7 +165,7 @@
                     </tr>
                     <tr class="row-link" onclick="window.location.href='observatory.html'">
                         <td>04_OBSERVATORY</td><td>#OBS-77</td>
-                        <td><span class="status-tag">STABLE</span></td>
+                        <td><span class="status-tag" style="color:var(--neon-cyan)">STABLE</span></td>
                     </tr>
                     <tr class="row-link" onclick="window.location.href='sync.html'">
                         <td>05_NEURAL_SYNC</td><td>#SYN-01</td>
@@ -172,7 +173,7 @@
                     </tr>
                     <tr class="row-link" onclick="window.location.href='spire.html'">
                         <td>06_THE_SPIRE</td><td>#SPR-42</td>
-                        <td><span class="status-tag">LOCKED</span></td>
+                        <td><span class="status-tag" style="color:var(--neon-gold)">LOCKED</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -180,7 +181,7 @@
     </main>
 
     <script>
-        // Wave Animation Logic
+        // Neural Wave Animation (Reference image_0c7edc.jpg)
         const canvas = document.getElementById('neural-canvas');
         const ctx = canvas.getContext('2d');
         let offset = 0;
@@ -196,36 +197,41 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.beginPath();
             ctx.strokeStyle = '#06b6d4';
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 15;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 20;
             ctx.shadowColor = '#06b6d4';
 
             const midY = canvas.height / 2;
+            const amplitude = 60;
+            const frequency = 0.01;
+
             for (let x = 0; x < canvas.width; x++) {
-                const y = midY + Math.sin(x * 0.01 + offset) * 50;
-                ctx.lineTo(x, y);
+                const y = midY + Math.sin(x * frequency + offset) * amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
             }
             ctx.stroke();
-            offset += 0.05;
+            offset += 0.04;
             requestAnimationFrame(drawWave);
         }
         drawWave();
 
-        // System Logs & Telemetry
-        const logMessages = ["SIGNAL_STRENGTH: 94%", "SYNC_STATUS: NOMINAL", "SUBSTRATE_ECHO: DETECTED", "LATENCY: 5MS", "CEREBRAL_LOAD: 20%"];
+        // System Logs & Telemetry Updates
+        const logMessages = ["SIGNAL_STRENGTH: 94%", "SYNC_STATUS: NOMINAL", "SUBSTRATE_ECHO: DETECTED", "LATENCY: 5MS", "CEREBRAL_LOAD: 20%", "PHYSICS_LEAK: CONTAINED"];
 
         function updateUI() {
             const logScroll = document.getElementById('logScroll');
             const entry = document.createElement('div');
-            entry.innerHTML = `> ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
+            const ts = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            entry.innerHTML = `<span style="opacity:0.5">[${ts}]</span> > ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
             logScroll.prepend(entry);
-            if (logScroll.children.length > 15) logScroll.removeChild(logScroll.lastChild);
+            if (logScroll.children.length > 12) logScroll.removeChild(logScroll.lastChild);
             
             document.getElementById('telemetry-clock').innerText = new Date().toLocaleTimeString();
             document.getElementById('syncVal').innerText = (99.40 + Math.random() * 0.2).toFixed(2) + "%";
         }
 
-        setInterval(updateUI, 1500);
+        setInterval(updateUI, 2000);
     </script>
 </body>
 </html>
