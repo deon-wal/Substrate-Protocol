@@ -7,212 +7,208 @@
     <style>
         :root {
             --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-dark: #05070a; --panel-border: rgba(6, 182, 212, 0.3);
+            --bg-dark: #020406; --panel-border: rgba(6, 182, 212, 0.3);
         }
 
         body {
             background-color: var(--bg-dark); color: #cffafe;
             font-family: 'Courier New', monospace; margin: 0;
-            overflow: hidden; height: 100vh; display: flex;
+            overflow: hidden; height: 100vh; display: grid;
+            grid-template-columns: 1fr 350px; grid-template-rows: 80px 1fr;
         }
 
-        /* --- BRUTALIST UI OVERLAYS --- */
+        /* --- ATMOSPHERIC FX --- */
         .crt-overlay {
             position: fixed; inset: 0; z-index: 1000; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 4px, 4px 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
         }
 
-        /* Corruption Grain */
-        body::before {
-            content: ""; position: fixed; inset: 0; z-index: 999; opacity: 0.03;
-            background: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-            pointer-events: none;
+        .vignette {
+            position: fixed; inset: 0; z-index: 999; pointer-events: none;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
         }
 
-        /* --- NAVIGATION SIDEBAR (Collapsed) --- */
-        .nav-sidebar {
-            width: 50px; background: #000; border-right: 2px solid var(--neon-cyan);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 40px; z-index: 1100; transition: 0.4s cubic-bezier(0.8, 0, 0.2, 1);
-        }
-        .nav-sidebar:hover { width: 180px; }
-        .nav-item { 
-            color: var(--neon-cyan); text-decoration: none; font-size: 0.7rem; 
-            writing-mode: vertical-rl; transform: rotate(180deg); opacity: 0.5; transition: 0.3s;
-        }
-        .nav-sidebar:hover .nav-item { writing-mode: horizontal-tb; transform: rotate(0); opacity: 1; }
-        .nav-item:hover { color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
-
-        /* --- MAIN ARCHITECTURE --- */
-        main {
-            flex-grow: 1; position: relative; padding: 40px;
-            display: grid; grid-template-columns: 1fr 320px; grid-template-rows: auto 1fr; gap: 20px;
-        }
-
-        .header-skew {
-            grid-column: 1 / -1; background: #000; border: 1px solid var(--neon-cyan);
-            padding: 15px 40px; transform: skewX(-10deg); margin-left: 20px;
+        /* --- HEADER --- */
+        header {
+            grid-column: 1 / span 2; border-bottom: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; background: #000; z-index: 10;
         }
 
-        .content-box {
-            border: 1px solid var(--panel-border); background: rgba(0,0,0,0.8);
-            position: relative; overflow: hidden;
+        .header-title { font-size: 0.8rem; letter-spacing: 4px; color: var(--neon-cyan); }
+
+        /* --- MAIN VIEWPORT --- */
+        main {
+            padding: 40px; position: relative; z-index: 5;
+            display: flex; flex-direction: column; gap: 20px;
         }
 
-        /* Geometric Leak Effect */
-        .content-box::after {
-            content: "SUBSTRATE_LEAK"; position: absolute; bottom: -10px; right: 10px;
-            font-size: 4rem; opacity: 0.03; color: var(--neon-cyan); pointer-events: none;
+        .hero-viewport {
+            height: 300px; border: 1px solid var(--panel-border); position: relative;
+            overflow: hidden; background: #000;
         }
 
-        .hero-viewport { position: relative; height: 300px; border-bottom: 4px solid var(--neon-red); }
-        .hero-img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.5) grayscale(1); mix-blend-mode: screen; }
-
-        /* --- LIVE DATA CHART --- */
-        .gravity-chart {
-            height: 120px; display: flex; align-items: flex-end; gap: 2px; padding: 10px; background: #000;
+        .hero-img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: contrast(1.2) grayscale(1) brightness(0.5);
+            mix-blend-mode: screen;
         }
-        .chart-bar { flex: 1; background: var(--neon-red); min-height: 2px; transition: height 0.1s; }
 
         .story-text {
-            padding: 30px; font-size: 0.95rem; line-height: 1.8; color: #88a;
-            max-height: 400px; overflow-y: auto;
+            font-size: 1.1rem; line-height: 1.8; color: #88a;
+            padding: 20px; border-left: 2px solid var(--neon-cyan);
+            max-width: 800px;
         }
 
-        .status-sidebar { display: flex; flex-direction: column; gap: 20px; }
+        /* --- NAVIGATION & STATUS COLUMN --- */
+        .status-sidebar {
+            grid-row: 2; grid-column: 2;
+            background: rgba(0,0,0,0.95); border-left: 1px solid var(--panel-border);
+            display: flex; flex-direction: column; padding: 30px; gap: 20px; z-index: 10;
+        }
+
+        .nav-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .nav-label { font-size: 0.6rem; color: var(--neon-gold); border-bottom: 1px solid var(--neon-gold); padding-bottom: 5px; }
+        
+        .nav-link {
+            text-decoration: none; color: var(--neon-cyan); font-size: 0.8rem;
+            padding: 12px; border: 1px solid rgba(6, 182, 212, 0.1); transition: 0.2s;
+            display: flex; justify-content: space-between;
+        }
+        .nav-link:hover { background: rgba(6, 182, 212, 0.1); border-color: var(--neon-cyan); padding-left: 20px; }
+        .nav-link.active { border-color: var(--neon-red); color: var(--neon-red); pointer-events: none; }
 
         .brutalist-card {
-            background: #000; border-left: 5px solid var(--neon-gold); padding: 20px;
-            font-size: 0.7rem; letter-spacing: 1px;
+            background: #000; border: 1px solid var(--panel-border); padding: 15px;
+            font-size: 0.7rem; position: relative;
         }
 
-        .scan-trigger {
-            background: var(--neon-red); color: #000; border: none; width: 100%;
-            padding: 15px; cursor: pointer; font-weight: bold; font-family: inherit;
-            clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+        .chart-container {
+            height: 80px; display: flex; align-items: flex-end; gap: 2px; margin-top: 10px;
         }
-        .scan-trigger:hover { filter: brightness(1.2); letter-spacing: 3px; }
+        .chart-bar { flex: 1; background: var(--neon-red); min-height: 2px; }
 
         /* --- ANIMATIONS --- */
-        .glitch-flash { animation: flash 0.1s steps(2) infinite; }
-        @keyframes flash { from { opacity: 1; } to { opacity: 0.7; filter: invert(1); } }
+        .glitch-active { animation: glitch-shake 0.1s infinite; color: var(--neon-red) !important; }
+        @keyframes glitch-shake {
+            0% { transform: translate(0); }
+            50% { transform: translate(2px, -1px); filter: hue-rotate(90deg); }
+            100% { transform: translate(-1px, 1px); }
+        }
+
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: rgba(6, 182, 212, 0.5);
+            top: 0; animation: scan-move 4s linear infinite;
+        }
+        @keyframes scan-move { from { top: 0; } to { top: 100%; } }
 
     </style>
 </head>
-<body id="body-root">
+<body>
     <div class="crt-overlay"></div>
+    <div class="vignette"></div>
 
-    <nav class="nav-sidebar">
-        <a href="index.html" class="nav-item">01_DASHBOARD</a>
-        <a href="market.html" class="nav-item">02_MARKET</a>
-        <a href="residential.html" class="nav-item">03_RESIDENTIAL</a>
-        <a href="sync.html" class="nav-item">04_SYNC</a>
-        <a href="terminal.html" class="nav-item">05_TERMINAL</a>
-        <a href="login.html" class="nav-item" style="color:var(--neon-red)">00_EXIT</a>
-    </nav>
+    <header>
+        <div class="header-title">SYSTEM_LINK // ARCH_01 // THE_SPIRE</div>
+        <div id="sys-status" style="font-size: 0.7rem;">[ STATUS: NOMINAL ]</div>
+        <div id="telemetry-clock" style="font-size: 0.8rem; color: var(--neon-gold);">00:00:00</div>
+    </header>
 
-    <main id="main-ui">
-        <header class="header-skew">
-            <div>
-                <span style="color: var(--neon-cyan)">FILE: ARCH_01</span> // THE_SPIRE 
-            </div>
-            <div id="telemetry-clock" style="font-size: 0.8rem;">3:24:45 PM</div>
-        </header>
-
-        <section class="content-box">
-            <div class="hero-viewport">
-                <img src="https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1000&auto=format&fit=crop" class="hero-img" alt="Spire Interface">
-                <div style="position:absolute; top:20px; left:20px; background:rgba(255,0,0,0.8); padding:5px; font-size:0.6rem; color:#000;">LIVE_FEED_CORRUPTED</div>
-            </div>
-            <div id="typewriter" class="story-text"></div>
+    <main id="main-display">
+        <section class="hero-viewport">
+            <div class="scan-line"></div>
+            <img src="https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1000" class="hero-img">
+            <div style="position:absolute; bottom:10px; left:10px; font-size:0.5rem; background:red; color:#000; padding:2px;">LIVE_FEED_UNSTABLE</div>
         </section>
 
-        <section class="status-sidebar">
-            <button class="scan-trigger" onclick="triggerScan()">INITIATE_DEEP_SCAN</button>
-
-            <div class="brutalist-card">
-                <h4 style="margin:0 0 10px 0; color:var(--neon-gold)">GRAVITY_FLUX_MAP</h4>
-                <div class="gravity-chart" id="chart-container"></div>
-                <div style="margin-top:10px; display:flex; justify-content: space-between;">
-                    <span>CURRENT: <span id="grav-val" style="color:var(--neon-red)">1.12G</span></span>
-                    <span id="load-pct">LOAD: 14%</span>
-                </div>
-            </div>
-
-            <div class="brutalist-card" style="border-left-color: var(--neon-cyan);">
-                <h4 style="margin:0 0 10px 0;">NEURAL_LOAD_METRICS</h4>
-                <div style="display:flex; justify-content: space-between; font-size: 1.2rem;">
-                    <span id="bpm-val">88</span><span style="font-size:0.5rem; align-self: flex-end;">BPM</span>
-                    <span id="sync-val" style="color:var(--neon-cyan)">94.2%</span>
-                </div>
-                <div id="hex-leak" style="margin-top:10px; font-size:0.5rem; opacity:0.5; height:40px; overflow:hidden;"></div>
-            </div>
-        </section>
+        <article id="typewriter" class="story-text"></article>
     </main>
 
+    <aside class="status-sidebar" id="sidebar">
+        <nav class="nav-group" id="nav-hud">
+            <div class="nav-label">SECTOR_INDEX</div>
+            <a href="index.html" class="nav-link"><span>01_DASHBOARD</span> <span>»</span></a>
+            <a href="market.html" class="nav-link"><span>02_MARKET</span> <span>»</span></a>
+            <a href="residential.html" class="nav-link"><span>03_RESIDENTIAL</span> <span>»</span></a>
+            <a href="sync.html" class="nav-link"><span>04_NEURAL_SYNC</span> <span>»</span></a>
+            <a href="terminal.html" class="nav-link"><span>05_TERMINAL</span> <span>»</span></a>
+            <a href="#" class="nav-link active"><span>06_THE_SPIRE</span> <span>[LOCKED]</span></a>
+        </nav>
+
+        <div class="brutalist-card">
+            <div class="nav-label" style="border-color: var(--neon-red); color: var(--neon-red);">GRAVITY_FLUX</div>
+            <div class="chart-container" id="gravity-bars"></div>
+            <div style="display:flex; justify-content: space-between; margin-top:10px;">
+                <span id="grav-val">1.12G</span>
+                <span id="load-val">LOAD: 12%</span>
+            </div>
+        </div>
+
+        <div class="brutalist-card">
+            <div class="nav-label">BIOMETRICS</div>
+            <div style="font-size: 1.2rem; margin: 10px 0;">
+                <span id="bpm-val">88</span> <span style="font-size: 0.6rem;">BPM</span>
+            </div>
+            <div id="hex-stream" style="font-size: 0.5rem; color: var(--neon-gold); word-break: break-all; opacity: 0.5;"></div>
+        </div>
+
+        <button class="nav-link" style="margin-top:auto; color:var(--neon-red); border-color:var(--neon-red);" onclick="location.href='login.html'">TERMINATE_LINK</button>
+    </aside>
+
     <script>
-        const text = `> ARCHIVE_ACCESS: GRANTED
-> LOCATION: THE_SPIRE [CORE_SECTOR]
-> STATUS: CRITICAL_DRIFT
-
-The Spire is not a building. It is a mathematical error made of carbon and silicon. 
-
-As I ascend, the Substrate begins to liquefy. The lead sphere in my hand now weighs 3.36KG. The air is thick with the scent of ozone and copper.
-
-[!! WARNING: GRAVITY SPIKE !!]
-
-Structural integrity is at 88.2%. If the sync drops below 90%, the architecture will dissolve back into raw data. I am moving as fast as the gravity allows.`;
+        const text = `> ARCHIVE_ACCESS: GRANTED\n> LOCATION: THE_SPIRE [CORE_SECTOR]\n\nThe Spire is not a building. It is a mathematical error made of carbon and silicon. \n\nAs I ascend, the Substrate begins to liquefy. The lead sphere in my hand now weighs 3.36KG. \n\n[!! WARNING: GRAVITY SPIKE DETECTED !!]\n\nStructural integrity is failing. If the sync drops below 90%, the architecture will dissolve back into raw data.`;
 
         let i = 0;
         const typewriter = document.getElementById("typewriter");
-        const chart = document.getElementById("chart-container");
-        
-        // Initialize Chart Bars
-        for(let j=0; j<30; j++) {
+        const navHud = document.getElementById("nav-hud");
+        const sysStatus = document.getElementById("sys-status");
+
+        // Initialize Gravity Bars
+        const barContainer = document.getElementById("gravity-bars");
+        for(let j=0; j<25; j++) {
             const bar = document.createElement('div');
             bar.className = 'chart-bar';
-            chart.appendChild(bar);
+            bar.style.height = '10%';
+            barContainer.appendChild(bar);
         }
 
-        function runUI() {
-            // Typewriter logic
+        function runInterface() {
             if (i < text.length) {
-                typewriter.innerHTML += text.charAt(i);
+                const char = text.charAt(i);
+                
+                // Trigger Glitch Event
+                if (char === '[') {
+                    navHud.classList.add('glitch-active');
+                    sysStatus.innerText = "[ STATUS: CORRUPTED ]";
+                    sysStatus.style.color = "var(--neon-red)";
+                    document.getElementById('main-display').classList.add('glitch-active');
+                }
+
+                typewriter.innerHTML += char;
                 i++;
-            }
+                
+                // Jitter Stats
+                if (i % 5 === 0) {
+                    document.getElementById('grav-val').innerText = (1.10 + Math.random() * 0.1).toFixed(2) + "G";
+                    document.getElementById('bpm-val').innerText = Math.floor(85 + Math.random() * 15);
+                    
+                    const bars = document.getElementsByClassName('chart-bar');
+                    for(let b of bars) b.style.height = (Math.random() * 100) + "%";
+                }
 
-            // Chart & Data Jitter
-            const bars = document.getElementsByClassName('chart-bar');
-            for(let b of bars) {
-                if(Math.random() > 0.8) b.style.height = Math.random() * 100 + "%";
-            }
-            
-            document.getElementById('grav-val').innerText = (1.10 + Math.random() * 0.1).toFixed(2) + "G";
-            document.getElementById('bpm-val').innerText = Math.floor(85 + Math.random() * 20);
-            document.getElementById('load-pct').innerText = "LOAD: " + Math.floor(10 + Math.random() * 10) + "%";
-            
-            // Hex Leak
-            document.getElementById('hex-leak').innerText = Math.random().toString(16).substring(2, 50).toUpperCase();
+                // Hex Leak
+                document.getElementById('hex-stream').innerText = Math.random().toString(16).toUpperCase().substring(2, 40);
 
-            setTimeout(runUI, 30);
+                setTimeout(runInterface, 30);
+            }
         }
 
-        function triggerScan() {
-            const ui = document.getElementById('main-ui');
-            ui.classList.add('glitch-flash');
-            setTimeout(() => ui.classList.remove('glitch-flash'), 800);
-        }
-
-        // Live Clock
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('telemetry-clock').innerText = now.toLocaleTimeString();
+            document.getElementById('telemetry-clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
 
-        window.onload = runUI;
+        window.onload = runInterface;
     </script>
 </body>
 </html>
