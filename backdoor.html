@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // ROOT_KERNEL_v9</title>
+    <style>
+        :root {
+            --color-core: #33ff00;    /* Classic Terminal Green */
+            --color-warn: #ff3e3e;    /* Error Red */
+            --color-gold: #ffb000;    /* Rare/Lore Gold */
+            --color-cyan: #06b6d4;    /* System Blue */
+            --color-dim:  #445544;    /* Dimmed Text */
+            --bg-black:   #0a0a0c;
+        }
+
+        @font-face {
+            font-family: 'VCROSD';
+            src: local('Courier New'); /* Fallback */
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: var(--color-core);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 14px;
+            text-shadow: 0 0 4px rgba(51, 255, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- CRT SCREEN EFFECTS --- */
+        #screen-layer {
+            position: absolute; inset: 0; pointer-events: none; z-index: 100;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), 
+                        linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+            background-size: 100% 3px, 3px 100%;
+            animation: flicker 0.15s infinite;
+        }
+        
+        @keyframes flicker { 0% { opacity: 0.95; } 5% { opacity: 0.9; } 10% { opacity: 0.95; } }
+
+        /* --- TERMINAL CONTAINER --- */
+        #terminal-container {
+            flex: 1;
+            padding: 20px 20px 100px 20px; /* Bottom padding for scroll */
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Hides scrollbar but allows scrolling */
+        #terminal-container::-webkit-scrollbar { width: 8px; }
+        #terminal-container::-webkit-scrollbar-track { background: #000; }
+        #terminal-container::-webkit-scrollbar-thumb { background: #112211; }
+
+        .line { 
+            white-space: pre-wrap; 
+            line-height: 1.5; 
+            margin-bottom: 2px; 
+            word-break: break-word;
+        }
+        
+        .input-wrapper { display: flex; align-items: center; margin-top: 10px; }
+        .prompt { color: var(--color-gold); margin-right: 10px; font-weight: bold; }
+        
+        #cmd-input {
+            background: transparent; border: none; color: #fff;
+            font-family: inherit; font-size: inherit; flex: 1;
+            outline: none; caret-color: var(--color-core);
+            text-transform: uppercase;
+        }
+
+        /* --- UTILITY CLASSES --- */
+        .cyan { color: var(--color-cyan); }
+        .red { color: var(--color-warn); text-shadow: 0 0 8px var(--color-warn); }
+        .gold { color: var(--color-gold); }
+        .dim { color: var(--color-dim); }
+        .bold { font-weight: bold; }
+        .glitch { animation: glitch-anim 0.3s infinite; }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* --- MINIGAME UI --- */
+        #minigame-ui {
+            display: none;
+            border: 1px solid var(--color-core);
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 400px;
+        }
+        .progress-bar { width: 100%; height: 10px; background: #111; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--color-core); width: 0%; transition: width 0.1s; }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-layer"></div>
+
+    <div id="terminal-container">
+        <div id="history"></div>
+        
+        <div id="minigame-ui">
+            <div class="line bold">>> SEQUENCE BREACH PROTOCOL <<</div>
+            <div class="line dim">Press [SPACE] when the numbers match.</div>
+            <div class="line" style="margin-top:15px;">TARGET: <span id="mg-target" class="gold">99</span></div>
+            <div class="line">CURRENT: <span id="mg-current" class="cyan">00</span></div>
+            <div class="progress-bar"><div id="mg-bar" class="progress-fill"></div></div>
+            <div id="mg-status" class="line red" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="input-wrapper" id="input-area" style="display:none;">
+            <span class="prompt" id="prompt-text">GUEST@SUBSTRATE:~#</span>
+            <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
+        </div>
+    </div>
+
+    <script>
+        // --- VIRTUAL FILE SYSTEM ---
+        const fileSystem = {
+            "ROOT": {
+                type: "dir",
+                content: {
+                    "README.TXT": { type: "file", content: "WARNING: UNAUTHORIZED ACCESS DETECTED.\nThis is a restricted Substrate node. All activity is logged.\n\nType 'HELP' for a list of commands." },
+                    "LOGS": {
+                        type: "dir",
+                        content: {
+                            "KAEL_01.LOG": { type: "file", content: "[FROM: K.VANCE // STRUCTURAL ANALYST]\nThe Vector Drift in Sector 4 is getting worse. I saw a coffee cup clip through a table today. Sloane keeps saying it's 'acceptable variance'. It isn't." },
+                            "VERA_OBS.LOG": { type: "file", content: "[FROM: V.ROTH // OBSERVER]\nThe Crow is watching me again. I think it knows I hid the encryption key in the mail archive." },
+                            "ERROR_DUMP.DAT": { type: "file", content: "CRITICAL FAILURE: LEAD SPHERE STABILITY AT 12%.\nSUGGEST IMMEDIATE EVACUATION OF SPIRE DISTRICT." }
+                        }
+                    },
+                    "MAIL": {
+                        type: "dir",
+                        content: {
+                            "INBOX_ENCRYPTED": { type: "file", encrypted: true, key: "ORIGAMI", content: "[DECRYPTED]\nSubject: Backdoor Access\nFrom: Sloane\n\nIf you get locked out of the main UI again, just use the manual override code: 'TECTONIC'.\n\nDon't write this down." },
+                            "DRAFT.TXT": { type: "file", content: "To Sloane: We need to shut down the Observatory. The geometry is folding." }
+                        }
+                    },
+                    "BIN": {
+                        type: "dir",
+                        content: {
+                            "SEQUENCE_BREACH.EXE": { type: "exec", func: "runMinigame" },
+                            "NET_DIAG.EXE": { type: "exec", func: "runNetDiag" }
+                        }
+                    }
+                }
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentPath = []; // empty = root
+        let currentDirObj = fileSystem["ROOT"];
+        let commandHistory = [];
+        let historyIndex = -1;
+        let isMinigameActive = false;
+
+        // --- DOM ELEMENTS ---
+        const term = document.getElementById('history');
+        const input = document.getElementById('cmd-input');
+        const inputArea = document.getElementById('input-area');
+        const promptText = document.getElementById('prompt-text');
+        const minigameUI = document.getElementById('minigame-ui');
+
+        // --- CORE FUNCTIONS ---
+
+        function print(text, className = '') {
+            const div = document.createElement('div');
+            div.className = 'line ' + className;
+            div.innerHTML = text; // Allow HTML parsing
+            term.appendChild(div);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function getDir(pathArray) {
+            let dir = fileSystem["ROOT"];
+            for (const p of pathArray) {
+                if (dir.content && dir.content[p]) {
+                    dir = dir.content[p];
+                } else {
+                    return null;
+                }
+            }
+            return dir;
+        }
+
+        function updatePrompt() {
+            const pathStr = currentPath.length === 0 ? "~" : "~/" + currentPath.join("/");
+            promptText.innerText = `GUEST@SUBSTRATE:${pathStr}#`;
+        }
+
+        // --- BOOT SEQUENCE ---
+        async function bootSequence() {
+            const steps = [
+                { msg: "INITIALIZING SUBSTRATE KERNEL v9.0...", ms: 500 },
+                { msg: "CHECKING VRAM... [OK]", ms: 200 },
+                { msg: "MOUNTING VIRTUAL DRIVES... [OK]", ms: 300 },
+                { msg: "LOADING DRIVERS: [NEON_MIST] [GRAVITY_PHYSICS]...", ms: 600 },
+                { msg: "<span class='red'>WARNING: CONNECTION UNSECURED</span>", ms: 400 },
+                { msg: "ESTABLISHING UPLINK TO SPIRE...", ms: 800 },
+                { msg: "<br><span class='cyan'>WELCOME TO ALDERSYTH TERMINAL.</span>", ms: 100 },
+                { msg: "Type 'HELP' to view available commands.", ms: 100 }
+            ];
+
+            for (let step of steps) {
+                await new Promise(r => setTimeout(r, step.ms));
+                print(step.msg);
+            }
+            inputArea.style.display = 'flex';
+            input.focus();
+        }
+
+        // --- COMMAND PARSER ---
+        input.addEventListener('keydown', function(e) {
+            if (isMinigameActive) {
+                e.preventDefault();
+                handleMinigameInput(e.code);
+                return;
+            }
+
+            // History Navigation
+            if (e.key === 'ArrowUp') {
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                }
+                e.preventDefault();
+            } else if (e.key === 'ArrowDown') {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                } else {
+                    historyIndex = -1;
+                    input.value = '';
+                }
+                e.preventDefault();
+            }
+
+            // Tab Autocomplete
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const currentVal = this.value;
+                const args = currentVal.split(' ');
+                const partial = args[args.length - 1].toUpperCase();
+                
+                // Get contents of current directory
+                const files = currentDirObj.content ? Object.keys(currentDirObj.content) : [];
+                const cmds = ["HELP", "LS", "CD", "CAT", "CLEAR", "LOGIN", "DECRYPT", "PWD"];
+                
+                const possibilities = [...files, ...cmds].filter(x => x.startsWith(partial));
+                
+                if (possibilities.length === 1) {
+                    args[args.length - 1] = possibilities[0];
+                    this.value = args.join(' ');
+                }
+            }
+
+            // Execution
+            if (e.key === 'Enter') {
+                const raw = this.value;
+                if (!raw) return;
+
+                commandHistory.push(raw);
+                historyIndex = -1;
+
+                print(`<span class='dim'>${promptText.innerText}</span> ${raw}`);
+                this.value = '';
+
+                execute(raw.trim());
+            }
+        });
+
+        function execute(cmdStr) {
+            const args = cmdStr.split(' ');
+            const cmd = args[0].toUpperCase();
+            const param = args[1];
+
+            switch(cmd) {
+                case 'HELP':
+                    print("AVAILABLE COMMANDS:");
+                    print("  LS ................. List directory contents");
+                    print("  CD [DIR] ........... Change directory (.. to go back)");
+                    print("  CAT [FILE] ......... Read file content");
+                    print("  ./[FILE] ........... Execute a program (.EXE)");
+                    print("  DECRYPT [FILE] ..... Attempt to decrypt a secured file");
+                    print("  LOGIN [PASS] ....... Authenticate to Main OS");
+                    print("  CLEAR .............. Clear screen");
+                    break;
+
+                case 'LS':
+                    if (currentDirObj.content) {
+                        let output = "";
+                        for (let [name, data] of Object.entries(currentDirObj.content)) {
+                            if (data.type === 'dir') output += `<span class='cyan'>${name}/</span>  `;
+                            else if (data.type === 'exec') output += `<span class='red'>${name}</span>  `;
+                            else output += `${name}  `;
+                        }
+                        print(output);
+                    } else {
+                        print("Directory empty.");
+                    }
+                    break;
+
+                case 'CD':
+                    if (!param) { print("Usage: CD [DIRECTORY]"); return; }
+                    if (param === "..") {
+                        if (currentPath.length > 0) {
+                            currentPath.pop();
+                            currentDirObj = getDir(currentPath);
+                            updatePrompt();
+                        }
+                    } else {
+                        const target = param.toUpperCase().replace('/', '');
+                        if (currentDirObj.content && currentDirObj.content[target] && currentDirObj.content[target].type === 'dir') {
+                            currentPath.push(target);
+                            currentDirObj = currentDirObj.content[target];
+                            updatePrompt();
+                        } else {
+                            print(`Error: Directory '${target}' not found.`, 'red');
+                        }
+                    }
+                    break;
+
+                case 'CAT':
+                    if (!param) { print("Usage: CAT [FILENAME]"); return; }
+                    const targetFile = param.toUpperCase();
+                    if (currentDirObj.content && currentDirObj.content[targetFile]) {
+                        const fileData = currentDirObj.content[targetFile];
+                        if (fileData.type === 'file') {
+                            if (fileData.encrypted) {
+                                print(`FILE ENCRYPTED. Use 'DECRYPT [FILE] [KEY]' to access.`, 'red');
+                            } else {
+                                print("--------------------------------");
+                                print(fileData.content, 'gold');
+                                print("--------------------------------");
+                            }
+                        } else {
+                            print("Error: Not a readable file.", 'red');
+                        }
+                    } else {
+                        print("Error: File not found.", 'red');
+                    }
+                    break;
+
+                case 'DECRYPT':
+                    const dFile = args[1] ? args[1].toUpperCase() : null;
+                    const dKey = args[2] ? args[2].toUpperCase() : null;
+                    
+                    if (!dFile || !dKey) { print("Usage: DECRYPT [FILENAME] [PASSWORD]"); return; }
+                    
+                    if (currentDirObj.content && currentDirObj.content[dFile]) {
+                        const f = currentDirObj.content[dFile];
+                        if (f.encrypted) {
+                            if (dKey === f.key) {
+                                f.encrypted = false;
+                                print("DECRYPTION SUCCESSFUL.", 'cyan');
+                                print(f.content, 'gold');
+                            } else {
+                                print("ACCESS DENIED: INCORRECT KEY.", 'red');
+                            }
+                        } else {
+                            print("File is not encrypted.");
+                        }
+                    } else {
+                        print("File not found.");
+                    }
+                    break;
+
+                case 'LOGIN':
+                case 'SUDO':
+                    const pass = param ? param.toUpperCase() : "";
+                    if (pass === 'TECTONIC' || pass === 'SLOANE') {
+                        print("AUTHENTICATION ACCEPTED.", 'cyan');
+                        print("REDIRECTING TO GUI...", 'dim');
+                        setTimeout(() => window.location.href = "index.html", 1500);
+                    } else {
+                        print("AUTHENTICATION FAILED.", 'red');
+                    }
+                    break;
+
+                case 'CLEAR':
+                    term.innerHTML = '';
+                    break;
+
+                case 'PWD':
+                    print("/" + currentPath.join("/"));
+                    break;
+
+                default:
+                    // Check for executable execution (./)
+                    if (cmd.startsWith('./') || cmd.endsWith('.EXE')) {
+                        const exeName = cmd.replace('./', '');
+                        if (currentDirObj.content && currentDirObj.content[exeName] && currentDirObj.content[exeName].type === 'exec') {
+                            window[currentDirObj.content[exeName].func](); // Run linked JS function
+                        } else {
+                            print("Error: Executable not found.", 'red');
+                        }
+                    } else {
+                        print(`Command '${cmd}' not recognized.`, 'dim');
+                    }
+            }
+        }
+
+        // --- EXECUTABLE SCRIPTS ---
+
+        function runNetDiag() {
+            print("RUNNING NETWORK DIAGNOSTICS...", 'cyan');
+            setTimeout(() => print("> NODE_01 (SPIRE): <span class='gold'>ONLINE</span>"), 500);
+            setTimeout(() => print("> NODE_02 (RINGS): <span class='red'>OFFLINE</span>"), 1000);
+            setTimeout(() => print("> NODE_03 (SUBSTRATE): <span class='cyan'>CONNECTED</span>"), 1500);
+            setTimeout(() => print("DIAGNOSTIC COMPLETE."), 1800);
+        }
+
+        // --- HACKING MINIGAME ---
+        let mgTarget, mgInterval, mgBarVal = 0;
+        
+        function runMinigame() {
+            isMinigameActive = true;
+            inputArea.style.display = 'none';
+            minigameUI.style.display = 'block';
+            print("INITIALIZING SEQUENCE BREACH...", 'cyan');
+            
+            mgTarget = Math.floor(Math.random() * 90) + 10;
+            document.getElementById('mg-target').innerText = mgTarget;
+            document.getElementById('mg-status').innerText = "";
+            
+            // Start looping numbers
+            mgInterval = setInterval(() => {
+                const random = Math.floor(Math.random() * 99);
+                document.getElementById('mg-current').innerText = random < 10 ? "0"+random : random;
+                
+                // Visual bar movement
+                mgBarVal = (mgBarVal + 5) % 100;
+                document.getElementById('mg-bar').style.width = mgBarVal + "%";
+            }, 50);
+        }
+
+        function handleMinigameInput(code) {
+            if (code === 'Space') {
+                clearInterval(mgInterval);
+                const current = parseInt(document.getElementById('mg-current').innerText);
+                
+                // Generous hit window of +/- 5
+                if (Math.abs(current - mgTarget) <= 5) {
+                    document.getElementById('mg-status').innerText = "SUCCESS! SYSTEM BYPASSED.";
+                    document.getElementById('mg-status').className = "line cyan";
+                    setTimeout(() => {
+                        minigameUI.style.display = 'none';
+                        inputArea.style.display = 'flex';
+                        input.focus();
+                        isMinigameActive = false;
+                        print("BREACH SUCCESSFUL. ROOT ACCESS GRANTED TEMPORARILY.", 'gold');
+                        print("Use 'LOGIN TECTONIC' to proceed.");
+                    }, 1500);
+                } else {
+                    document.getElementById('mg-status').innerText = "FAILED. SYNC ERROR.";
+                    setTimeout(() => {
+                        minigameUI.style.display = 'none';
+                        inputArea.style.display = 'flex';
+                        input.focus();
+                        isMinigameActive = false;
+                        print("BREACH FAILED.", 'red');
+                    }, 1000);
+                }
+            }
+        }
+
+        // Start
+        window.onload = bootSequence;
+
+        // Click anywhere to focus input
+        document.addEventListener('click', () => { if(!isMinigameActive) input.focus(); });
+
+    </script>
+</body>
+</html>
