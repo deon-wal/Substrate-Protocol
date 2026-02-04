@@ -74,7 +74,7 @@
 
         /* --- LOGIN FORM (CENTER OF GYRO) --- */
         .login-core {
-            width: 200px;
+            width: 240px;
             text-align: center;
             position: relative;
             z-index: 100;
@@ -89,6 +89,7 @@
             color: #fff;
             padding: 12px;
             width: 100%;
+            box-sizing: border-box;
             text-align: center;
             font-family: inherit;
             letter-spacing: 2px;
@@ -122,6 +123,48 @@
 
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
+        /* --- RESONANCE TOOL CSS --- */
+        .resonance-trigger {
+            font-size: 0.6rem; color: #444; margin-bottom: 15px; cursor: pointer;
+            text-align: right; transition: 0.3s; border-bottom: 1px dashed transparent;
+        }
+        .resonance-trigger:hover {
+            color: var(--crimson); border-bottom-color: var(--crimson);
+        }
+        .resonance-trigger:hover::after { content: " // INITIATE_STRESS_TEST"; color: var(--gold); }
+
+        #resonance-overlay {
+            position: absolute; top: 105%; left: 0; width: 100%;
+            background: rgba(10, 5, 0, 0.95); /* Dark Rust BG */
+            border: 1px solid var(--gold);
+            padding: 15px; box-sizing: border-box;
+            display: none; 
+            z-index: 200; font-family: monospace; text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+        }
+
+        .res-header { color: var(--gold); font-size: 0.7rem; border-bottom: 1px solid #333; margin-bottom: 8px; }
+        .res-readout { display: flex; justify-content: space-between; color: var(--teal); font-size: 0.7rem; margin-bottom: 8px; }
+        #res-log { color: #888; font-size: 0.6rem; margin-bottom: 5px; height: 1.2em; white-space: nowrap; overflow: hidden; }
+
+        .seismic-line {
+            width: 100%; height: 2px; background: #333; position: relative; overflow: hidden;
+        }
+        .seismic-line::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 20%; height: 100%;
+            background: var(--crimson);
+            animation: seismic-scan 0.5s infinite linear;
+        }
+        @keyframes seismic-scan { 0% { left: -20%; } 100% { left: 120%; } }
+
+        /* Violent Shake for Stress Test */
+        .shake-hard { animation: shake-violent 0.1s infinite !important; }
+        @keyframes shake-violent {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            50% { transform: translate(-2px, 2px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(1deg); }
+        }
+
     </style>
 </head>
 <body>
@@ -143,6 +186,20 @@
             
             <input type="text" id="username" placeholder="NODE_ID" autocomplete="off">
             <input type="password" id="password" placeholder="KEY" onkeydown="checkInput(this)">
+            
+            <div class="resonance-trigger" onclick="initiateResonance()">
+                [⚠ STRUCTURAL_INTEGRITY: 99% ]
+            </div>
+
+            <div id="resonance-overlay">
+                <div class="res-header">>> KINETIC_DRIVER_v4.0</div>
+                <div class="res-readout">
+                    <span>FREQ: <span id="freq-val">00.0</span> Hz</span>
+                    <span>STRESS: <span id="stress-val">0</span>%</span>
+                </div>
+                <div id="res-log">TARGETING WEAK POINTS...</div>
+                <div class="seismic-line"></div>
+            </div>
             
             <button class="btn-main" onclick="attemptLogin()">INITIATE_LINK</button>
             
@@ -191,65 +248,4 @@
 
         window.onload = runBoot;
 
-        // --- 2. INPUT REACTIVITY ---
-        function checkInput(el) {
-            // Secret visual cue if they type TECTONIC partially
-            if(el.value.toUpperCase().includes("TEC")) {
-                document.querySelector('.r3').style.borderColor = "#ef4444"; // Inner ring turns red
-            }
-            if(el.key === "Enter") attemptLogin();
-        }
-
-        // --- 3. LOGIN LOGIC ---
-        function attemptLogin() {
-            const u = document.getElementById('username').value.toUpperCase();
-            const p = document.getElementById('password').value.toUpperCase();
-            const status = document.getElementById('status');
-            const body = document.body;
-            const gyro = document.querySelector('.gyro-container');
-
-            status.innerText = "VERIFYING BIOMETRICS...";
-            status.style.color = "#fff";
-
-            setTimeout(() => {
-                // CASE 1: THE BACKDOOR (ROOT)
-                if (p === 'TECTONIC') {
-                    body.classList.add('root-override'); // Shaking / Red
-                    status.innerText = "⚠ SYSTEM FAILURE ⚠ ROOT ACCESS FORCED";
-                    status.style.color = "var(--crimson)";
-                    
-                    // Glitch Sound Effect (Visual)
-                    document.body.style.filter = "invert(1)";
-                    
-                    setTimeout(() => window.location.href = "backdoor.html", 2000);
-                }
-                
-                // CASE 2: ADMIN (SLOANE)
-                else if (u === 'SLOANE') {
-                    body.classList.add('access-granted'); // Teal / Fast Spin
-                    status.innerText = "WELCOME, LEAD THEORIST.";
-                    status.style.color = "var(--teal)";
-                    setTimeout(() => window.location.href = "spire.html", 1500);
-                }
-                
-                // CASE 3: GUEST (ANY OTHER INPUT)
-                else if (u !== "") {
-                    body.classList.add('access-granted');
-                    status.innerText = "GUEST NODE RECOGNIZED.";
-                    status.style.color = "var(--teal)";
-                    setTimeout(() => window.location.href = "spire.html", 1500);
-                }
-                
-                // CASE 4: EMPTY
-                else {
-                    status.innerText = "ERROR: NULL_INPUT";
-                    status.style.color = "var(--crimson)";
-                    // Shake input
-                    document.getElementById('username').style.animation = "shake 0.2s";
-                    setTimeout(() => document.getElementById('username').style.animation = "", 200);
-                }
-            }, 1000);
-        }
-    </script>
-</body>
-</html>
+        // ---
