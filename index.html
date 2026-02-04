@@ -3,164 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // MONITORING_SYSTEM_V2</title>
+    <title>ALDERSYTH // SUBSTRATE_PROTOCOL</title>
     <style>
         :root {
-            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-dark: #0a0f12; --panel-border: rgba(6, 182, 212, 0.2);
+            --neon-gold: #ffb000;
+            --neon-red: #ff3e3e;
+            --bg-black: #050505;
+            --panel-border: rgba(255, 176, 0, 0.3);
+            --font-main: 'Courier New', Courier, monospace;
         }
 
         body {
-            background-color: var(--bg-dark); color: #cffafe;
-            font-family: 'Courier New', Courier, monospace; margin: 0; overflow-x: hidden;
+            background-color: var(--bg-black);
+            color: var(--neon-gold);
+            font-family: var(--font-main);
+            margin: 0;
+            overflow-x: hidden;
+            text-transform: uppercase;
+            background-image: radial-gradient(circle, rgba(255, 176, 0, 0.05) 1px, transparent 1px);
+            background-size: 25px 25px;
         }
 
-        /* --- HUD EFFECTS --- */
+        /* --- CRT & GLOBAL EFFECTS --- */
         .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1000;
+            background-size: 100% 4px, 3px 100%; z-index: 1000; pointer-events: none;
         }
 
-        .alert-banner {
-            background: var(--neon-red); color: #000; font-size: 0.65rem;
-            text-align: center; padding: 4px; font-weight: bold; animation: pulse 1s infinite;
+        .scanline {
+            width: 100%; height: 2px; background: rgba(255, 176, 0, 0.1);
+            position: fixed; top: 0; z-index: 1001; pointer-events: none;
+            animation: scanline 8s linear infinite;
         }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- LAYOUT --- */
-        .tactical-nav {
-            display: flex; justify-content: space-between; padding: 12px 25px;
-            background: #000; border-bottom: 1px solid var(--panel-border); font-size: 0.75rem;
-        }
-
+        /* --- GRID LAYOUT --- */
         .dashboard-grid {
-            display: grid; grid-template-columns: 280px 1fr 320px; gap: 20px; padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            grid-template-areas: "sidebar hero" "sidebar table";
+            gap: 20px; padding: 20px; box-sizing: border-box;
         }
 
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 15px; }
+        .visual-core { grid-area: hero; position: relative; }
+        .table-module { grid-area: table; }
 
+        /* --- MODULE STYLING --- */
         .module-box {
-            background: rgba(6, 182, 212, 0.02); border: 1px solid var(--panel-border);
-            padding: 15px; margin-bottom: 15px; position: relative;
+            border: 1px solid var(--panel-border);
+            padding: 15px; background: rgba(255, 176, 0, 0.02);
+            position: relative;
+            clip-path: polygon(0 0, 97% 0, 100% 3%, 100% 100%, 3% 100%, 0 97%);
         }
 
-        .module-box h3 {
-            color: var(--neon-cyan); font-size: 0.7rem; margin: 0 0 10px 0;
-            border-bottom: 1px solid var(--panel-border); padding-bottom: 4px;
+        .module-box h2, .module-box h3 {
+            font-size: 0.9rem; margin: 0 0 10px 0; border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 5px; letter-spacing: 2px;
         }
 
-        /* --- VISUALS --- */
+        /* --- HERO & JITTER --- */
         .hero-frame {
-            border: 1px solid var(--neon-cyan); height: 450px; background: #000;
-            position: relative; overflow: hidden;
+            position: relative; border: 1px solid var(--neon-gold);
+            height: 400px; background: #000; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            animation: subsonic-jitter 0.2s infinite;
         }
 
-        .main-visual { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-
-        .log-manifest {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px; padding: 20px;
+        @keyframes subsonic-jitter {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(0.5px, -0.5px); }
+            75% { transform: translate(-0.5px, 0.5px); }
         }
 
-        .log-entry {
-            border: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);
-            text-decoration: none; color: inherit; transition: 0.3s;
+        .hero-frame::before, .hero-frame::after {
+            content: ""; position: absolute; width: 30px; height: 30px;
+            border: 2px solid var(--neon-gold); z-index: 5;
+        }
+        .hero-frame::before { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+        .hero-frame::after { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
+
+        .main-visual {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: sepia(100%) hue-rotate(-50deg) contrast(150%) brightness(0.5);
+            opacity: 0.6; transition: transform 0.1s ease-out;
         }
 
-        .log-entry:hover { border-color: var(--neon-cyan); box-shadow: 0 0 15px var(--panel-border); }
-
-        .purged-static {
-            height: 120px; display: flex; align-items: center; justify-content: center;
-            background: repeating-linear-gradient(45deg, #0a0a0a, #0a0a0a 2px, #1a1a1a 2px, #1a1a1a 4px);
-            font-size: 0.6rem; color: var(--neon-red);
+        .glitch-title {
+            position: absolute; font-size: 3.5rem; font-weight: bold;
+            letter-spacing: 12px; z-index: 2; text-align: center;
+            animation: pulse-glow 3s infinite ease-in-out;
         }
 
-        .glow-btn {
-            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
-            padding: 12px; width: 100%; cursor: pointer; font-family: inherit; text-transform: uppercase;
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 5px var(--neon-gold); opacity: 0.8; }
+            50% { text-shadow: 0 0 20px var(--neon-gold), 0 0 30px var(--neon-red); opacity: 1; }
         }
 
-        .glow-btn:hover { background: var(--neon-cyan); color: #000; }
+        /* --- UTILITY CLASSES --- */
+        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; }
+        .val { color: var(--neon-gold); font-weight: bold; }
+        .chromatic-break { text-shadow: 2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7); }
+
+        .action-menu button {
+            display: block; width: 100%; background: transparent;
+            color: var(--neon-gold); border: 1px solid var(--neon-gold);
+            padding: 12px; margin-top: 10px; cursor: pointer;
+            text-transform: uppercase; font-family: inherit;
+        }
+        .action-menu button:hover { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px var(--neon-gold); }
+        .action-menu button.warning { color: var(--neon-red); border-color: var(--neon-red); }
     </style>
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div class="alert-banner">!! LOGIC_COLLAPSE_DETECTED // REALITY_ANCHORS_FAILING !!</div>
+    <div class="scanline"></div>
 
-    <header class="tactical-nav">
-        <div>● SYSTEM_LOGIC: OPTIMIZED</div>
-        <div style="color:var(--neon-gold)">ALDERSYTH // SUBSTRATE_PROTOCOL</div>
-        <div>2026/02/04 // 12:07:22</div>
+    <header class="module-box" style="margin: 20px; border-bottom: 2px solid var(--neon-gold);">
+        ALDERSYTH // SUBSTRATE_MONITOR // UNIT: KAEL-01
     </header>
 
     <main class="dashboard-grid">
         <aside class="sidebar-left">
             <div class="module-box">
-                <h3>NEURAL_TETHER</h3>
-                <div id="bpm" style="font-size: 1.5rem; color: var(--neon-red);">148 BPM</div>
-                <div style="font-size: 0.6rem; margin-top: 5px;">SYNC: <span style="color:var(--neon-gold)">SLAVED</span></div>
+                <h2>NEURAL_TELEMETRY</h2>
+                <div class="stat"><span>SYNC_RATE</span><span class="val" id="syncVal">99.4%</span></div>
+                <div class="stat"><span>HEART_RATE</span><span class="val" id="bpm">148 BPM</span></div>
+                <div class="stat"><span>STRESS_LVL</span><span class="val" id="stressVal">STABLE</span></div>
             </div>
 
             <div class="module-box">
-                <h3>GROUNDING_WEIGHT</h3>
-                <div style="font-size: 0.7rem;">LEAD_SPHERE: 3.00KG</div>
-                <div style="width: 100%; height: 6px; background: #111; margin: 8px 0;">
-                    <div style="width: 85%; height: 100%; background: var(--neon-gold);"></div>
-                </div>
-                <div style="font-size: 0.6rem;">VECTOR: <span style="color:var(--neon-red)">BUOYANT</span></div>
+                <h2>LOCAL_PHYSICS</h2>
+                <div class="stat"><span>GRAVITY</span><span class="val" id="gravVal">0.84G</span></div>
+                <div class="stat"><span>WEIGHT_REF</span><span class="val">3.00KG</span></div>
             </div>
 
-            <button class="glow-btn" onclick="document.getElementById('archive').scrollIntoView({behavior:'smooth'})">DATA_ARCHIVE</button>
+            <div class="module-box action-menu">
+                <button onclick="location.href='index.html'">DASHBOARD</button>
+                <button class="warning" onclick="initiateReboot()">IDENTITY_ERASE</button>
+            </div>
         </aside>
 
         <section class="visual-core">
             <div class="hero-frame">
-                <img src="images/market_thumbnail.jpg" class="main-visual" alt="Spire">
-                <div style="position:absolute; top:10px; left:10px; font-size:0.6rem; background:rgba(0,0,0,0.8); padding:4px;">PHYSICS_BREAK: ATOMIZED_MIST</div>
+                <div class="glitch-title">ALDERSYTH</div>
+                <img src="images/market_thumbnail.jpg" class="main-visual" id="heroImg">
             </div>
         </section>
 
-        <section class="module-box">
-            <h3>ANOMALY_LOG</h3>
-            <table style="width:100%; font-size: 0.6rem; border-collapse: collapse;">
-                <tr style="color:var(--neon-red); border-bottom: 1px solid var(--panel-border);"><td>#SPR-42</td><td>GRAV</td><td>CRITICAL</td></tr>
-                <tr><td>#FNN-09</td><td>MATTER</td><td>VOLATILE</td></tr>
-                <tr><td>#UNT-402</td><td>LOGIC</td><td>PURGED</td></tr>
+        <section class="module-box table-module">
+            <h2>MEGASTRUCTURE_ANALYSIS</h2>
+            <table id="anomaliesTable">
+                <thead>
+                    <tr><th>SECTOR</th><th>ANOMALY_ID</th><th>STATUS</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>SPIRE_742-G</td><td>#SPR-42</td><td>CRITICAL</td></tr>
+                    <tr><td>MARKET_DIST</td><td>#FNN-09</td><td>VOLATILE</td></tr>
+                    <tr><td>RESI_UNIT</td><td>#UNT-402</td><td>PURGED</td></tr>
+                </tbody>
             </table>
         </section>
     </main>
 
-    <section id="archive">
-        <h2 style="margin: 30px 20px 10px; font-size: 0.8rem; border-left: 4px solid var(--neon-cyan); padding-left: 15px;">SUB-STRATA_DATA</h2>
-        <div class="log-manifest">
-            <a href="spire.html" class="log-entry">
-                <img src="images/market_thumbnail.jpg" style="width:100%; height:120px; object-fit:cover; opacity:0.6;">
-                <div style="padding:10px;"><h3>ARCH_01: SPIRE</h3><p style="font-size:0.6rem; opacity:0.7;">1.12g Analysis.</p></div>
-            </a>
-            <a href="market.html" class="log-entry">
-                <img src="images/market_thumbnail.jpg" style="width:100%; height:120px; object-fit:cover; opacity:0.6;">
-                <div style="padding:10px;"><h3>ARCH_02: MARKET</h3><p style="font-size:0.6rem; opacity:0.7;">Molecular Shifts.</p></div>
-            </a>
-            <a href="observatory.html" class="log-entry">
-                <img src="images/observatory-vector.jpg" style="width:100%; height:120px; object-fit:cover; opacity:0.6;">
-                <div style="padding:10px;"><h3>ARCH_04: OBSERVATORY</h3><p style="font-size:0.6rem; opacity:0.7;">Reality Anchors.</p></div>
-            </a>
-            <a href="#" class="log-entry" style="border-color: var(--neon-gold);">
-                <div class="purged-static" style="color:var(--neon-gold)">OPTIMIZATION_COMPLETE</div>
-                <div style="padding:10px;"><h3>LOG_V: SUBSTRATE</h3><p style="font-size:0.6rem; opacity:0.7;">Integration Complete.</p></div>
-            </a>
-        </div>
-    </section>
-
     <script>
-        setInterval(() => {
-            const bpmElem = document.getElementById('bpm');
-            const drift = Math.floor(Math.random() * 7) - 3;
-            bpmElem.innerText = (parseInt(bpmElem.innerText) + drift) + " BPM";
-        }, 1500);
+        // --- TELEMETRY JITTER ---
+        function updateTelemetry() {
+            const bpm = document.getElementById('bpm');
+            const grav = document.getElementById('gravVal');
+            const stress = document.getElementById('stressVal');
+
+            if(bpm) bpm.innerText = (145 + Math.floor(Math.random() * 10)) + " BPM";
+            if(grav) grav.innerText = (0.84 + (Math.random() * 0.04 - 0.02)).toFixed(2) + "G";
+            
+            if(stress && Math.random() > 0.9) {
+                stress.innerText = stress.innerText === "STABLE" ? "CRITICAL" : "STABLE";
+                stress.style.color = stress.innerText === "CRITICAL" ? "var(--neon-red)" : "var(--neon-gold)";
+            }
+        }
+
+        // --- GLITCH EFFECT ---
+        function triggerGlitch() {
+            if (Math.random() > 0.97) {
+                document.body.classList.add('chromatic-break');
+                setTimeout(() => document.body.classList.remove('chromatic-break'), 60);
+            }
+        }
+
+        // --- REBOOT ---
+        function initiateReboot() {
+            if(confirm("PROCEED WITH IDENTITY ERASURE?")) {
+                document.body.innerHTML = "<div style='color:var(--neon-gold); padding:50px;'>>> PURGING_BIOLOGIC_NOISE...<br>>> SUCCESS.</div>";
+                setTimeout(() => location.reload(), 3000);
+            }
+        }
+
+        setInterval(updateTelemetry, 1200);
+        setInterval(triggerGlitch, 100);
+
+        // Parallax Effect
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            document.getElementById('heroImg').style.transform = `scale(1.1) translate(${moveX}px, ${moveY}px)`;
+        });
     </script>
 </body>
 </html>
