@@ -226,6 +226,23 @@
     </footer>
 
     <script>
+
+        // HIDDEN ACCESS: Type 'ROOT' anywhere to access the backdoor
+let secretCode = '';
+window.addEventListener('keydown', (e) => {
+    secretCode += e.key.toUpperCase();
+    if (secretCode.includes('ROOT')) {
+        // Visual Glitch Effect before redirect
+        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+        document.body.style.transform = 'scale(1.02) skewX(2deg)';
+        setTimeout(() => {
+            window.location.href = "backdoor.html"; // Make sure your file is named backdoor.html
+        }, 300);
+        secretCode = ''; // Reset
+    }
+    // Keep buffer short so it doesn't get huge
+    if (secretCode.length > 10) secretCode = secretCode.slice(-4);
+});
         // 1. CLOCK
         setInterval(() => { 
             const now = new Date();
