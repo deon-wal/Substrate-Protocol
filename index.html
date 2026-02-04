@@ -22,8 +22,8 @@ body::after {
 /* SIDEBAR & TELEMETRY */
 nav { background: rgba(0,10,15,0.92); border-right: 1px solid var(--cyan); padding: 25px; display: flex; flex-direction: column; z-index: 10; }
 .nav-item { 
-    border: 1px solid rgba(6,182,212,0.2); padding: 15px; margin-bottom: 10px; text-decoration: none; 
-    color: var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; transition: 0.2s;
+    border: 1px solid rgba(6,182,212,0.2); padding: 12px; margin-bottom: 8px; text-decoration: none; 
+    color: var(--gold); display: flex; justify-content: space-between; font-size: 0.75rem; transition: 0.2s;
 }
 .nav-item:hover { background: rgba(6,182,212,0.1); border-color: var(--cyan); color: #fff; }
 
@@ -38,20 +38,20 @@ main { padding: 20px; display: grid; grid-template-rows: 150px 1fr; gap: 20px; p
     background-blend-mode: overlay; border: 1px solid var(--cyan); padding: 20px; overflow-y: auto;
 }
 .log-entry { 
-    background: rgba(0,15,20,0.85); border: 1px solid var(--cyan); padding: 12px; 
-    margin-bottom: 10px; font-size: 0.75rem; color: var(--cyan); border-left: 4px solid var(--cyan);
+    background: rgba(0,15,20,0.85); border: 1px solid var(--cyan); padding: 10px; 
+    margin-bottom: 8px; font-size: 0.7rem; color: var(--cyan); border-left: 4px solid var(--cyan);
 }
 
 /* INTERACTIVE LEAD SPHERE */
 #lead-sphere {
-    position: absolute; width: 80px; height: 80px; top: 40%; left: 50%;
+    position: absolute; width: 70px; height: 70px; top: 35%; left: 55%;
     background: radial-gradient(circle at 30% 30%, #999, #222);
     border-radius: 50%; cursor: grab; z-index: 50; 
     box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);
 }
 
 .stat-box { margin-top: auto; border-top: 1px solid var(--cyan); padding-top: 20px; }
-.val { font-size: 1.4rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px var(--cyan); }
+.val { font-size: 1.3rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px var(--cyan); }
 </style>
 </head>
 <body>
@@ -60,25 +60,26 @@ main { padding: 20px; display: grid; grid-template-rows: 150px 1fr; gap: 20px; p
 
 <div class="container">
     <nav>
-        <h3 style="color:var(--cyan); font-size:0.7rem; letter-spacing: 2px;">SYSTEM_SENSORS</h3>
+        <h3 style="color:var(--cyan); font-size:0.7rem; letter-spacing: 2px;">SECTOR_NAV</h3>
         <a class="nav-item" href="market.html">01_MARKET <span id="btc" style="color:var(--cyan)">$---</span></a>
-        <a class="nav-item" href="residential.html">02_RESID <span style="color:var(--red); font-size: 0.6rem;">PURGING</span></a>
-        <a class="nav-item" href="sync.html">03_SYNC <span>ACTIVE</span></a>
-        <a class="nav-item" href="spire.html">04_SPIRE <span>LOCKED</span></a>
+        <a class="nav-item" href="residential.html">02_RESID <span style="color:var(--red); font-size: 0.55rem;">PURGING</span></a>
+        <a class="nav-item" href="observatory.html">03_OBSERV <span style="color:var(--cyan); font-size: 0.55rem;">TRACKING</span></a>
+        <a class="nav-item" href="sync.html">04_SYNC <span>ACTIVE</span></a>
+        <a class="nav-item" href="spire.html">05_SPIRE <span>LOCKED</span></a>
         
         <div class="stat-box">
-            <span class="val" id="batt">--%</span><span style="font-size:0.55rem; opacity:0.6; display:block;">BATTERY_RESERVE</span>
-            <div style="margin-top:15px;"><span class="val" id="clock">00:00:00</span><span style="font-size:0.55rem; opacity:0.6; display:block;">LOCAL_SYNC</span></div>
+            <span class="val" id="batt">--%</span><span style="font-size:0.5rem; opacity:0.6; display:block;">DEVICE_RESERVE</span>
+            <div style="margin-top:15px;"><span class="val" id="clock">00:00:00</span><span style="font-size:0.5rem; opacity:0.6; display:block;">CORE_SYNC</span></div>
         </div>
     </nav>
     <main>
-        <div class="header-viz"><h1 style="font-size:1rem; letter-spacing:4px; margin:0; text-shadow: 2px 2px #000;">CORE // SYSTEM_MEMORY</h1></div>
+        <div class="header-viz"><h1 style="font-size:1rem; letter-spacing:3px; margin:0; text-shadow: 2px 2px #000;">INDEX // SYSTEM_MEMORY</h1></div>
         <div class="log-feed" id="logFeed"></div>
     </main>
 </div>
 
 <script>
-    // 1. Live Clock & Battery
+    // 1. Clock & Battery
     setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
     if(navigator.getBattery) navigator.getBattery().then(b => {
         const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
@@ -96,16 +97,16 @@ main { padding: 20px; display: grid; grid-template-rows: 150px 1fr; gap: 20px; p
     getBTC(); setInterval(getBTC, 60000);
 
     // 3. Terminal Log Feed
-    const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> PHYSICS_LEAK_DETECTION: ON", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE", "> ANALYZING_CHRONOS_DRIFT"];
+    const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> OBSERVATORY_TRACE_ACTIVE", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE"];
     const feed = document.getElementById("logFeed");
     setInterval(() => {
         const div = document.createElement("div"); div.className = "log-entry";
         div.innerText = `[${new Date().toLocaleTimeString()}] ${logData[Math.floor(Math.random()*logData.length)]}`;
         feed.prepend(div);
-        if(feed.children.length > 12) feed.lastChild.remove();
+        if(feed.children.length > 10) feed.lastChild.remove();
     }, 4000);
 
-    // 4. Lead Sphere Drag Logic
+    // 4. Lead Sphere Drag
     const sphere = document.getElementById('lead-sphere');
     let drag = false, offX, offY;
     sphere.onmousedown = (e) => { drag = true; offX = e.offsetX; offY = e.offsetY; sphere.style.cursor = 'grabbing'; };
