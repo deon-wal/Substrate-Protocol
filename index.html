@@ -2,227 +2,311 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ALDERSYTH // CORE_RECOVERY</title>
+    <title>ALDERSYTH // LIVE_FEED</title>
     <style>
         :root { 
             --gold: #ffb000; 
             --cyan: #06b6d4; 
             --red: #ff3e3e; 
-            --bg: #020202; 
-            --panel-border: rgba(6, 182, 212, 0.2);
+            --violet: #d946ef;
+            --ochre: #d97706;
+            --teal: #14b8a6;
+            --bg: #050505; 
+            --panel-bg: rgba(10, 10, 12, 0.85);
+            --panel-border: rgba(6, 182, 212, 0.3);
         }
 
         body { 
             background: var(--bg);
-            color: var(--gold); 
+            color: #a3a3a3; 
             font-family: 'Courier New', monospace; 
             margin: 0; 
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        /* --- GLOBAL HEADER --- */
+        /* --- HEADER --- */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--cyan);
+            background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 30px; box-sizing: border-box; font-family: monospace;
-            backdrop-filter: blur(10px);
+            padding: 10px 30px; box-sizing: border-box;
+            backdrop-filter: blur(5px);
         }
-        .header-logo { color: var(--cyan); font-weight: bold; font-size: 0.9rem; }
-        .nav-links a {
-            color: #fff; text-decoration: none; margin-left: 20px; font-size: 0.7rem;
-            border: 1px solid transparent; padding: 5px 10px; transition: 0.3s;
+        .header-logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 2px; }
+        .live-indicator { 
+            color: var(--red); font-size: 0.6rem; border: 1px solid var(--red); 
+            padding: 2px 6px; animation: blink 2s infinite; 
         }
-        .nav-links a:hover { color: var(--gold); border-color: var(--gold); }
-        .active-link { border-color: var(--cyan) !important; color: var(--cyan) !important; }
 
-        /* --- CRT SCANLINE OVERLAY --- */
+        /* --- CRT OVERLAY --- */
         body::after { 
             content: ""; position: fixed; inset: 0; z-index: 999; pointer-events: none;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%);
-            background-size: 100% 3px;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.05) 50%);
+            background-size: 100% 4px;
         }
 
-        .page-wrapper { padding: 100px 40px 0 40px; max-width: 1200px; margin: 0 auto; }
+        .page-wrapper { padding: 100px 40px 0 40px; max-width: 1100px; margin: 0 auto; }
 
-        /* --- HERO SECTION --- */
-        .hero-layout { display: grid; grid-template-columns: 300px 1fr; gap: 30px; margin-bottom: 50px; }
+        /* --- LIVE TELEMETRY DASHBOARD --- */
+        .hero-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; margin-bottom: 60px; }
         
         .sidebar-viz { 
-            background: rgba(0,10,15,0.9); border: 1px solid var(--cyan); padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px;
+            background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 20px; 
+            display: flex; flex-direction: column; gap: 20px; height: fit-content;
+            position: sticky; top: 100px;
         }
+
+        .metric-box { border-left: 2px solid var(--cyan); padding-left: 10px; }
+        .metric-label { font-size: 0.6rem; color: #666; display: block; margin-bottom: 2px; }
+        .metric-value { font-size: 1.1rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
 
         .main-viz { 
-            border: 1px solid var(--cyan); background: rgba(0,15,20,0.5); 
-            position: relative; height: 400px; overflow: hidden;
+            border: 1px solid var(--panel-border); background: rgba(0,0,0,0.6); 
+            position: relative; height: 350px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- INTERACTIVE LEAD SPHERE --- */
+        /* --- INTERACTIVE SPHERE --- */
         #lead-sphere {
-            position: absolute; width: 60px; height: 60px; top: 20%; left: 40%;
-            background: radial-gradient(circle at 30% 30%, #999, #222);
+            position: absolute; width: 60px; height: 60px;
+            background: radial-gradient(circle at 30% 30%, #eee, #111);
             border-radius: 50%; cursor: grab; z-index: 50; 
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+            transition: transform 0.1s;
+        }
+        #lead-sphere:active { transform: scale(0.95); cursor: grabbing; }
+
+        /* --- LOG ARCHIVES --- */
+        .archive-header {
+            border-bottom: 1px solid var(--gold); margin-bottom: 40px; padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: end;
         }
 
-        /* --- DATA GRID (FORCED SCROLLING) --- */
-        .data-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;
+        .log-card {
+            background: rgba(15, 15, 18, 0.9);
+            border: 1px solid #333;
+            border-left: 4px solid #555; 
+            margin-bottom: 50px; padding: 25px;
+            position: relative;
+            opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .data-card {
-            border: 1px solid var(--panel-border); padding: 20px; background: rgba(6, 182, 212, 0.05);
-        }
-        .data-card h4 { margin-top: 0; color: var(--cyan); font-size: 0.8rem; border-bottom: 1px solid var(--panel-border); }
+        
+        /* Thematic Coloring */
+        .log-card.teal { border-left-color: var(--teal); box-shadow: -15px 0 40px -30px var(--teal); }
+        .log-card.ochre { border-left-color: var(--ochre); box-shadow: -15px 0 40px -30px var(--ochre); }
+        .log-card.grey { border-left-color: #888; box-shadow: -15px 0 40px -30px #888; }
+        .log-card.violet { border-left-color: var(--violet); box-shadow: -15px 0 40px -30px var(--violet); }
+        .log-card.gold { border-left-color: var(--gold); box-shadow: -15px 0 40px -30px var(--gold); }
 
-        .log-entry { 
-            background: rgba(0,15,20,0.8); border: 1px solid var(--cyan); padding: 8px; 
-            margin-bottom: 5px; font-size: 0.65rem; color: var(--cyan);
+        .log-meta {
+            display: flex; justify-content: space-between; color: #555; font-size: 0.7rem;
+            margin-bottom: 15px; border-bottom: 1px dashed #333; padding-bottom: 5px;
+        }
+        
+        .log-title { color: #fff; font-size: 1.2rem; margin: 0 0 15px 0; letter-spacing: 1px; }
+
+        .prompt-block {
+            display: block; background: #000; color: var(--cyan);
+            padding: 15px; font-size: 0.75rem; border: 1px solid #333;
+            white-space: pre-wrap; font-family: 'Courier New', Courier, monospace;
         }
 
-        /* --- FOOTER --- */
-        footer {
-            margin-top: 80px; padding: 50px 30px; border-top: 1px solid var(--cyan);
-            background: #000; font-family: monospace; font-size: 0.7rem;
-        }
+        .tags { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .tag { font-size: 0.6rem; padding: 2px 8px; border: 1px solid #444; color: #888; text-transform: uppercase; }
 
-        .val { font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px var(--cyan); }
+        .reveal-visible { opacity: 1; transform: translateY(0); }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-logo">ALDERSYTH_OS // CORE_RECOVERY</div>
-        <nav class="nav-links">
-            <a href="index.html" class="active-link">CORE</a>
-            <a href="market.html">MARKET</a>
-            <a href="residential.html">RESIDENTIAL</a>
-            <a href="observatory.html">OBSERVATORY</a>
-        </nav>
+        <div class="header-logo">ALDERSYTH // OS</div>
+        <div class="live-indicator">LIVE_CONNECTION_ESTABLISHED</div>
     </header>
 
-    <div id="lead-sphere"></div>
-
     <div class="page-wrapper">
+        
         <section class="hero-layout">
             <aside class="sidebar-viz">
-                <h3 style="font-size:0.7rem; color:var(--cyan); margin-top:0;">SECTOR_METRICS</h3>
-                <div>
-                    <span class="val" id="clock">00:00:00</span>
-                    <span style="display:block; font-size:0.5rem; opacity:0.6;">SYSTEM_TIME</span>
+                <div style="font-size:0.7rem; color:var(--gold); border-bottom:1px solid #333; padding-bottom:5px;">LIVE_TELEMETRY</div>
+                
+                <div class="metric-box">
+                    <span class="metric-label">SYSTEM_TIME</span>
+                    <span id="clock" class="metric-value">00:00:00</span>
                 </div>
-                <div>
-                    <span class="val" id="batt">--%</span>
-                    <span style="display:block; font-size:0.5rem; opacity:0.6;">RESERVE_POWER</span>
+
+                <div class="metric-box">
+                    <span class="metric-label">GLOBAL_TETHER (BTC)</span>
+                    <span id="btc-val" class="metric-value" style="color:var(--gold);">CONNECTING...</span>
                 </div>
-                <div style="margin-top:20px;">
-                    <span style="color:var(--cyan); font-size:0.6rem;">BTC_TETHER:</span>
-                    <span id="btc" style="color:#fff; font-size:0.8rem; display:block;">$---</span>
+
+                <div class="metric-box">
+                    <span class="metric-label">UPLINK_SPEED</span>
+                    <span id="net-speed" class="metric-value" style="color:var(--cyan);">-- Mbps</span>
+                </div>
+
+                <div class="metric-box">
+                    <span class="metric-label">POWER_RESERVE</span>
+                    <span id="batt-val" class="metric-value">--%</span>
                 </div>
             </aside>
 
             <main class="main-viz">
-                <div style="padding: 20px;">
-                    <h2 style="font-size: 0.9rem; letter-spacing: 5px; color: var(--cyan);">INDEX // SYSTEM_MEMORY_DUMP</h2>
-                    <p style="font-size: 0.75rem; color: var(--gold); max-width: 500px;">
-                        Welcome, Subject 01. The Aldersyth Substrate is currently in a state of partial recovery. 
-                        Use the lead sphere to stabilize metric fluctuations across the Spire.
-                    </p>
+                <div id="lead-sphere"></div>
+                <div style="text-align: center; pointer-events: none;">
+                    <h2 style="font-size: 0.9rem; letter-spacing: 4px; color: var(--cyan); margin:0;">METRIC_STABILIZER</h2>
+                    <p style="font-size: 0.65rem; color: #666; margin-top:5px;">MANUAL INPUT REQUIRED</p>
                 </div>
-                <div id="logFeed" style="position: absolute; bottom: 10px; left: 10px; right: 10px; max-height: 150px; overflow: hidden;"></div>
             </main>
         </section>
 
-        <h3 style="border-left: 4px solid var(--gold); padding-left: 15px;">ARCHIVAL_FRAGMENTS</h3>
-        
-        <div class="data-grid">
-            <div class="data-card">
-                <h4>CORE_STABILITY</h4>
-                <p style="font-size: 0.7rem;">> Tectonic Groan: ACTIVE</p>
-                <p style="font-size: 0.7rem;">> Spatial Anchor: 82%</p>
-                <p style="font-size: 0.7rem; color: var(--red);">> WARNING: VECTOR_DRIFT</p>
-            </div>
-            <div class="data-card">
-                <h4>BIOMETRIC_SYNC</h4>
-                <p style="font-size: 0.7rem;">> Subject 01: CONNECTED</p>
-                <p style="font-size: 0.7rem;">> Pulse: 72 BPM</p>
-                <p style="font-size: 0.7rem;">> Cortisol: PEAKING</p>
-            </div>
-            <div class="data-card">
-                <h4>GLOBAL_FEED</h4>
-                <p style="font-size: 0.7rem;">> Market: 18°C</p>
-                <p style="font-size: 0.7rem;">> Resi-Rings: ROTATING</p>
-                <p style="font-size: 0.7rem;">> Observatory: VOID</p>
-            </div>
+        <div class="archive-header">
+            <h1 style="font-size:1.5rem; margin:0; color:#fff;">NEURAL_ARCHIVE_STACK</h1>
+            <span style="font-size:0.7rem; color:var(--red);">[5] CORRUPTED_FILES</span>
         </div>
 
-        <section style="background: rgba(6, 182, 212, 0.05); border: 1px solid var(--panel-border); padding: 30px; margin-bottom: 50px;">
-            <h4 style="color: var(--gold); margin-top: 0;">ANALYST_MANIFESTO_FRAG</h4>
-            <p style="font-size: 0.85rem; font-family: 'Courier New';">
-                "The city is not a place; it is an observation. Every time I lunge for a falling espresso cup, 
-                every time I stabilize a tilting floor, I am providing the data Sloane needs to finalize 
-                the bridge. I am the software. I am the patch."
-            </p>
-        </section>
+        <article class="log-card teal">
+            <div class="log-meta">
+                <span>ID: LOG_01 // SPIRE_DISTRICT</span>
+                <span>THEME: MUTED_TEAL</span>
+            </div>
+            <h3 class="log-title">THE SPIRE DISTRICT</h3>
+            <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air... Aesthetic: Gritty, industrial, muted teal and charcoal color palette with sharp electric-green accents. Style: Blame! meets Ghost in the Shell...</code>
+            <div class="tags"><span class="tag">INDUSTRIAL</span><span class="tag">TEAL</span><span class="tag">GRAVITY_SHIFT</span></div>
+        </article>
+
+        <article class="log-card ochre">
+            <div class="log-meta">
+                <span>ID: LOG_02 // SUB_STRATA</span>
+                <span>THEME: INDUSTRIAL_RUST</span>
+            </div>
+            <h3 class="log-title">SUB-STRATA SYNC</h3>
+            <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor... heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge... Aesthetic: Brutalist, high-heat distortion, deep ochre and industrial rust palette...</code>
+            <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
+        </article>
+
+        <article class="log-card grey">
+            <div class="log-meta">
+                <span>ID: LOG_03 // RESI_RINGS</span>
+                <span>THEME: MONOCHROME</span>
+            </div>
+            <h3 class="log-title">RESIDENTIAL RINGS</h3>
+            <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze... a man’s hand presses against a perfectly smooth, seamless composite wall... Aesthetic: Liminal space, haunting, surgical, muted monochromatic greys...</code>
+            <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">SILENT</span></div>
+        </article>
+
+        <article class="log-card violet">
+            <div class="log-meta">
+                <span>ID: LOG_04 // VECTOR_CRISIS</span>
+                <span>THEME: DEEP_VIOLET</span>
+            </div>
+            <h3 class="log-title">VECTOR CRISIS</h3>
+            <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm... unspooling into a silver ribbon of subatomic wire... Aesthetic: Cosmic horror, glitch-art, high-contrast, deep violet and matte black with sharp crimson accents...</code>
+            <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
+        </article>
+
+        <article class="log-card gold">
+            <div class="log-meta">
+                <span>ID: LOG_05 // THE_SUBSTRATE</span>
+                <span>THEME: DIGITAL_GOLD</span>
+            </div>
+            <h3 class="log-title">THE SUBSTRATE</h3>
+            <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition... Aesthetic: "Digital Gold," translucent, layered, ethereal yet cold. Style: Data-visualization art...</code>
+            <div class="tags"><span class="tag">NULL-SPACE</span><span class="tag">GOLD</span><span class="tag">ASCENSION</span></div>
+        </article>
+
     </div>
 
     <footer>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px;">
-            <div>
-                <div style="color: var(--cyan); margin-bottom: 10px;">OS_VERSION</div>
-                <p style="color:#666;">ALDERSYTH_OS v4.0.2<br>Build: 0x88_ALPHA</p>
-            </div>
-            <div>
-                <div style="color: var(--gold); margin-bottom: 10px;">QUICK_LINKS</div>
-                <a href="market.html" style="color:#666; text-decoration:none; display:block;">MARKET_HUB</a>
-                <a href="observatory.html" style="color:#666; text-decoration:none; display:block;">VOID_SENSORS</a>
-            </div>
-            <div style="grid-column: span 2;">
-                <div style="color: var(--red); margin-bottom: 10px;">LEAD_THEORIST_DISCLAIMER</div>
-                <p style="color:#444;">Substrate stability is not guaranteed. Interaction with the interactive metrics (Lead Sphere) may cause localized Higgs-decoherence. Please report all spontaneous memory loss to Sloane immediately.</p>
-            </div>
-        </div>
+        <div style="color: var(--red); margin-bottom: 15px;">END_OF_STREAM</div>
+        <p style="color:#444;">Aldersyth_OS v4.0.2 // Live Connection Active</p>
     </footer>
 
     <script>
-        // 1. Clock & Battery
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-        if(navigator.getBattery) navigator.getBattery().then(b => {
-            const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
-            up(); b.onlevelchange = up;
-        });
+        // 1. CLOCK
+        setInterval(() => { 
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString(); 
+        }, 1000);
 
-        // 2. BTC
-        async function getBTC() {
+        // 2. LIVE BTC FETCH (Global Tether)
+        async function fetchLiveMetrics() {
             try {
                 const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
                 const data = await res.json();
-                document.getElementById('btc').innerText = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
-            } catch(e) { }
+                const rate = Math.floor(data.bpi.USD.rate_float).toLocaleString();
+                document.getElementById('btc-val').innerText = "₮ " + rate;
+            } catch(e) {
+                document.getElementById('btc-val').innerText = "OFFLINE";
+            }
         }
-        getBTC();
+        fetchLiveMetrics();
+        setInterval(fetchLiveMetrics, 60000); // Update every minute
 
-        // 3. Log Feed
-        const logData = ["> SIGNAL_FRAGMENT_RECOVERED", "> OBSERVATORY_TRACE_ACTIVE", "> SUBSTRATE_ECHO_STABLE", "> PENGUIN_PROTOCOL_IDLE"];
-        const feed = document.getElementById("logFeed");
-        setInterval(() => {
-            const div = document.createElement("div"); div.className = "log-entry";
-            div.innerText = `[${new Date().toLocaleTimeString()}] ${logData[Math.floor(Math.random()*logData.length)]}`;
-            feed.prepend(div);
-            if(feed.children.length > 5) feed.lastChild.remove();
-        }, 3000);
+        // 3. NETWORK SPEED (Chrome/Edge only)
+        function updateNetwork() {
+            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (conn) {
+                document.getElementById('net-speed').innerText = conn.downlink + " Mbps";
+                conn.onchange = updateNetwork;
+            } else {
+                document.getElementById('net-speed').innerText = "UNKNOWN";
+            }
+        }
+        updateNetwork();
 
-        // 4. Drag
+        // 4. BATTERY STATUS
+        if(navigator.getBattery) {
+            navigator.getBattery().then(b => {
+                const up = () => document.getElementById('batt-val').innerText = Math.floor(b.level*100) + "%";
+                up(); b.onlevelchange = up;
+            });
+        }
+
+        // 5. INTERACTIVE SPHERE DRAG
         const sphere = document.getElementById('lead-sphere');
-        let drag = false, offX, offY;
-        sphere.onmousedown = (e) => { drag = true; offX = e.offsetX; offY = e.offsetY; sphere.style.cursor = 'grabbing'; };
+        let drag = false, startX, startY, initLeft, initTop;
+
+        // Set initial centered position relative to parent
+        sphere.style.left = "calc(50% - 30px)";
+        sphere.style.top = "calc(50% - 30px)";
+
+        sphere.onmousedown = (e) => { 
+            drag = true; 
+            startX = e.clientX; 
+            startY = e.clientY;
+            // Get current computed position numbers
+            const rect = sphere.getBoundingClientRect();
+            const parentRect = sphere.parentElement.getBoundingClientRect();
+            initLeft = rect.left - parentRect.left;
+            initTop = rect.top - parentRect.top;
+            sphere.style.cursor = 'grabbing'; 
+        };
+        
         window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
+        
         window.onmousemove = (e) => {
             if(drag) {
-                sphere.style.left = (e.clientX - offX) + 'px';
-                sphere.style.top = (e.clientY - offY) + 'px';
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                sphere.style.left = (initLeft + dx) + 'px';
+                sphere.style.top = (initTop + dy) + 'px';
             }
         };
+
+        // 6. SCROLL REVEAL LOGIC
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.log-card').forEach(card => observer.observe(card));
     </script>
 </body>
 </html>
