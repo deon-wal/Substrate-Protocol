@@ -10,143 +10,132 @@ body {
     color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh;
 }
 
-/* CRT EFFECTS */
+/* CRT SCANLINE OVERLAY */
 body::after { 
     content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
     background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,0,0,0), rgba(0,0,255,0.02));
     background-size: 100% 3px, 3px 100%;
 }
 
-.container { display: grid; grid-template-columns: 1fr 320px; height: 100vh; backdrop-filter: blur(5px); }
+.container { display: grid; grid-template-columns: 1fr 350px; height: 100vh; backdrop-filter: blur(8px); }
 
-/* MAIN SIMULATION AREA */
-main { position: relative; border-right: 1px solid var(--cyan); overflow: hidden; }
-
-/* THE "SHIMMERING" DATA STREAM */
-#story-log {
-    position: absolute; top: 20px; left: 20px; width: 400px; font-size: 0.75rem;
-    color: var(--cyan); line-height: 1.4; text-shadow: 0 0 5px var(--cyan);
+/* LIVE STORY DECRYPTION */
+#story-terminal {
+    position: absolute; top: 20px; left: 20px; width: 450px; height: 250px;
+    background: rgba(0,10,15,0.85); border: 1px solid var(--cyan);
+    padding: 15px; font-size: 0.7rem; color: var(--cyan); overflow-y: auto;
+    z-index: 10; line-height: 1.5; border-left: 4px solid var(--cyan);
 }
 
-/* FLOATING ASSETS (The "Variables") */
+/* FLOATING PHYSICS OBJECTS */
 .variable { 
     position: absolute; border-radius: 50%; display: flex; align-items: center; 
-    justify-content: center; font-weight: bold; cursor: crosshair; z-index: 10;
+    justify-content: center; font-size: 0.6rem; cursor: grab; z-index: 5; font-weight: bold;
 }
-.melon { width: 50px; height: 50px; background: #4caf50; box-shadow: 0 0 15px #4caf50; color: #000; }
-.espresso { width: 35px; height: 35px; background: #6f4e37; border: 2px solid #fff; box-shadow: 0 0 20px #ffb000; }
+.melon { width: 55px; height: 55px; background: #4caf50; box-shadow: 0 0 20px #4caf50; color: #000; }
+.espresso { width: 40px; height: 40px; background: #6f4e37; border: 2px solid #fff; box-shadow: 0 0 25px var(--gold); }
 
-/* HUD */
-.hud { 
-    background: rgba(0,10,15,0.9); border: 1px solid var(--cyan); padding: 15px; 
-    margin: 20px; display: flex; flex-direction: column; gap: 10px;
-}
-.warning { color: var(--red); animation: blink 1s infinite; font-size: 0.7rem; }
-@keyframes blink { 50% { opacity: 0.2; } }
+/* SIDEBAR SENSORS */
+nav { background: rgba(0,5,10,0.95); border-left: 1px solid var(--gold); padding: 25px; display: flex; flex-direction: column; }
+.stat-box { border: 1px solid rgba(255, 176, 0, 0.2); padding: 15px; margin-bottom: 15px; }
+.val { font-size: 1.4rem; color: #fff; display: block; text-shadow: 0 0 10px var(--cyan); }
+.warning { color: var(--red); font-size: 0.6rem; animation: pulse 1s infinite; }
 
-/* PARTICLE SPLATTER */
-.drop { position: absolute; width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; pointer-events: none; }
+@keyframes pulse { 50% { opacity: 0.3; } }
 
-button { 
-    background: none; border: 1px solid var(--gold); color: var(--gold); 
-    padding: 10px; cursor: pointer; font-family: inherit; margin-top: auto; 
-}
+button { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px; cursor: pointer; font-family: inherit; margin-top: auto; text-transform: uppercase; }
 button:hover { background: var(--gold); color: #000; }
-
 </style>
 </head>
 <body>
 
 <div class="container">
-    <main id="sim">
-        <div id="story-log">
-            [13:15] // MARKET_DISTRICT<br>
-            ANALYSIS: HIGGS-FIELD DECOHERENCE DETECTED.<br>
-            > FINN'S ESPRESSO: VECTOR_UNSTABLE<br>
-            > STATUS: SUBJECT_01 INTERVENTION REQUIRED.
+    <main style="position:relative; overflow:hidden;">
+        <div id="story-terminal">
+            [SYS_LOG_13:15] // DECRYPTING_LOG_02...<br>
+            <span id="typewriter"></span>
         </div>
+
+        <div class="variable melon" id="obj1" style="top:40%; left:20%;">MELON</div>
+        <div class="variable espresso" id="obj2" style="top:70%; left:60%;">FINN_CUP</div>
         
-        <div class="variable melon" id="obj1" style="top:20%; left:30%;">MELON</div>
-        <div class="variable espresso" id="obj2" style="top:60%; left:50%;">CUP</div>
-        
-        <canvas id="grid" style="position:absolute; inset:0; z-index:1; opacity:0.2;"></canvas>
+        <canvas id="waves" style="position:absolute; inset:0; opacity:0.3;"></canvas>
     </main>
 
-    <aside style="background: rgba(0,5,10,0.95); padding: 20px; display: flex; flex-direction: column;">
-        <div class="hud">
-            <div class="warning">!! THERMODYNAMIC_STRESS: CRITICAL !!</div>
-            <div style="font-size:0.6rem;">BIOMETRIC_SYNC: <span id="sync">98%</span></div>
-            <div style="font-size:0.6rem;">LOCAL_GRAVITY: <span id="grav">0.42G</span></div>
+    <nav>
+        <h3 style="font-size:0.8rem; letter-spacing:2px;">MARKET_TELEMETRY</h3>
+        <div class="stat-box">
+            <span class="label" style="font-size:0.5rem; opacity:0.7;">BTC_TETHER (LIVE)</span>
+            <span class="val" id="btc">$---</span>
+        </div>
+        <div class="stat-box">
+            <span class="label" style="font-size:0.5rem; opacity:0.7;">LOCAL_TEMP (RICHMOND)</span>
+            <span class="val" id="temp">--°C</span>
+            <div class="warning">!! THERMODYNAMIC_STRESS !!</div>
+        </div>
+        
+        <div style="font-size: 0.65rem; border-left: 2px solid var(--red); padding-left: 10px; margin-top: 10px;">
+            "Intervention alters the dataset. Your interference is skewing the baseline."<br>
+            — SLOANE, LEAD THEORIST
         </div>
 
-        <div style="font-size: 0.65rem; color: var(--cyan); border-left: 2px solid var(--cyan); padding-left: 10px; margin-top: 20px;">
-            "Your baseline is going to kill someone, Sloane!"<br><br>
-            "The baseline is necessary, Analyst. Intervention alters the dataset."
-        </div>
-
-        <button onclick="location.href='index.html'">RE-SYNC TO CORE</button>
-    </aside>
+        <button onclick="location.href='index.html'">Return to Core</button>
+    </nav>
 </div>
 
 <script>
-    const sim = document.getElementById('sim');
-    const objects = document.querySelectorAll('.variable');
-    
-    // 1. Physics Engine (Thermodynamic Stress)
-    objects.forEach(obj => {
-        let vx = (Math.random() - 0.5) * 4;
-        let vy = (Math.random() - 0.5) * 4;
+    /* 1. Live Data (BTC & Weather) */
+    async function updateLive() {
+        try {
+            const btc = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json').then(r => r.json());
+            document.getElementById('btc').innerText = "$" + Math.floor(btc.bpi.USD.rate_float).toLocaleString();
+            
+            const weather = await fetch('https://wttr.in/Richmond?format=j1').then(r => r.json());
+            document.getElementById('temp').innerText = weather.current_condition[0].temp_C + "°C";
+        } catch(e) { console.log("Substrate Link Error"); }
+    }
+    updateLive();
 
-        function update() {
-            let top = obj.offsetTop + vy;
-            let left = obj.offsetLeft + vx;
-
-            if (top <= 0 || top >= sim.offsetHeight - 50) { 
-                vy *= -1; 
-                createSplatter(left, top, obj.classList.contains('melon') ? '#4caf50' : '#6f4e37');
-            }
-            if (left <= 0 || left >= sim.offsetWidth - 50) { 
-                vx *= -1; 
-                createSplatter(left, top, obj.classList.contains('melon') ? '#4caf50' : '#6f4e37');
-            }
-
-            obj.style.top = top + 'px';
-            obj.style.left = left + 'px';
-            requestAnimationFrame(update);
-        }
-        update();
-    });
-
-    // 2. Intervention Logic (The "Splatter")
-    function createSplatter(x, y, color) {
-        for(let i=0; i<5; i++) {
-            const d = document.createElement('div');
-            d.className = 'drop';
-            d.style.left = x + 'px'; d.style.top = y + 'px';
-            d.style.background = color;
-            sim.appendChild(d);
-            setTimeout(() => d.remove(), 1000);
+    /* 2. Typewriter Story Logic */
+    const story = "By midday, the Market District had transitioned from a bustling trade hub into a thermodynamic nightmare. I moved through the crowd, my boots hitting the pavement with a rhythmic thud that felt alien. Finn had relocated his cart here, but the Higgs-spikes were following me. A cup of dark liquid launched itself from his tray, aiming for a young woman's back. I lunged, catching the ceramic mid-air. The heat transferred instantly to my palms—a reminder of the real-world consequences of these anomalies. 'Your baseline is going to kill someone, Sloane!' I shouted...";
+    let i = 0;
+    function type() {
+        if (i < story.length) {
+            document.getElementById("typewriter").innerHTML += story.charAt(i);
+            i++;
+            setTimeout(type, 30);
         }
     }
+    type();
 
-    // 3. Subject 01 Interaction (Dragging)
-    let active = null;
-    objects.forEach(o => {
-        o.onmousedown = () => active = o;
+    /* 3. Physics & Dragging (The "Variable" Interaction) */
+    let drag = null;
+    document.querySelectorAll('.variable').forEach(obj => {
+        let vx = (Math.random() - 0.5) * 2;
+        let vy = (Math.random() - 0.5) * 2;
+        
+        function move() {
+            if (drag !== obj) {
+                let t = obj.offsetTop + vy;
+                let l = obj.offsetLeft + vx;
+                if (t <= 0 || t >= window.innerHeight - 60) vy *= -1;
+                if (l <= 0 || l >= window.innerWidth - 400) vx *= -1;
+                obj.style.top = t + 'px';
+                obj.style.left = l + 'px';
+            }
+            requestAnimationFrame(move);
+        }
+        move();
+
+        obj.onmousedown = () => { drag = obj; obj.style.cursor = 'grabbing'; };
     });
-    window.onmouseup = () => active = null;
+    window.onmouseup = () => { if(drag) drag.style.cursor = 'grab'; drag = null; };
     window.onmousemove = (e) => {
-        if(active) {
-            active.style.left = (e.clientX - 25) + 'px';
-            active.style.top = (e.clientY - 25) + 'px';
-            document.getElementById('sync').innerText = (Math.random() * 5 + 94).toFixed(2) + "%";
+        if(drag) {
+            drag.style.left = (e.clientX - 25) + 'px';
+            drag.style.top = (e.clientY - 25) + 'px';
         }
-    }
-
-    // 4. Gravity Fluctuation
-    setInterval(() => {
-        document.getElementById('grav').innerText = (Math.random() * 0.8).toFixed(2) + "G";
-    }, 2000);
+    };
 </script>
 </body>
 </html>
