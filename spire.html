@@ -3,169 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // THE_SPIRE</title>
+    <title>ALDERSYTH // MARKET_DISTRICT</title>
     <style>
-        :root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #0a0a05; --border: rgba(255, 176, 0, 0.15); }
+        :root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #020202; --panel-border: rgba(6, 182, 212, 0.2); }
         body { 
             background: var(--bg); color: var(--gold); 
-            font-family: 'Courier New', monospace; margin: 0; 
-            overflow: hidden; text-transform: uppercase; 
-            height: 100vh; display: flex; flex-direction: column; 
+            font-family: 'Courier New', monospace; margin: 0; line-height: 1.8;
+            overflow-x: hidden;
         }
 
-        /* CRT Overlay */
-        .crt::before { 
-            content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; 
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.2) 50%), 
-                        linear-gradient(90deg, rgba(255,176,0,0.03), rgba(0,0,0,0), rgba(255,176,0,0.03)); 
-            background-size: 100% 2px, 2px 100%; 
+        /* --- GLOBAL HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--cyan);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; box-sizing: border-box; backdrop-filter: blur(10px);
         }
-
-        header { 
-            padding: 15px 25px; border-bottom: 2px solid var(--gold); 
-            display: flex; justify-content: space-between; font-size: 0.8rem; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 101;
+        .nav-links a {
+            color: #fff; text-decoration: none; margin-left: 20px; font-size: 0.75rem;
+            border: 1px solid transparent; padding: 5px 10px;
         }
+        .active-link { border-color: var(--gold) !important; color: var(--gold) !important; }
 
-        .layout { display: grid; grid-template-columns: 1fr 400px; gap: 20px; padding: 20px; flex-grow: 1; height: calc(100vh - 60px); }
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            border-bottom: 1px solid var(--panel-border); position: relative;
+        }
+        .hero-content { z-index: 10; text-align: center; max-width: 800px; padding: 20px; }
+        .physics-bg { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: 0.4; }
 
-        /* Spire Visualizer */
-        .spire-view { border: 1px solid var(--gold); background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        /* --- NARRATIVE BLOCKS (SCROLLING) --- */
+        .content-section {
+            max-width: 900px; margin: 0 auto; padding: 100px 20px;
+            border-left: 1px solid var(--panel-border); border-right: 1px solid var(--panel-border);
+        }
+        .story-text { font-size: 1.2rem; color: #fff; margin-bottom: 50px; }
+        .story-text span { color: var(--cyan); }
+
+        /* --- DATA VISUALS --- */
+        .big-viz {
+            width: 100%; height: 500px; border: 1px solid var(--cyan);
+            margin: 40px 0; background: #000; position: relative;
+        }
         
-        /* The Spire Pyramid */
-        .spire-container { position: relative; width: 200px; height: 300px; }
-        .spire-wireframe { 
-            width: 0; height: 0; 
-            border-left: 100px solid transparent; 
-            border-right: 100px solid transparent; 
-            border-bottom: 300px solid rgba(255, 176, 0, 0.1); 
-            position: relative; 
-            animation: float 6s infinite ease-in-out, pulseWire 2s infinite alternate; 
-            filter: drop-shadow(0 0 15px rgba(255,176,0,0.1));
+        /* PHYSICS OBJECTS */
+        .variable { 
+            position: absolute; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.7rem; cursor: grab; font-weight: bold;
         }
-        
-        @keyframes float { 0%,100%{transform: translateY(0) scale(1);} 50%{transform: translateY(-20px) scale(1.02);} }
-        @keyframes pulseWire { 0%,100%{border-bottom-color: rgba(255,176,0,0.1);} 50%{border-bottom-color: rgba(255,176,0,0.3);} }
+        .melon { width: 80px; height: 80px; background: #4caf50; box-shadow: 0 0 30px #4caf50; color: #000; }
+        .espresso { width: 60px; height: 60px; background: #6f4e37; border: 2px solid #fff; box-shadow: 0 0 25px var(--gold); }
 
-        /* Arc Sparks */
-        .arc-spark { position: absolute; width: 1px; height: 30px; background: var(--cyan); opacity: 0.8; pointer-events: none; filter: drop-shadow(0 0 8px var(--cyan)); animation: rise 0.6s ease-out forwards; }
-        @keyframes rise { 0% {transform: translateY(0) scaleY(1); opacity: 1;} 100% {transform: translateY(-250px) scaleY(0.2); opacity: 0;} }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 60px 0; }
+        .data-card { border: 1px solid var(--panel-border); padding: 30px; background: rgba(6, 182, 212, 0.05); }
 
-        .security-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(45deg, rgba(255,62,62,0.03) 0, rgba(255,62,62,0.03) 10px, transparent 10px, transparent 20px); pointer-events: none; }
-        .restricted-text { font-size: 6rem; font-weight: bold; opacity: 0.05; transform: rotate(-25deg); animation: flicker 2s infinite alternate; }
-        @keyframes flicker { 0%{opacity:0.02;} 50%{opacity:0.07;} 100%{opacity:0.03;} }
-
-        /* Encryption Panel */
-        .side-bar { display: flex; flex-direction: column; gap: 15px; height: 100%; }
-        .crypto-box { border: 1px solid var(--border); padding: 15px; background: rgba(0,0,0,0.8); font-size: 0.7rem; overflow: hidden; }
-        #key-stream { font-family: 'Courier', monospace; word-break: break-all; color: var(--cyan); opacity: 0.8; line-height: 1.1em; height: 220px; overflow: hidden; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
-
-        .status-tag { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
-
-        button { 
-            background: rgba(255, 62, 62, 0.05); border: 1px solid var(--red); color: var(--red); 
-            padding: 15px; cursor: pointer; font-family: inherit; width: 100%; 
-            margin-top: auto; transition: 0.3s; letter-spacing: 2px;
+        footer {
+            padding: 80px 30px; border-top: 2px solid var(--gold); background: #000;
+            font-size: 0.75rem;
         }
-        button:hover { background: var(--red); color: #000; box-shadow: 0 0 30px var(--red); }
+
+        .warning { color: var(--red); font-weight: bold; }
     </style>
 </head>
-<body class="crt">
+<body>
 
-<header>
-    <div><span style="color: var(--red)">●</span> ALDERSYTH_OS // SECTOR_06 // APEX_SPIRE</div>
-    <div id="clock">00:00:00</div>
-</header>
+    <header>
+        <div style="color: var(--cyan); font-weight: bold; letter-spacing: 2px;">ALDERSYTH_OS // MARKET_STABILITY</div>
+        <nav class="nav-links">
+            <a href="index.html">CORE</a>
+            <a href="market.html" class="active-link">MARKET</a>
+            <a href="residential.html">RESIDENTIAL</a>
+            <a href="observatory.html">OBSERVATORY</a>
+        </nav>
+    </header>
 
-<main class="layout">
-    <section class="spire-view" id="spire-area">
-        <div class="security-overlay"><div class="restricted-text">TOP_SECRET</div></div>
-        
-        <div class="spire-container">
-            <div class="spire-wireframe"></div>
+    <section class="hero">
+        <div class="physics-bg" id="hero-physics">
+            <div class="variable melon" id="obj1" style="top:20%; left:10%;">MELON</div>
+            <div class="variable espresso" id="obj2" style="top:60%; left:80%;">FINN_CUP</div>
         </div>
-
-        <div style="position: absolute; bottom: 30px; width: 100%; text-align: center; letter-spacing: 3px; font-size: 0.75rem;">
-            STRUCTURAL_INTEGRITY: <span id="integrity" style="font-weight: bold; text-shadow: 0 0 10px var(--gold);">99.9%</span>
+        <div class="hero-content">
+            <h1 style="font-size: 3rem; margin-bottom: 10px;">SECTOR_02</h1>
+            <p class="warning">THERMODYNAMIC_STRESS_LEVEL: CRITICAL</p>
+            <p style="opacity: 0.6;">[ SCROLL TO DECRYPT LOG_02 ]</p>
         </div>
     </section>
 
-    <aside class="side-bar">
-        <div class="crypto-box">
-            <h3 style="margin-top: 0; color: var(--red); font-size: 0.8rem;">ENCRYPTION_KEY_LIVE</h3>
-            <div id="key-stream"></div>
+    <main class="content-section">
+        <div class="story-text">
+            [ LOG_ENTRY_02 ] <br><br>
+            By midday, the Market was a nightmare. <span>Finn's espresso</span> launched itself at a pedestrian. I lunged, catching it mid-air. The heat on my palms was a reminder of the real-world consequences of these anomalies. 
         </div>
 
-        <div class="crypto-box" style="flex-grow: 1;">
-            <h3 style="margin-top: 0; font-size: 0.8rem; border-bottom: 1px solid var(--gold); padding-bottom: 5px;">SPIRE_HIERARCHY</h3>
-            <div class="status-tag"><span>L01_ARCHIVE</span><span style="color:var(--cyan)">SECURE</span></div>
-            <div class="status-tag"><span>L02_OBSERVATORY</span><span style="color:var(--cyan)">SECURE</span></div>
-            <div class="status-tag"><span>L03_THRONE</span><span style="color:var(--red); font-weight:bold;">LOCKED</span></div>
-            <div class="status-tag"><span>L04_APEX</span><span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
-            
-            <div style="margin-top: 30px; font-size: 0.6rem; color: var(--red); opacity: 0.6;">
-                [!] Unauthorized access detected in lower rings.<br>
-                [!] Re-routing logic gates to Sector 06.
+        
+
+        <div class="story-text">
+            Sloane didn't move. She didn't even blink. She just stood there with her tablet, watching the steam rise from my hands. <br><br>
+            "Your baseline is going to kill someone, Sloane!" I yelled, the ceramic still searing my skin. <br><br>
+            She didn't look up. <span>"The data requires a stress test,"</span> she replied. "If the market collapses, we find the leak. If you catch the cup, you’re just noise in the machine."
+        </div>
+
+        <div class="big-viz" id="main-physics-container">
+            <div style="padding: 20px; color: var(--cyan);">INTERACTIVE_ANOMALY_FIELD: [DRAG_TO_INTERFERE]</div>
+            <div class="variable melon" id="obj3" style="top:40%; left:20%;">STRESS_TEST_A</div>
+            <div class="variable espresso" id="obj4" style="top:70%; left:60%;">STRESS_TEST_B</div>
+        </div>
+
+        <div class="data-grid">
+            <div class="data-card">
+                <h4 style="color: var(--cyan);">TELEMETRY_A</h4>
+                <p>BTC_TETHER: <span id="btc">$---</span></p>
+                <p>LOCAL_TEMP: <span id="temp">--°C</span></p>
+            </div>
+            <div class="data-card">
+                <h4 style="color: var(--red);">STABILITY_FEED</h4>
+                <p>> ESPRESSO DRIFT: 88%</p>
+                <p>> CERAMIC INTEGRITY: <span class="warning">FAILING</span></p>
             </div>
         </div>
 
-        <button onclick="location.href='index.html'">REVERT_TO_LOWER_SECTORS</button>
-    </aside>
-</main>
+        <div class="story-text">
+            The Strangers are watching. I can feel them in the ozone spike. They don't care about Finn's cart or the people in the rings. They care about the <span>Bridge Dataset</span>. And Sloane is their architect.
+        </div>
+    </main>
 
+    <footer>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px;">
+            <div>
+                <div style="color: var(--red); margin-bottom: 10px;">LEGAL_PROTOCOL_33</div>
+                <p style="color:#666; font-size: 0.65rem;">Thermodynamic spikes in the Market District are authorized for data collection purposes. Any heat transfer to palms from espresso units is a voluntary biometric contribution to the Bridge Dataset. The Council assumes no liability for physics decoherence.</p>
+            </div>
+            <div>
+                <div style="color: var(--cyan); margin-bottom: 10px;">NAVIGATION</div>
+                <a href="index.html" style="color:#444; display:block; text-decoration:none;">00_CORE</a>
+                <a href="residential.html" style="color:#444; display:block; text-decoration:none;">03_RESI</a>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: var(--gold); margin-bottom: 10px;">ENVIRONMENTAL</div>
+                <p style="color:#444; margin:0;">OZONE: PEAKING</p>
+                <p style="color:#444; margin:0;">GRAVITY: FLUCTUATING</p>
+            </div>
+        </div>
+    </footer>
 
-
-<script>
-    // Live Clock
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
-
-    // Crypto Stream Logic
-    const stream = document.getElementById('key-stream');
-    const chars = "ABCDEF0123456789!@#$%^&*()_+<>/[]";
-    let lines = Array(15).fill('----------------------------------------');
-
-    setInterval(() => {
-        lines.shift();
-        let newLine = '';
-        for(let i=0; i<40; i++) {
-            newLine += chars.charAt(Math.floor(Math.random() * chars.length));
+    <script>
+        // Data Fetching
+        async function updateLive() {
+            try {
+                const btc = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json').then(r => r.json());
+                document.getElementById('btc').innerText = "$" + Math.floor(btc.bpi.USD.rate_float).toLocaleString();
+                const weather = await fetch('https://wttr.in/Richmond?format=j1').then(r => r.json());
+                document.getElementById('temp').innerText = weather.current_condition[0].temp_C + "°C";
+            } catch(e) {}
         }
-        lines.push(newLine);
-        stream.innerText = lines.join('\n');
+        updateLive();
 
-        // Integrity Jitter
-        const integrity = document.getElementById('integrity');
-        const val = (99.4 + Math.random() * 0.6).toFixed(2);
-        integrity.innerText = val + "%";
-        
-        if (val < 99.7) {
-            integrity.style.color = 'var(--red)';
-            for(let i=0; i<3; i++) spawnSpark(); // Increased chaos on drop
-        } else {
-            integrity.style.color = 'var(--gold)';
+        // Multi-Container Physics
+        let drag = null;
+        function initPhysics(containerId) {
+            const container = document.getElementById(containerId);
+            container.querySelectorAll('.variable').forEach(obj => {
+                let vx = (Math.random() - 0.5) * 3;
+                let vy = (Math.random() - 0.5) * 3;
+                function move() {
+                    if (drag !== obj) {
+                        let t = obj.offsetTop + vy;
+                        let l = obj.offsetLeft + vx;
+                        if (t <= 0 || t >= container.offsetHeight - obj.offsetHeight) vy *= -1;
+                        if (l <= 0 || l >= container.offsetWidth - obj.offsetWidth) vx *= -1;
+                        obj.style.top = t + 'px';
+                        obj.style.left = l + 'px';
+                    }
+                    requestAnimationFrame(move);
+                }
+                move();
+                obj.onmousedown = (e) => { drag = obj; e.preventDefault(); };
+            });
         }
-    }, 100);
 
-    // Spire Arc Sparks
-    const spireArea = document.getElementById('spire-area');
-    function spawnSpark() {
-        const spark = document.createElement('div');
-        spark.className = 'arc-spark';
-        // Center sparks around the spire wireframe
-        const centerX = spireArea.offsetWidth / 2;
-        const centerY = spireArea.offsetHeight / 2;
-        spark.style.left = (centerX - 50 + Math.random() * 100) + 'px';
-        spark.style.top = (centerY + 100) + 'px';
-        
-        spireArea.appendChild(spark);
-        setTimeout(() => { spark.remove(); }, 600);
-    }
-    
-    // Ambient sparks
-    setInterval(spawnSpark, 400);
-</script>
+        initPhysics('hero-physics');
+        initPhysics('main-physics-container');
+
+        window.onmouseup = () => { drag = null; };
+        window.onmousemove = (e) => {
+            if(drag) {
+                const rect = drag.parentElement.getBoundingClientRect();
+                drag.style.left = (e.clientX - rect.left - (drag.offsetWidth/2)) + 'px';
+                drag.style.top = (e.clientY - rect.top - (drag.offsetHeight/2)) + 'px';
+            }
+        };
+    </script>
 </body>
 </html>
