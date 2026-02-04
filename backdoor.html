@@ -3,125 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // ROOT_KERNEL_v9</title>
+    <title>SUBSTRATE // NULL_POINTER</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-core: #33ff00;    /* Classic Terminal Green */
-            --color-warn: #ff3e3e;    /* Error Red */
-            --color-gold: #ffb000;    /* Rare/Lore Gold */
-            --color-cyan: #06b6d4;    /* System Blue */
-            --color-dim:  #445544;    /* Dimmed Text */
-            --bg-black:   #0a0a0c;
-        }
-
-        @font-face {
-            font-family: 'VCROSD';
-            src: local('Courier New'); /* Fallback */
+            /* PALETTE DRAWN FROM YOUR STORIES */
+            --void-bg: #030303;           /* Log III: Obsidian */
+            --gold-dim: #8a7f60;          /* Log V: Ancient Data */
+            --gold-lit: #ffdb78;          /* Log V: High-Fidelity Telemetry */
+            --crimson: #d90d32;           /* Log IV: Sharp Crimson */
+            --violet-haze: rgba(139, 92, 246, 0.15); /* Log IV: Deep Violet Haze */
+            --lemon-haze: rgba(253, 224, 71, 0.1);   /* Log III: Sickly Aerosol */
+            --panel-bg: rgba(20, 20, 25, 0.6);
         }
 
         body {
-            background-color: var(--bg-black);
-            color: var(--color-core);
-            font-family: 'Courier New', monospace;
+            background-color: var(--void-bg);
+            color: var(--gold-dim);
+            font-family: 'Space Mono', monospace;
             margin: 0;
             padding: 0;
             height: 100vh;
             overflow: hidden;
-            font-size: 14px;
-            text-shadow: 0 0 4px rgba(51, 255, 0, 0.4);
+            font-size: 13px;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Subtle radial gradient for depth */
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
         }
 
-        /* --- CRT SCREEN EFFECTS --- */
-        #screen-layer {
-            position: absolute; inset: 0; pointer-events: none; z-index: 100;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), 
-                        linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
-            background-size: 100% 3px, 3px 100%;
-            animation: flicker 0.15s infinite;
+        /* --- TEXTURE: FILM GRAIN & SCANLINES --- */
+        body::before {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* SVG Noise for "Gritty Industrial" feel */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 10;
         }
-        
-        @keyframes flicker { 0% { opacity: 0.95; } 5% { opacity: 0.9; } 10% { opacity: 0.95; } }
+
+        body::after {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 11;
+        }
 
         /* --- TERMINAL CONTAINER --- */
         #terminal-container {
-            flex: 1;
-            padding: 20px 20px 100px 20px; /* Bottom padding for scroll */
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            height: 80vh;
+            border: 1px solid #333;
+            background: var(--panel-bg);
+            backdrop-filter: blur(5px);
+            padding: 40px;
             overflow-y: auto;
-            scroll-behavior: smooth;
+            box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            z-index: 20;
+            /* Thin "Golden" border on left implying Log V stack */
+            border-left: 2px solid var(--gold-dim); 
         }
 
-        /* Hides scrollbar but allows scrolling */
-        #terminal-container::-webkit-scrollbar { width: 8px; }
+        /* Scrollbar styling to match "Brutalist" theme */
+        #terminal-container::-webkit-scrollbar { width: 4px; }
         #terminal-container::-webkit-scrollbar-track { background: #000; }
-        #terminal-container::-webkit-scrollbar-thumb { background: #112211; }
+        #terminal-container::-webkit-scrollbar-thumb { background: var(--gold-dim); }
 
         .line { 
             white-space: pre-wrap; 
-            line-height: 1.5; 
-            margin-bottom: 2px; 
+            line-height: 1.6; 
+            margin-bottom: 4px; 
             word-break: break-word;
         }
-        
-        .input-wrapper { display: flex; align-items: center; margin-top: 10px; }
-        .prompt { color: var(--color-gold); margin-right: 10px; font-weight: bold; }
+
+        /* --- TYPOGRAPHY STYLES --- */
+        .gold { color: var(--gold-lit); text-shadow: 0 0 8px rgba(255, 219, 120, 0.3); }
+        .crimson { color: var(--crimson); text-shadow: 0 0 5px rgba(217, 13, 50, 0.4); }
+        .dim { color: #444; }
+        .bold { font-weight: 700; letter-spacing: 1px; }
+        .italic { font-style: italic; color: #666; }
+
+        /* --- INPUT AREA --- */
+        .input-wrapper { display: flex; align-items: center; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px; }
+        .prompt { color: var(--gold-dim); margin-right: 12px; font-weight: bold; }
         
         #cmd-input {
-            background: transparent; border: none; color: #fff;
+            background: transparent; border: none; color: var(--gold-lit);
             font-family: inherit; font-size: inherit; flex: 1;
-            outline: none; caret-color: var(--color-core);
-            text-transform: uppercase;
+            outline: none; caret-color: var(--crimson);
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
-        /* --- UTILITY CLASSES --- */
-        .cyan { color: var(--color-cyan); }
-        .red { color: var(--color-warn); text-shadow: 0 0 8px var(--color-warn); }
-        .gold { color: var(--color-gold); }
-        .dim { color: var(--color-dim); }
-        .bold { font-weight: bold; }
-        .glitch { animation: glitch-anim 0.3s infinite; }
-
-        @keyframes glitch-anim {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
+        /* --- GLITCH EFFECTS (Log IV) --- */
+        .glitch-text {
+            display: inline-block;
+            animation: glitch-skew 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            10% { transform: skew(-2deg); opacity: 0.8; }
+            20% { transform: skew(2deg); opacity: 1; }
+            90% { transform: skew(0deg); }
+            100% { transform: skew(0deg); }
         }
 
-        /* --- MINIGAME UI --- */
+        /* --- MINIGAME UI (The "Vector" Interface) --- */
         #minigame-ui {
             display: none;
-            border: 1px solid var(--color-core);
-            padding: 20px;
-            margin: 20px 0;
-            max-width: 400px;
+            border: 1px solid var(--gold-dim);
+            background: rgba(0,0,0,0.8);
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 500px;
+            position: relative;
         }
-        .progress-bar { width: 100%; height: 10px; background: #111; margin-top: 5px; }
-        .progress-fill { height: 100%; background: var(--color-core); width: 0%; transition: width 0.1s; }
+        /* Aesthetic: "Silver ribbon of subatomic wire" */
+        .wire-track { 
+            width: 100%; height: 2px; background: #333; margin-top: 20px; position: relative; 
+        }
+        .wire-pulse { 
+            position: absolute; top: -4px; height: 10px; width: 2px; 
+            background: var(--gold-lit); 
+            box-shadow: 0 0 10px var(--gold-lit);
+            transition: left 0.05s linear;
+        }
+        .target-zone {
+            position: absolute; top: -8px; width: 40px; height: 18px;
+            border: 1px solid var(--crimson);
+            box-shadow: 0 0 5px var(--crimson);
+        }
 
     </style>
 </head>
 <body>
 
-    <div id="screen-layer"></div>
-
     <div id="terminal-container">
         <div id="history"></div>
         
         <div id="minigame-ui">
-            <div class="line bold">>> SEQUENCE BREACH PROTOCOL <<</div>
-            <div class="line dim">Press [SPACE] when the numbers match.</div>
-            <div class="line" style="margin-top:15px;">TARGET: <span id="mg-target" class="gold">99</span></div>
-            <div class="line">CURRENT: <span id="mg-current" class="cyan">00</span></div>
-            <div class="progress-bar"><div id="mg-bar" class="progress-fill"></div></div>
-            <div id="mg-status" class="line red" style="margin-top:10px;"></div>
+            <div class="line bold gold" style="text-align: center; letter-spacing: 3px;">// VECTOR_DRIFT_SYNC //</div>
+            <div class="line italic" style="text-align: center; font-size: 0.8rem; margin-bottom: 20px;">
+                "Align the pulse with the instability node."<br>
+                [SPACEBAR TO LOCK]
+            </div>
+            
+            <div style="position: relative; height: 40px; display: flex; align-items: center;">
+                <div class="wire-track">
+                    <div id="mg-target" class="target-zone" style="left: 50%;"></div>
+                    <div id="mg-pulse" class="wire-pulse" style="left: 0%;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-top: 10px; color: #555;">
+                <span>FREQ: <span id="mg-freq" class="gold">0.00</span> Hz</span>
+                <span>VARIANCE: <span id="mg-var" class="crimson">CRITICAL</span></span>
+            </div>
+            
+            <div id="mg-status" class="line" style="margin-top:20px; text-align: center; height: 20px; font-weight: bold;"></div>
         </div>
 
         <div class="input-wrapper" id="input-area" style="display:none;">
-            <span class="prompt" id="prompt-text">GUEST@SUBSTRATE:~#</span>
+            <span class="prompt" id="prompt-text">ROOT@NULL_SPACE:~#</span>
             <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
         </div>
     </div>
@@ -132,41 +182,40 @@
             "ROOT": {
                 type: "dir",
                 content: {
-                    "README.TXT": { type: "file", content: "WARNING: UNAUTHORIZED ACCESS DETECTED.\nThis is a restricted Substrate node. All activity is logged.\n\nType 'HELP' for a list of commands." },
-                    "LOGS": {
+                    "README.MD": { type: "file", content: "<span class='gold'>[SUBSTRATE_LAYER_V0.9]</span>\n\nWARNING: You are operating in a raw metric environment.\nGeometry here is unstable. Do not touch the wireframe artifacts.\n\nType 'HELP' for command list." },
+                    "ARCHIVE": {
                         type: "dir",
                         content: {
-                            "KAEL_01.LOG": { type: "file", content: "[FROM: K.VANCE // STRUCTURAL ANALYST]\nThe Vector Drift in Sector 4 is getting worse. I saw a coffee cup clip through a table today. Sloane keeps saying it's 'acceptable variance'. It isn't." },
-                            "VERA_OBS.LOG": { type: "file", content: "[FROM: V.ROTH // OBSERVER]\nThe Crow is watching me again. I think it knows I hid the encryption key in the mail archive." },
-                            "ERROR_DUMP.DAT": { type: "file", content: "CRITICAL FAILURE: LEAD SPHERE STABILITY AT 12%.\nSUGGEST IMMEDIATE EVACUATION OF SPIRE DISTRICT." }
+                            "KAEL_NOTE.TXT": { type: "file", content: "They fixed the walkway in the Spire District, but the <span class='crimson'>melon juice</span> stains are still floating 3 inches off the ground. It's a physics bug. I reported it to Vera, she just stared at me." },
+                            "VERA_LOG.TXT": { type: "file", content: "I see them in the Substrate. The frozen statues. They aren't dead. They're buffered." },
+                            "CORRUPTION.DAT": { type: "file", content: "<span class='glitch-text'>0x884_NULL_VOID_SECTOR_7_LEAK</span>\n<span class='crimson'>CRITICAL: ORIGAMI FOLD DETECTED IN RESIDENTIAL RINGS.</span>" }
                         }
                     },
-                    "MAIL": {
+                    "SECURE": {
                         type: "dir",
                         content: {
-                            "INBOX_ENCRYPTED": { type: "file", encrypted: true, key: "ORIGAMI", content: "[DECRYPTED]\nSubject: Backdoor Access\nFrom: Sloane\n\nIf you get locked out of the main UI again, just use the manual override code: 'TECTONIC'.\n\nDon't write this down." },
-                            "DRAFT.TXT": { type: "file", content: "To Sloane: We need to shut down the Observatory. The geometry is folding." }
+                            "SUBSTRATE_KEY": { type: "file", encrypted: true, key: "GOLD", content: "[DECRYPTED FRAGMENT]\n\nOverride Code: 'TECTONIC'\nTarget: Main OS Login\n\nNote: This code bypasses the geometric locks on the Market Hub." },
+                            "PROJECT_CROW": { type: "file", content: "Subject: Bio-mimetic Surveillance.\nStatus: Glitching.\nThe eye color keeps shifting to red." }
                         }
                     },
                     "BIN": {
                         type: "dir",
                         content: {
-                            "SEQUENCE_BREACH.EXE": { type: "exec", func: "runMinigame" },
-                            "NET_DIAG.EXE": { type: "exec", func: "runNetDiag" }
+                            "VECTOR_SYNC.EXE": { type: "exec", func: "runMinigame" },
+                            "SCAN_LAYERS.EXE": { type: "exec", func: "runScan" }
                         }
                     }
                 }
             }
         };
 
-        // --- STATE MANAGEMENT ---
-        let currentPath = []; // empty = root
+        // --- STATE & DOM ---
+        let currentPath = [];
         let currentDirObj = fileSystem["ROOT"];
         let commandHistory = [];
         let historyIndex = -1;
         let isMinigameActive = false;
 
-        // --- DOM ELEMENTS ---
         const term = document.getElementById('history');
         const input = document.getElementById('cmd-input');
         const inputArea = document.getElementById('input-area');
@@ -174,43 +223,30 @@
         const minigameUI = document.getElementById('minigame-ui');
 
         // --- CORE FUNCTIONS ---
-
         function print(text, className = '') {
             const div = document.createElement('div');
             div.className = 'line ' + className;
-            div.innerHTML = text; // Allow HTML parsing
+            div.innerHTML = text; 
             term.appendChild(div);
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        function getDir(pathArray) {
-            let dir = fileSystem["ROOT"];
-            for (const p of pathArray) {
-                if (dir.content && dir.content[p]) {
-                    dir = dir.content[p];
-                } else {
-                    return null;
-                }
-            }
-            return dir;
+            const container = document.getElementById('terminal-container');
+            container.scrollTop = container.scrollHeight;
         }
 
         function updatePrompt() {
             const pathStr = currentPath.length === 0 ? "~" : "~/" + currentPath.join("/");
-            promptText.innerText = `GUEST@SUBSTRATE:${pathStr}#`;
+            promptText.innerText = `ROOT@NULL_SPACE:${pathStr}#`;
         }
 
-        // --- BOOT SEQUENCE ---
+        // --- BOOT SEQUENCE (Atmospheric) ---
         async function bootSequence() {
             const steps = [
-                { msg: "INITIALIZING SUBSTRATE KERNEL v9.0...", ms: 500 },
-                { msg: "CHECKING VRAM... [OK]", ms: 200 },
-                { msg: "MOUNTING VIRTUAL DRIVES... [OK]", ms: 300 },
-                { msg: "LOADING DRIVERS: [NEON_MIST] [GRAVITY_PHYSICS]...", ms: 600 },
-                { msg: "<span class='red'>WARNING: CONNECTION UNSECURED</span>", ms: 400 },
-                { msg: "ESTABLISHING UPLINK TO SPIRE...", ms: 800 },
-                { msg: "<br><span class='cyan'>WELCOME TO ALDERSYTH TERMINAL.</span>", ms: 100 },
-                { msg: "Type 'HELP' to view available commands.", ms: 100 }
+                { msg: "CONNECTING TO SUBSTRATE...", ms: 800 },
+                { msg: "HANDSHAKE: <span class='gold'>ACCEPTED</span>", ms: 400 },
+                { msg: "LOADING PHYSICS ENGINE... [NULL]", ms: 600 },
+                { msg: "WARNING: <span class='crimson'>VECTOR DRIFT DETECTED</span>", ms: 400 },
+                { msg: "RENDERING 4D SUPERPOSITION...", ms: 1000 },
+                { msg: "<br><span class='gold bold'>// WELCOME TO THE SUBSTRATE.</span>", ms: 100 },
+                { msg: "Physics are optional here. Watch your step.", ms: 100 }
             ];
 
             for (let step of steps) {
@@ -221,62 +257,20 @@
             input.focus();
         }
 
-        // --- COMMAND PARSER ---
+        // --- COMMAND HANDLING ---
         input.addEventListener('keydown', function(e) {
             if (isMinigameActive) {
-                e.preventDefault();
-                handleMinigameInput(e.code);
+                if(e.code === 'Space') { e.preventDefault(); handleMinigameInput(); }
                 return;
             }
 
-            // History Navigation
-            if (e.key === 'ArrowUp') {
-                if (historyIndex < commandHistory.length - 1) {
-                    historyIndex++;
-                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
-                }
-                e.preventDefault();
-            } else if (e.key === 'ArrowDown') {
-                if (historyIndex > 0) {
-                    historyIndex--;
-                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
-                } else {
-                    historyIndex = -1;
-                    input.value = '';
-                }
-                e.preventDefault();
-            }
-
-            // Tab Autocomplete
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const currentVal = this.value;
-                const args = currentVal.split(' ');
-                const partial = args[args.length - 1].toUpperCase();
-                
-                // Get contents of current directory
-                const files = currentDirObj.content ? Object.keys(currentDirObj.content) : [];
-                const cmds = ["HELP", "LS", "CD", "CAT", "CLEAR", "LOGIN", "DECRYPT", "PWD"];
-                
-                const possibilities = [...files, ...cmds].filter(x => x.startsWith(partial));
-                
-                if (possibilities.length === 1) {
-                    args[args.length - 1] = possibilities[0];
-                    this.value = args.join(' ');
-                }
-            }
-
-            // Execution
             if (e.key === 'Enter') {
                 const raw = this.value;
                 if (!raw) return;
-
                 commandHistory.push(raw);
                 historyIndex = -1;
-
-                print(`<span class='dim'>${promptText.innerText}</span> ${raw}`);
+                print(`<span class='dim'>${promptText.innerText}</span> <span class='gold'>${raw}</span>`);
                 this.value = '';
-
                 execute(raw.trim());
             }
         });
@@ -288,198 +282,150 @@
 
             switch(cmd) {
                 case 'HELP':
-                    print("AVAILABLE COMMANDS:");
-                    print("  LS ................. List directory contents");
-                    print("  CD [DIR] ........... Change directory (.. to go back)");
-                    print("  CAT [FILE] ......... Read file content");
-                    print("  ./[FILE] ........... Execute a program (.EXE)");
-                    print("  DECRYPT [FILE] ..... Attempt to decrypt a secured file");
-                    print("  LOGIN [PASS] ....... Authenticate to Main OS");
-                    print("  CLEAR .............. Clear screen");
+                    print("COMMANDS:", 'gold');
+                    print("  LS ......... View Strata Layer contents");
+                    print("  CD ......... Shift Layer");
+                    print("  CAT ........ Read Data Fragment");
+                    print("  ./[EXE] .... Run Executable");
+                    print("  DECRYPT .... Unlock Encrypted Shards");
+                    print("  LOGIN ...... Return to Surface (OS)");
+                    print("  CLEAR ...... Wipe Buffer");
                     break;
 
                 case 'LS':
                     if (currentDirObj.content) {
                         let output = "";
                         for (let [name, data] of Object.entries(currentDirObj.content)) {
-                            if (data.type === 'dir') output += `<span class='cyan'>${name}/</span>  `;
-                            else if (data.type === 'exec') output += `<span class='red'>${name}</span>  `;
+                            if (data.type === 'dir') output += `<span class='gold'>${name}/</span>  `;
+                            else if (data.type === 'exec') output += `<span class='crimson'>${name}</span>  `;
                             else output += `${name}  `;
                         }
                         print(output);
-                    } else {
-                        print("Directory empty.");
                     }
                     break;
 
                 case 'CD':
-                    if (!param) { print("Usage: CD [DIRECTORY]"); return; }
+                    if (!param) return print("Usage: CD [LAYER]");
                     if (param === "..") {
                         if (currentPath.length > 0) {
                             currentPath.pop();
-                            currentDirObj = getDir(currentPath);
+                            currentDirObj = fileSystem["ROOT"]; // Simplified for depth 1
+                            for(let p of currentPath) currentDirObj = currentDirObj.content[p];
                             updatePrompt();
                         }
                     } else {
                         const target = param.toUpperCase().replace('/', '');
-                        if (currentDirObj.content && currentDirObj.content[target] && currentDirObj.content[target].type === 'dir') {
+                        if (currentDirObj.content && currentDirObj.content[target]?.type === 'dir') {
                             currentPath.push(target);
                             currentDirObj = currentDirObj.content[target];
                             updatePrompt();
-                        } else {
-                            print(`Error: Directory '${target}' not found.`, 'red');
-                        }
+                        } else print(`Layer '${target}' does not exist.`, 'crimson');
                     }
                     break;
 
                 case 'CAT':
-                    if (!param) { print("Usage: CAT [FILENAME]"); return; }
-                    const targetFile = param.toUpperCase();
-                    if (currentDirObj.content && currentDirObj.content[targetFile]) {
-                        const fileData = currentDirObj.content[targetFile];
-                        if (fileData.type === 'file') {
-                            if (fileData.encrypted) {
-                                print(`FILE ENCRYPTED. Use 'DECRYPT [FILE] [KEY]' to access.`, 'red');
-                            } else {
-                                print("--------------------------------");
-                                print(fileData.content, 'gold');
-                                print("--------------------------------");
-                            }
-                        } else {
-                            print("Error: Not a readable file.", 'red');
-                        }
-                    } else {
-                        print("Error: File not found.", 'red');
-                    }
+                    const fName = param ? param.toUpperCase() : "";
+                    if (currentDirObj.content && currentDirObj.content[fName]) {
+                        const f = currentDirObj.content[fName];
+                        if (f.encrypted) print(`LOCKED. SHARD ENCRYPTED.\nHint: Theme of Log V.`, 'crimson');
+                        else print(f.content, 'dim');
+                    } else print("Fragment not found.", 'crimson');
                     break;
 
                 case 'DECRYPT':
-                    const dFile = args[1] ? args[1].toUpperCase() : null;
-                    const dKey = args[2] ? args[2].toUpperCase() : null;
-                    
-                    if (!dFile || !dKey) { print("Usage: DECRYPT [FILENAME] [PASSWORD]"); return; }
-                    
+                    const dFile = args[1]?.toUpperCase();
+                    const dKey = args[2]?.toUpperCase();
                     if (currentDirObj.content && currentDirObj.content[dFile]) {
                         const f = currentDirObj.content[dFile];
-                        if (f.encrypted) {
-                            if (dKey === f.key) {
-                                f.encrypted = false;
-                                print("DECRYPTION SUCCESSFUL.", 'cyan');
-                                print(f.content, 'gold');
-                            } else {
-                                print("ACCESS DENIED: INCORRECT KEY.", 'red');
-                            }
-                        } else {
-                            print("File is not encrypted.");
-                        }
-                    } else {
-                        print("File not found.");
+                        if(f.encrypted && dKey === f.key) {
+                            f.encrypted = false;
+                            print("SHARD UNLOCKED.", 'gold');
+                            print(f.content);
+                        } else print("DECRYPTION FAILED. INCORRECT KEY.", 'crimson');
                     }
                     break;
-
+                
                 case 'LOGIN':
                 case 'SUDO':
-                    const pass = param ? param.toUpperCase() : "";
-                    if (pass === 'TECTONIC' || pass === 'SLOANE') {
-                        print("AUTHENTICATION ACCEPTED.", 'cyan');
-                        print("REDIRECTING TO GUI...", 'dim');
+                    const p = param?.toUpperCase();
+                    if(p === 'TECTONIC' || p === 'SLOANE') {
+                        print("KEY ACCEPTED. RESURFACING...", 'gold');
                         setTimeout(() => window.location.href = "index.html", 1500);
-                    } else {
-                        print("AUTHENTICATION FAILED.", 'red');
-                    }
+                    } else print("ACCESS DENIED.", 'crimson');
                     break;
 
-                case 'CLEAR':
-                    term.innerHTML = '';
-                    break;
-
-                case 'PWD':
-                    print("/" + currentPath.join("/"));
-                    break;
+                case 'CLEAR': term.innerHTML = ''; break;
 
                 default:
-                    // Check for executable execution (./)
                     if (cmd.startsWith('./') || cmd.endsWith('.EXE')) {
-                        const exeName = cmd.replace('./', '');
-                        if (currentDirObj.content && currentDirObj.content[exeName] && currentDirObj.content[exeName].type === 'exec') {
-                            window[currentDirObj.content[exeName].func](); // Run linked JS function
-                        } else {
-                            print("Error: Executable not found.", 'red');
-                        }
-                    } else {
-                        print(`Command '${cmd}' not recognized.`, 'dim');
-                    }
+                        const exe = cmd.replace('./', '');
+                        if (currentDirObj.content?.[exe]?.type === 'exec') window[currentDirObj.content[exe].func]();
+                        else print("Executable corrupted or missing.", 'crimson');
+                    } else print("Syntax Error.", 'dim');
             }
         }
 
-        // --- EXECUTABLE SCRIPTS ---
-
-        function runNetDiag() {
-            print("RUNNING NETWORK DIAGNOSTICS...", 'cyan');
-            setTimeout(() => print("> NODE_01 (SPIRE): <span class='gold'>ONLINE</span>"), 500);
-            setTimeout(() => print("> NODE_02 (RINGS): <span class='red'>OFFLINE</span>"), 1000);
-            setTimeout(() => print("> NODE_03 (SUBSTRATE): <span class='cyan'>CONNECTED</span>"), 1500);
-            setTimeout(() => print("DIAGNOSTIC COMPLETE."), 1800);
+        // --- SCRIPTS ---
+        function runScan() {
+            print("SCANNING GEOMETRY...", 'gold');
+            setTimeout(() => print("SECTOR 1 (SPIRE): <span class='gold'>STABLE</span>"), 500);
+            setTimeout(() => print("SECTOR 2 (RINGS): <span class='crimson'>ORIGAMI FOLD DETECTED</span>"), 1200);
+            setTimeout(() => print("SECTOR 3 (VOID):  <span class='dim'>NULL_POINTER_EXCEPTION</span>"), 2000);
         }
 
-        // --- HACKING MINIGAME ---
-        let mgTarget, mgInterval, mgBarVal = 0;
-        
+        // --- MINIGAME: VECTOR SYNC (PONG STYLE BAR) ---
+        let mgInterval, mgPos = 0, mgDir = 1, mgSpeed = 2;
+        let targetLeft = 50; 
+
         function runMinigame() {
             isMinigameActive = true;
             inputArea.style.display = 'none';
             minigameUI.style.display = 'block';
-            print("INITIALIZING SEQUENCE BREACH...", 'cyan');
+            print("INITIATING VECTOR SYNC...", 'gold');
+            document.getElementById('mg-status').innerHTML = "";
             
-            mgTarget = Math.floor(Math.random() * 90) + 10;
-            document.getElementById('mg-target').innerText = mgTarget;
-            document.getElementById('mg-status').innerText = "";
-            
-            // Start looping numbers
+            // Randomize target
+            targetLeft = Math.floor(Math.random() * 80) + 10;
+            document.getElementById('mg-target').style.left = targetLeft + "%";
+
             mgInterval = setInterval(() => {
-                const random = Math.floor(Math.random() * 99);
-                document.getElementById('mg-current').innerText = random < 10 ? "0"+random : random;
+                // Bounce logic
+                mgPos += mgDir * mgSpeed;
+                if (mgPos > 98 || mgPos < 0) mgDir *= -1;
                 
-                // Visual bar movement
-                mgBarVal = (mgBarVal + 5) % 100;
-                document.getElementById('mg-bar').style.width = mgBarVal + "%";
-            }, 50);
+                document.getElementById('mg-pulse').style.left = mgPos + "%";
+                document.getElementById('mg-freq').innerText = (Math.random() * 100).toFixed(2);
+            }, 16); // 60fps
         }
 
-        function handleMinigameInput(code) {
-            if (code === 'Space') {
-                clearInterval(mgInterval);
-                const current = parseInt(document.getElementById('mg-current').innerText);
-                
-                // Generous hit window of +/- 5
-                if (Math.abs(current - mgTarget) <= 5) {
-                    document.getElementById('mg-status').innerText = "SUCCESS! SYSTEM BYPASSED.";
-                    document.getElementById('mg-status').className = "line cyan";
-                    setTimeout(() => {
-                        minigameUI.style.display = 'none';
-                        inputArea.style.display = 'flex';
-                        input.focus();
-                        isMinigameActive = false;
-                        print("BREACH SUCCESSFUL. ROOT ACCESS GRANTED TEMPORARILY.", 'gold');
-                        print("Use 'LOGIN TECTONIC' to proceed.");
-                    }, 1500);
-                } else {
-                    document.getElementById('mg-status').innerText = "FAILED. SYNC ERROR.";
-                    setTimeout(() => {
-                        minigameUI.style.display = 'none';
-                        inputArea.style.display = 'flex';
-                        input.focus();
-                        isMinigameActive = false;
-                        print("BREACH FAILED.", 'red');
-                    }, 1000);
-                }
+        function handleMinigameInput() {
+            clearInterval(mgInterval);
+            // Hit detection (Wire pulse width is small, Target is 40px/approx 10%)
+            const hit = Math.abs(mgPos - targetLeft) < 10; 
+
+            if (hit) {
+                document.getElementById('mg-status').innerHTML = "<span class='gold'>SYNC ESTABLISHED.</span>";
+                setTimeout(() => {
+                    minigameUI.style.display = 'none';
+                    inputArea.style.display = 'flex';
+                    isMinigameActive = false;
+                    input.focus();
+                    print("VECTOR STABILIZED. ROOT PRIVILEGES GRANTED.", 'gold');
+                    print("Override Code: 'TECTONIC' found in memory dump.");
+                }, 1500);
+            } else {
+                document.getElementById('mg-status').innerHTML = "<span class='crimson'>SYNC FAILED. SIGNAL LOST.</span>";
+                setTimeout(() => {
+                    minigameUI.style.display = 'none';
+                    inputArea.style.display = 'flex';
+                    isMinigameActive = false;
+                    input.focus();
+                    print("CONNECTION RESET.", 'crimson');
+                }, 1000);
             }
         }
 
-        // Start
         window.onload = bootSequence;
-
-        // Click anywhere to focus input
         document.addEventListener('click', () => { if(!isMinigameActive) input.focus(); });
 
     </script>
