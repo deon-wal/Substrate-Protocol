@@ -18,10 +18,13 @@
             color: var(--neon-gold);
             font-family: var(--font-main);
             margin: 0;
-            overflow-x: hidden;
+            overflow: hidden;
             text-transform: uppercase;
             background-image: radial-gradient(circle, rgba(255, 176, 0, 0.05) 1px, transparent 1px);
             background-size: 25px 25px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* --- CRT & GLOBAL EFFECTS --- */
@@ -41,16 +44,28 @@
         @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
 
         /* --- GRID LAYOUT --- */
+        header.top-bar {
+            margin: 20px;
+            border-bottom: 2px solid var(--neon-gold);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 320px 1fr;
+            grid-template-rows: 1fr auto;
             grid-template-areas: "sidebar hero" "sidebar table";
-            gap: 20px; padding: 20px; box-sizing: border-box;
+            gap: 20px; 
+            padding: 0 20px 20px 20px; 
+            box-sizing: border-box;
+            flex-grow: 1;
+            overflow: hidden;
         }
 
-        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 15px; }
-        .visual-core { grid-area: hero; position: relative; }
-        .table-module { grid-area: table; }
+        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden;}
+        .visual-core { grid-area: hero; position: relative; height: 100%; min-height: 300px; }
+        .table-module { grid-area: table; margin-top: 10px; }
 
         /* --- MODULE STYLING --- */
         .module-box {
@@ -68,7 +83,7 @@
         /* --- HERO --- */
         .hero-frame {
             position: relative; border: 1px solid var(--neon-gold);
-            height: 400px; background: #000; overflow: hidden;
+            height: 100%; background: #000; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
         }
 
@@ -83,7 +98,13 @@
             letter-spacing: 15px; z-index: 2; text-shadow: 0 0 10px var(--neon-gold);
         }
 
-        /* --- TABLE & NAV --- */
+        /* --- LOG FEED --- */
+        #logScroll {
+            font-size: 0.65rem; line-height: 1.4; opacity: 0.9;
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        /* --- TABLE --- */
         #anomaliesTable { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         #anomaliesTable th { text-align: left; padding: 8px; border-bottom: 1px solid var(--panel-border); opacity: 0.6; }
         #anomaliesTable td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -91,30 +112,19 @@
         .row-link { cursor: pointer; transition: 0.2s; }
         .row-link:hover { background: rgba(255, 176, 0, 0.15); color: #fff; }
 
-        .status-tag { 
-            border: 1px solid currentColor; padding: 2px 6px; font-size: 0.7rem; 
-        }
+        .status-tag { border: 1px solid currentColor; padding: 2px 6px; font-size: 0.7rem; }
 
         /* --- UTILS --- */
         .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.75rem; }
         .val { color: var(--neon-gold); font-weight: bold; }
         .chromatic-break { text-shadow: 2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7); filter: contrast(1.2); }
-
-        .btn {
-            display: block; width: 100%; background: transparent;
-            color: var(--neon-gold); border: 1px solid var(--neon-gold);
-            padding: 10px; margin-top: 10px; cursor: pointer;
-            font-family: inherit; text-transform: uppercase;
-        }
-        .btn:hover { background: var(--neon-gold); color: #000; }
-        .btn.warning { color: var(--neon-red); border-color: var(--neon-red); }
     </style>
 </head>
 <body>
     <div class="crt-overlay"></div>
     <div class="scanline"></div>
 
-    <header class="module-box" style="margin: 20px; border-bottom: 2px solid var(--neon-gold); font-size: 0.8rem;">
+    <header class="top-bar module-box">
         ALDERSYTH // SUBSTRATE_MONITOR // SYSTEM_ACTIVE // 2026-REF
     </header>
 
@@ -127,24 +137,14 @@
                 <div class="stat"><span>STRESS_LVL</span><span class="val" id="stressVal">STABLE</span></div>
             </div>
 
-            <div class="module-box" style="flex-grow: 1;">
+            <div class="module-box" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
                 <h2>SYSTEM_LOGS</h2>
-                <div id="logFeed" style="font-size: 0.65rem; line-height: 1.4; opacity: 0.8;">
-                    > INITIALIZING...<br>
-                    > SCANNING SECTORS...<br>
-                    > 2 ANOMALIES DETECTED.
+                <div id="logScroll">
+                    <div>> INITIALIZING SUBSTRATE...</div>
+                    <div>> SCANNING SECTOR_742-G...</div>
                 </div>
             </div>
-
-            <div class="module-box" style="flex-grow: 1; min-height: 200px; display: flex; flex-direction: column;">
-    <h2>SYSTEM_LOGS</h2>
-    <div id="logFeed" style="font-size: 0.65rem; line-height: 1.4; opacity: 0.9; overflow-y: hidden; height: 100%; display: flex; flex-direction: column-reverse;">
-        <div id="logScroll">
-            <div style="color: var(--neon-gold)">> INITIALIZING SUBSTRATE...</div>
-            <div style="color: var(--neon-gold)">> SCANNING SECTOR_742-G...</div>
-        </div>
-    </div>
-</div>
+        </aside>
 
         <section class="visual-core">
             <div class="hero-frame">
@@ -161,18 +161,15 @@
                 </thead>
                 <tbody>
                     <tr class="row-link" onclick="window.location.href='market.html'">
-                        <td>MARKET_DISTRICT</td>
-                        <td>#FNN-09</td>
+                        <td>MARKET_DISTRICT</td><td>#FNN-09</td>
                         <td><span class="status-tag" style="color:var(--neon-gold)">VOLATILE</span></td>
                     </tr>
                     <tr class="row-link" onclick="window.location.href='residential.html'">
-                        <td>RESIDENTIAL_RINGS</td>
-                        <td>#UNT-402</td>
+                        <td>RESIDENTIAL_RINGS</td><td>#UNT-402</td>
                         <td><span class="status-tag" style="color:var(--neon-red)">PURGING</span></td>
                     </tr>
                     <tr style="opacity: 0.4;">
-                        <td>SPIRE_CENTRAL</td>
-                        <td>#SPR-42</td>
+                        <td>SPIRE_CENTRAL</td><td>#SPR-42</td>
                         <td><span class="status-tag">LOCKED</span></td>
                     </tr>
                 </tbody>
@@ -181,36 +178,40 @@
     </main>
 
     <script>
-        // Real-time stats
+        const logMessages = ["PHYSICS_LEAK", "SIGNAL_DECAY", "RESI_SHIFT", "CORE_BREATH", "NEURAL_DRIFT", "GRAVITY_FLUX", "VOID_SENSING"];
+
         function updateStats() {
             const bpm = document.getElementById('bpm');
             const sync = document.getElementById('syncVal');
+            const logScroll = document.getElementById('logScroll');
             
+            // Stats
             if(bpm) bpm.innerText = (140 + Math.floor(Math.random() * 15)) + " BPM";
-            
             let currentSync = parseFloat(sync.innerText);
-            if(currentSync < 99) sync.innerText = (currentSync + 0.01).toFixed(2) + "%";
+            if(currentSync < 99.9) sync.innerText = (currentSync + 0.01).toFixed(2) + "%";
 
-            // Add random log entries
-            if(Math.random() > 0.8) {
-                const logs = ["PHYSICS_LEAK", "SIGNAL_DECAY", "RESI_SHIFT", "CORE_BREATH"];
-                const feed = document.getElementById('logFeed');
-                feed.innerHTML = `> ${logs[Math.floor(Math.random()*logs.length)]}<br>` + feed.innerHTML;
-            }
+            // Logs
+            const entry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            entry.innerHTML = `<span style="opacity:0.5">[${timestamp}]</span> > ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
+            logScroll.prepend(entry);
+
+            if (logScroll.children.length > 18) logScroll.removeChild(logScroll.lastChild);
         }
 
-        // Mouse Parallax
+        // Parallax
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX - window.innerWidth / 2) * 0.01;
             const y = (e.clientY - window.innerHeight / 2) * 0.01;
-            document.getElementById('heroImg').style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
+            const img = document.getElementById('heroImg');
+            if(img) img.style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
         });
 
-        // Visual Glitch
+        // Glitch
         setInterval(() => {
-            if(Math.random() > 0.98) {
+            if(Math.random() > 0.985) {
                 document.body.classList.add('chromatic-break');
-                setTimeout(() => document.body.classList.remove('chromatic-break'), 50);
+                setTimeout(() => document.body.classList.remove('chromatic-break'), 60);
             }
         }, 100);
 
