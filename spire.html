@@ -1,214 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // ARCH_01 // THE_SPIRE</title>
-    <style>
-        :root {
-            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
-            --bg-dark: #020406; --panel-border: rgba(6, 182, 212, 0.3);
-        }
+<meta charset="UTF-8">
+<title>ALDERSYTH // THE_SPIRE</title>
+<style>
+:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #0a0a05; --border: rgba(255, 176, 0, 0.15); }
+body { background: var(--bg); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; text-transform: uppercase; height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            background-color: var(--bg-dark); color: #cffafe;
-            font-family: 'Courier New', monospace; margin: 0;
-            overflow: hidden; height: 100vh; display: grid;
-            grid-template-columns: 1fr 350px; grid-template-rows: 80px 1fr;
-        }
+/* CRT Overlay */
+.crt::before { content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.2) 50%), linear-gradient(90deg, rgba(255,176,0,0.03), rgba(0,0,0,0), rgba(255,176,0,0.03)); background-size: 100% 2px, 2px 100%; }
 
-        /* --- ATMOSPHERIC FX --- */
-        .crt-overlay {
-            position: fixed; inset: 0; z-index: 1000; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px;
-        }
+header { padding: 15px 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; background: rgba(0,0,0,0.5); }
 
-        .vignette {
-            position: fixed; inset: 0; z-index: 999; pointer-events: none;
-            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
-        }
+.layout { display: grid; grid-template-columns: 1fr 400px; gap: 20px; padding: 20px; flex-grow: 1; }
 
-        /* --- HEADER --- */
-        header {
-            grid-column: 1 / span 2; border-bottom: 1px solid var(--panel-border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 40px; background: #000; z-index: 10;
-        }
+/* Spire Visualizer */
+.spire-view { border: 1px solid var(--gold); background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.spire-wireframe { width: 0; height: 0; border-left: 100px solid transparent; border-right: 100px solid transparent; border-bottom: 300px solid rgba(255, 176, 0, 0.1); position: relative; animation: float 6s infinite ease-in-out, pulseWire 2s infinite alternate; }
+@keyframes float { 0%,100%{transform: translateY(0) scale(1);} 50%{transform: translateY(-20px) scale(1.05);} }
+@keyframes pulseWire { 0%,100%{border-bottom-color: rgba(255,176,0,0.1);} 50%{border-bottom-color: rgba(255,176,0,0.25);} }
 
-        .header-title { font-size: 0.8rem; letter-spacing: 4px; color: var(--neon-cyan); }
+/* Arc Sparks */
+.arc-spark { position: absolute; width: 2px; height: 20px; background: var(--cyan); opacity: 0.8; pointer-events: none; filter: drop-shadow(0 0 6px var(--cyan)); animation: rise 0.8s linear forwards; }
+@keyframes rise { 0% {transform: translateY(0) scaleY(1);} 50% {transform: translateY(-150px) scaleY(1.5);} 100% {transform: translateY(-300px) scaleY(0.5); opacity: 0;} }
 
-        /* --- MAIN VIEWPORT --- */
-        main {
-            padding: 40px; position: relative; z-index: 5;
-            display: flex; flex-direction: column; gap: 20px;
-        }
+.security-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(45deg, rgba(255,62,62,0.05) 0, rgba(255,62,62,0.05) 10px, transparent 10px, transparent 20px); pointer-events: none; }
+.restricted-text { font-size: 5rem; font-weight: bold; opacity: 0.05; transform: rotate(-25deg); animation: flicker 1.2s infinite alternate; }
+@keyframes flicker { 0%{opacity:0.02;}50%{opacity:0.08;}100%{opacity:0.05;} }
 
-        .hero-viewport {
-            height: 300px; border: 1px solid var(--panel-border); position: relative;
-            overflow: hidden; background: #000;
-        }
+/* Encryption Panel */
+.side-bar { display: flex; flex-direction: column; gap: 15px; }
+.crypto-box { border: 1px solid var(--border); padding: 15px; background: rgba(0,0,0,0.8); font-size: 0.75rem; overflow: hidden; height: 200px; }
+#key-stream { font-family: 'Courier', monospace; word-break: break-all; color: var(--cyan); opacity: 0.9; line-height: 1.2em; height:100%; overflow:hidden; }
 
-        .hero-img {
-            width: 100%; height: 100%; object-fit: cover;
-            filter: contrast(1.2) grayscale(1) brightness(0.5);
-            mix-blend-mode: screen;
-        }
+#integrity { transition: 0.3s all; }
 
-        .story-text {
-            font-size: 1.1rem; line-height: 1.8; color: #88a;
-            padding: 20px; border-left: 2px solid var(--neon-cyan);
-            max-width: 800px;
-        }
-
-        /* --- NAVIGATION & STATUS COLUMN --- */
-        .status-sidebar {
-            grid-row: 2; grid-column: 2;
-            background: rgba(0,0,0,0.95); border-left: 1px solid var(--panel-border);
-            display: flex; flex-direction: column; padding: 30px; gap: 20px; z-index: 10;
-        }
-
-        .nav-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .nav-label { font-size: 0.6rem; color: var(--neon-gold); border-bottom: 1px solid var(--neon-gold); padding-bottom: 5px; }
-        
-        .nav-link {
-            text-decoration: none; color: var(--neon-cyan); font-size: 0.8rem;
-            padding: 12px; border: 1px solid rgba(6, 182, 212, 0.1); transition: 0.2s;
-            display: flex; justify-content: space-between;
-        }
-        .nav-link:hover { background: rgba(6, 182, 212, 0.1); border-color: var(--neon-cyan); padding-left: 20px; }
-        .nav-link.active { border-color: var(--neon-red); color: var(--neon-red); pointer-events: none; }
-
-        .brutalist-card {
-            background: #000; border: 1px solid var(--panel-border); padding: 15px;
-            font-size: 0.7rem; position: relative;
-        }
-
-        .chart-container {
-            height: 80px; display: flex; align-items: flex-end; gap: 2px; margin-top: 10px;
-        }
-        .chart-bar { flex: 1; background: var(--neon-red); min-height: 2px; }
-
-        /* --- ANIMATIONS --- */
-        .glitch-active { animation: glitch-shake 0.1s infinite; color: var(--neon-red) !important; }
-        @keyframes glitch-shake {
-            0% { transform: translate(0); }
-            50% { transform: translate(2px, -1px); filter: hue-rotate(90deg); }
-            100% { transform: translate(-1px, 1px); }
-        }
-
-        .scan-line {
-            position: absolute; width: 100%; height: 2px; background: rgba(6, 182, 212, 0.5);
-            top: 0; animation: scan-move 4s linear infinite;
-        }
-        @keyframes scan-move { from { top: 0; } to { top: 100%; } }
-
-    </style>
+button { background: none; border: 1px solid var(--red); color: var(--red); padding: 12px; cursor: pointer; font-family: inherit; width: 100%; margin-top: auto; }
+button:hover { background: var(--red); color: #000; box-shadow: 0 0 20px var(--red); }
+</style>
 </head>
-<body>
-    <div class="crt-overlay"></div>
-    <div class="vignette"></div>
+<body class="crt">
 
-    <header>
-        <div class="header-title">SYSTEM_LINK // ARCH_01 // THE_SPIRE</div>
-        <div id="sys-status" style="font-size: 0.7rem;">[ STATUS: NOMINAL ]</div>
-        <div id="telemetry-clock" style="font-size: 0.8rem; color: var(--neon-gold);">00:00:00</div>
-    </header>
+<header>
+    <span>ALDERSYTH // SECTOR_06 // APEX_SPIRE // RESTRICTED</span>
+    <span id="clock">00:00:00</span>
+</header>
 
-    <main id="main-display">
-        <section class="hero-viewport">
-            <div class="scan-line"></div>
-            <img src="https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1000" class="hero-img">
-            <div style="position:absolute; bottom:10px; left:10px; font-size:0.5rem; background:red; color:#000; padding:2px;">LIVE_FEED_UNSTABLE</div>
-        </section>
+<main class="layout">
+    <section class="spire-view" id="spire-area">
+        <div class="security-overlay"><div class="restricted-text">RESTRICTED</div></div>
+        <div class="spire-wireframe"></div>
+        <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; letter-spacing: 5px;">
+            STRUCTURAL_INTEGRITY: <span id="integrity">99.9%</span>
+        </div>
+    </section>
 
-        <article id="typewriter" class="story-text"></article>
-    </main>
-
-    <aside class="status-sidebar" id="sidebar">
-        <nav class="nav-group" id="nav-hud">
-            <div class="nav-label">SECTOR_INDEX</div>
-            <a href="index.html" class="nav-link"><span>01_DASHBOARD</span> <span>»</span></a>
-            <a href="market.html" class="nav-link"><span>02_MARKET</span> <span>»</span></a>
-            <a href="residential.html" class="nav-link"><span>03_RESIDENTIAL</span> <span>»</span></a>
-            <a href="sync.html" class="nav-link"><span>04_NEURAL_SYNC</span> <span>»</span></a>
-            <a href="terminal.html" class="nav-link"><span>05_TERMINAL</span> <span>»</span></a>
-            <a href="#" class="nav-link active"><span>06_THE_SPIRE</span> <span>[LOCKED]</span></a>
-        </nav>
-
-        <div class="brutalist-card">
-            <div class="nav-label" style="border-color: var(--neon-red); color: var(--neon-red);">GRAVITY_FLUX</div>
-            <div class="chart-container" id="gravity-bars"></div>
-            <div style="display:flex; justify-content: space-between; margin-top:10px;">
-                <span id="grav-val">1.12G</span>
-                <span id="load-val">LOAD: 12%</span>
-            </div>
+    <aside class="side-bar">
+        <div class="crypto-box">
+            <h3 style="margin-top: 0; color: var(--red);">ENCRYPTION_KEY_ACTIVE</h3>
+            <div id="key-stream"></div>
         </div>
 
-        <div class="brutalist-card">
-            <div class="nav-label">BIOMETRICS</div>
-            <div style="font-size: 1.2rem; margin: 10px 0;">
-                <span id="bpm-val">88</span> <span style="font-size: 0.6rem;">BPM</span>
-            </div>
-            <div id="hex-stream" style="font-size: 0.5rem; color: var(--neon-gold); word-break: break-all; opacity: 0.5;"></div>
+        <div class="crypto-box" style="flex-grow: 1;">
+            <h3 style="margin-top: 0;">SPIRE_LEVEL_STATUS</h3>
+            <div style="margin-bottom: 10px;">L01_ARCHIVE: <span style="color:var(--cyan)">SECURE</span></div>
+            <div style="margin-bottom: 10px;">L02_OBSERVATORY: <span style="color:var(--cyan)">SECURE</span></div>
+            <div style="margin-bottom: 10px;">L03_THRONE: <span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
+            <div style="margin-bottom: 10px;">L04_APEX: <span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
         </div>
 
-        <button class="nav-link" style="margin-top:auto; color:var(--neon-red); border-color:var(--neon-red);" onclick="location.href='login.html'">TERMINATE_LINK</button>
+        <button onclick="location.href='index.html'">REVERT_TO_LOWER_SECTORS</button>
     </aside>
+</main>
 
-    <script>
-        const text = `> ARCHIVE_ACCESS: GRANTED\n> LOCATION: THE_SPIRE [CORE_SECTOR]\n\nThe Spire is not a building. It is a mathematical error made of carbon and silicon. \n\nAs I ascend, the Substrate begins to liquefy. The lead sphere in my hand now weighs 3.36KG. \n\n[!! WARNING: GRAVITY SPIKE DETECTED !!]\n\nStructural integrity is failing. If the sync drops below 90%, the architecture will dissolve back into raw data.`;
+<script>
+setInterval(()=>{document.getElementById('clock').innerText=new Date().toLocaleTimeString();},1000);
 
-        let i = 0;
-        const typewriter = document.getElementById("typewriter");
-        const navHud = document.getElementById("nav-hud");
-        const sysStatus = document.getElementById("sys-status");
+// Crypto Stream Logic
+const stream = document.getElementById('key-stream');
+const chars = "ABCDEF0123456789!@#$%^&*()_+";
+const lines = Array(20).fill('');
+setInterval(()=>{
+    lines.pop();
+    let newLine='';
+    for(let i=0;i<80;i++){newLine+=chars.charAt(Math.floor(Math.random()*chars.length));}
+    lines.unshift(newLine);
+    stream.innerText=lines.join('\n');
 
-        // Initialize Gravity Bars
-        const barContainer = document.getElementById("gravity-bars");
-        for(let j=0; j<25; j++) {
-            const bar = document.createElement('div');
-            bar.className = 'chart-bar';
-            bar.style.height = '10%';
-            barContainer.appendChild(bar);
-        }
+    // Integrity Jitter with glow
+    const integrity = document.getElementById('integrity');
+    const val = (99.5 + Math.random()*0.5).toFixed(2);
+    integrity.innerText = val + "%";
+    integrity.style.color = val < 99.8 ? '#ff3e3e' : 'var(--gold)';
 
-        function runInterface() {
-            if (i < text.length) {
-                const char = text.charAt(i);
-                
-                // Trigger Glitch Event
-                if (char === '[') {
-                    navHud.classList.add('glitch-active');
-                    sysStatus.innerText = "[ STATUS: CORRUPTED ]";
-                    sysStatus.style.color = "var(--neon-red)";
-                    document.getElementById('main-display').classList.add('glitch-active');
-                }
+    // Extra Sparks if integrity drops
+    const extraSparks = val < 99.8 ? 5 : 1;
+    for(let i=0;i<extraSparks;i++) spawnSpark();
+},120);
 
-                typewriter.innerHTML += char;
-                i++;
-                
-                // Jitter Stats
-                if (i % 5 === 0) {
-                    document.getElementById('grav-val').innerText = (1.10 + Math.random() * 0.1).toFixed(2) + "G";
-                    document.getElementById('bpm-val').innerText = Math.floor(85 + Math.random() * 15);
-                    
-                    const bars = document.getElementsByClassName('chart-bar');
-                    for(let b of bars) b.style.height = (Math.random() * 100) + "%";
-                }
-
-                // Hex Leak
-                document.getElementById('hex-stream').innerText = Math.random().toString(16).toUpperCase().substring(2, 40);
-
-                setTimeout(runInterface, 30);
-            }
-        }
-
-        setInterval(() => {
-            document.getElementById('telemetry-clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-
-        window.onload = runInterface;
-    </script>
+// Spire Arc Sparks
+const spireArea = document.getElementById('spire-area');
+function spawnSpark(){
+    const spark = document.createElement('div');
+    spark.className = 'arc-spark';
+    spark.style.left = (150 + Math.random()*100) + 'px';
+    spireArea.appendChild(spark);
+    setTimeout(()=>{spark.remove();},800);
+}
+setInterval(()=>{ spawnSpark(); },300);
+</script>
 </body>
 </html>
