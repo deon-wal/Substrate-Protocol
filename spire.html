@@ -1,113 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ALDERSYTH // THE_SPIRE</title>
-<style>
-:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #0a0a05; --border: rgba(255, 176, 0, 0.15); }
-body { background: var(--bg); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; text-transform: uppercase; height: 100vh; display: flex; flex-direction: column; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // THE_SPIRE</title>
+    <style>
+        :root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #0a0a05; --border: rgba(255, 176, 0, 0.15); }
+        body { 
+            background: var(--bg); color: var(--gold); 
+            font-family: 'Courier New', monospace; margin: 0; 
+            overflow: hidden; text-transform: uppercase; 
+            height: 100vh; display: flex; flex-direction: column; 
+        }
 
-/* CRT Overlay */
-.crt::before { content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.2) 50%), linear-gradient(90deg, rgba(255,176,0,0.03), rgba(0,0,0,0), rgba(255,176,0,0.03)); background-size: 100% 2px, 2px 100%; }
+        /* CRT Overlay */
+        .crt::before { 
+            content: " "; position: fixed; inset: 0; z-index: 100; pointer-events: none; 
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.2) 50%), 
+                        linear-gradient(90deg, rgba(255,176,0,0.03), rgba(0,0,0,0), rgba(255,176,0,0.03)); 
+            background-size: 100% 2px, 2px 100%; 
+        }
 
-header { padding: 15px 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; background: rgba(0,0,0,0.5); }
+        header { 
+            padding: 15px 25px; border-bottom: 2px solid var(--gold); 
+            display: flex; justify-content: space-between; font-size: 0.8rem; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 101;
+        }
 
-.layout { display: grid; grid-template-columns: 1fr 400px; gap: 20px; padding: 20px; flex-grow: 1; }
+        .layout { display: grid; grid-template-columns: 1fr 400px; gap: 20px; padding: 20px; flex-grow: 1; height: calc(100vh - 60px); }
 
-/* Spire Visualizer */
-.spire-view { border: 1px solid var(--gold); background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.spire-wireframe { width: 0; height: 0; border-left: 100px solid transparent; border-right: 100px solid transparent; border-bottom: 300px solid rgba(255, 176, 0, 0.1); position: relative; animation: float 6s infinite ease-in-out, pulseWire 2s infinite alternate; }
-@keyframes float { 0%,100%{transform: translateY(0) scale(1);} 50%{transform: translateY(-20px) scale(1.05);} }
-@keyframes pulseWire { 0%,100%{border-bottom-color: rgba(255,176,0,0.1);} 50%{border-bottom-color: rgba(255,176,0,0.25);} }
+        /* Spire Visualizer */
+        .spire-view { border: 1px solid var(--gold); background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        
+        /* The Spire Pyramid */
+        .spire-container { position: relative; width: 200px; height: 300px; }
+        .spire-wireframe { 
+            width: 0; height: 0; 
+            border-left: 100px solid transparent; 
+            border-right: 100px solid transparent; 
+            border-bottom: 300px solid rgba(255, 176, 0, 0.1); 
+            position: relative; 
+            animation: float 6s infinite ease-in-out, pulseWire 2s infinite alternate; 
+            filter: drop-shadow(0 0 15px rgba(255,176,0,0.1));
+        }
+        
+        @keyframes float { 0%,100%{transform: translateY(0) scale(1);} 50%{transform: translateY(-20px) scale(1.02);} }
+        @keyframes pulseWire { 0%,100%{border-bottom-color: rgba(255,176,0,0.1);} 50%{border-bottom-color: rgba(255,176,0,0.3);} }
 
-/* Arc Sparks */
-.arc-spark { position: absolute; width: 2px; height: 20px; background: var(--cyan); opacity: 0.8; pointer-events: none; filter: drop-shadow(0 0 6px var(--cyan)); animation: rise 0.8s linear forwards; }
-@keyframes rise { 0% {transform: translateY(0) scaleY(1);} 50% {transform: translateY(-150px) scaleY(1.5);} 100% {transform: translateY(-300px) scaleY(0.5); opacity: 0;} }
+        /* Arc Sparks */
+        .arc-spark { position: absolute; width: 1px; height: 30px; background: var(--cyan); opacity: 0.8; pointer-events: none; filter: drop-shadow(0 0 8px var(--cyan)); animation: rise 0.6s ease-out forwards; }
+        @keyframes rise { 0% {transform: translateY(0) scaleY(1); opacity: 1;} 100% {transform: translateY(-250px) scaleY(0.2); opacity: 0;} }
 
-.security-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(45deg, rgba(255,62,62,0.05) 0, rgba(255,62,62,0.05) 10px, transparent 10px, transparent 20px); pointer-events: none; }
-.restricted-text { font-size: 5rem; font-weight: bold; opacity: 0.05; transform: rotate(-25deg); animation: flicker 1.2s infinite alternate; }
-@keyframes flicker { 0%{opacity:0.02;}50%{opacity:0.08;}100%{opacity:0.05;} }
+        .security-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(45deg, rgba(255,62,62,0.03) 0, rgba(255,62,62,0.03) 10px, transparent 10px, transparent 20px); pointer-events: none; }
+        .restricted-text { font-size: 6rem; font-weight: bold; opacity: 0.05; transform: rotate(-25deg); animation: flicker 2s infinite alternate; }
+        @keyframes flicker { 0%{opacity:0.02;} 50%{opacity:0.07;} 100%{opacity:0.03;} }
 
-/* Encryption Panel */
-.side-bar { display: flex; flex-direction: column; gap: 15px; }
-.crypto-box { border: 1px solid var(--border); padding: 15px; background: rgba(0,0,0,0.8); font-size: 0.75rem; overflow: hidden; height: 200px; }
-#key-stream { font-family: 'Courier', monospace; word-break: break-all; color: var(--cyan); opacity: 0.9; line-height: 1.2em; height:100%; overflow:hidden; }
+        /* Encryption Panel */
+        .side-bar { display: flex; flex-direction: column; gap: 15px; height: 100%; }
+        .crypto-box { border: 1px solid var(--border); padding: 15px; background: rgba(0,0,0,0.8); font-size: 0.7rem; overflow: hidden; }
+        #key-stream { font-family: 'Courier', monospace; word-break: break-all; color: var(--cyan); opacity: 0.8; line-height: 1.1em; height: 220px; overflow: hidden; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
 
-#integrity { transition: 0.3s all; }
+        .status-tag { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
 
-button { background: none; border: 1px solid var(--red); color: var(--red); padding: 12px; cursor: pointer; font-family: inherit; width: 100%; margin-top: auto; }
-button:hover { background: var(--red); color: #000; box-shadow: 0 0 20px var(--red); }
-</style>
+        button { 
+            background: rgba(255, 62, 62, 0.05); border: 1px solid var(--red); color: var(--red); 
+            padding: 15px; cursor: pointer; font-family: inherit; width: 100%; 
+            margin-top: auto; transition: 0.3s; letter-spacing: 2px;
+        }
+        button:hover { background: var(--red); color: #000; box-shadow: 0 0 30px var(--red); }
+    </style>
 </head>
 <body class="crt">
 
 <header>
-    <span>ALDERSYTH // SECTOR_06 // APEX_SPIRE // RESTRICTED</span>
-    <span id="clock">00:00:00</span>
+    <div><span style="color: var(--red)">●</span> ALDERSYTH_OS // SECTOR_06 // APEX_SPIRE</div>
+    <div id="clock">00:00:00</div>
 </header>
 
 <main class="layout">
     <section class="spire-view" id="spire-area">
-        <div class="security-overlay"><div class="restricted-text">RESTRICTED</div></div>
-        <div class="spire-wireframe"></div>
-        <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; letter-spacing: 5px;">
-            STRUCTURAL_INTEGRITY: <span id="integrity">99.9%</span>
+        <div class="security-overlay"><div class="restricted-text">TOP_SECRET</div></div>
+        
+        <div class="spire-container">
+            <div class="spire-wireframe"></div>
+        </div>
+
+        <div style="position: absolute; bottom: 30px; width: 100%; text-align: center; letter-spacing: 3px; font-size: 0.75rem;">
+            STRUCTURAL_INTEGRITY: <span id="integrity" style="font-weight: bold; text-shadow: 0 0 10px var(--gold);">99.9%</span>
         </div>
     </section>
 
     <aside class="side-bar">
         <div class="crypto-box">
-            <h3 style="margin-top: 0; color: var(--red);">ENCRYPTION_KEY_ACTIVE</h3>
+            <h3 style="margin-top: 0; color: var(--red); font-size: 0.8rem;">ENCRYPTION_KEY_LIVE</h3>
             <div id="key-stream"></div>
         </div>
 
         <div class="crypto-box" style="flex-grow: 1;">
-            <h3 style="margin-top: 0;">SPIRE_LEVEL_STATUS</h3>
-            <div style="margin-bottom: 10px;">L01_ARCHIVE: <span style="color:var(--cyan)">SECURE</span></div>
-            <div style="margin-bottom: 10px;">L02_OBSERVATORY: <span style="color:var(--cyan)">SECURE</span></div>
-            <div style="margin-bottom: 10px;">L03_THRONE: <span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
-            <div style="margin-bottom: 10px;">L04_APEX: <span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
+            <h3 style="margin-top: 0; font-size: 0.8rem; border-bottom: 1px solid var(--gold); padding-bottom: 5px;">SPIRE_HIERARCHY</h3>
+            <div class="status-tag"><span>L01_ARCHIVE</span><span style="color:var(--cyan)">SECURE</span></div>
+            <div class="status-tag"><span>L02_OBSERVATORY</span><span style="color:var(--cyan)">SECURE</span></div>
+            <div class="status-tag"><span>L03_THRONE</span><span style="color:var(--red); font-weight:bold;">LOCKED</span></div>
+            <div class="status-tag"><span>L04_APEX</span><span style="color:var(--red); font-weight:bold;">ENCRYPTED</span></div>
+            
+            <div style="margin-top: 30px; font-size: 0.6rem; color: var(--red); opacity: 0.6;">
+                [!] Unauthorized access detected in lower rings.<br>
+                [!] Re-routing logic gates to Sector 06.
+            </div>
         </div>
 
         <button onclick="location.href='index.html'">REVERT_TO_LOWER_SECTORS</button>
     </aside>
 </main>
 
+
+
 <script>
-setInterval(()=>{document.getElementById('clock').innerText=new Date().toLocaleTimeString();},1000);
+    // Live Clock
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+    }, 1000);
 
-// Crypto Stream Logic
-const stream = document.getElementById('key-stream');
-const chars = "ABCDEF0123456789!@#$%^&*()_+";
-const lines = Array(20).fill('');
-setInterval(()=>{
-    lines.pop();
-    let newLine='';
-    for(let i=0;i<80;i++){newLine+=chars.charAt(Math.floor(Math.random()*chars.length));}
-    lines.unshift(newLine);
-    stream.innerText=lines.join('\n');
+    // Crypto Stream Logic
+    const stream = document.getElementById('key-stream');
+    const chars = "ABCDEF0123456789!@#$%^&*()_+<>/[]";
+    let lines = Array(15).fill('----------------------------------------');
 
-    // Integrity Jitter with glow
-    const integrity = document.getElementById('integrity');
-    const val = (99.5 + Math.random()*0.5).toFixed(2);
-    integrity.innerText = val + "%";
-    integrity.style.color = val < 99.8 ? '#ff3e3e' : 'var(--gold)';
+    setInterval(() => {
+        lines.shift();
+        let newLine = '';
+        for(let i=0; i<40; i++) {
+            newLine += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        lines.push(newLine);
+        stream.innerText = lines.join('\n');
 
-    // Extra Sparks if integrity drops
-    const extraSparks = val < 99.8 ? 5 : 1;
-    for(let i=0;i<extraSparks;i++) spawnSpark();
-},120);
+        // Integrity Jitter
+        const integrity = document.getElementById('integrity');
+        const val = (99.4 + Math.random() * 0.6).toFixed(2);
+        integrity.innerText = val + "%";
+        
+        if (val < 99.7) {
+            integrity.style.color = 'var(--red)';
+            for(let i=0; i<3; i++) spawnSpark(); // Increased chaos on drop
+        } else {
+            integrity.style.color = 'var(--gold)';
+        }
+    }, 100);
 
-// Spire Arc Sparks
-const spireArea = document.getElementById('spire-area');
-function spawnSpark(){
-    const spark = document.createElement('div');
-    spark.className = 'arc-spark';
-    spark.style.left = (150 + Math.random()*100) + 'px';
-    spireArea.appendChild(spark);
-    setTimeout(()=>{spark.remove();},800);
-}
-setInterval(()=>{ spawnSpark(); },300);
+    // Spire Arc Sparks
+    const spireArea = document.getElementById('spire-area');
+    function spawnSpark() {
+        const spark = document.createElement('div');
+        spark.className = 'arc-spark';
+        // Center sparks around the spire wireframe
+        const centerX = spireArea.offsetWidth / 2;
+        const centerY = spireArea.offsetHeight / 2;
+        spark.style.left = (centerX - 50 + Math.random() * 100) + 'px';
+        spark.style.top = (centerY + 100) + 'px';
+        
+        spireArea.appendChild(spark);
+        setTimeout(() => { spark.remove(); }, 600);
+    }
+    
+    // Ambient sparks
+    setInterval(spawnSpark, 400);
 </script>
 </body>
 </html>
