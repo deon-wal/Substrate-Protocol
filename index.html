@@ -2,272 +2,139 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ALDERSYTH // SUBSTRATE_PROTOCOL</title>
+<title>ALDERSYTH // CORE_01</title>
 <style>
-:root {
-    --gold: #ffb000;
-    --red: #ff3e3e;
-    --cyan: #06b6d4;
-    --bg: #020202;
-    --border: rgba(255, 176, 0, 0.25);
-}
-body {
-    background: var(--bg);
-    color: var(--gold);
-    font-family: 'Courier New', monospace;
-    margin: 0;
-    overflow: hidden;
-    text-transform: uppercase;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #020202; }
+body { 
+    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
+    color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column;
 }
 
-/* CRT / Scanlines */
-.crt::before {
-    content: " ";
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    pointer-events: none;
-    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%),
-                linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
+/* CRT Overlay */
+body::after { 
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,0,0,0), rgba(0,0,255,0.02));
     background-size: 100% 3px, 3px 100%;
 }
-.scanline {
-    width: 100%;
-    height: 2px;
-    background: rgba(255, 176, 0, 0.05);
-    position: fixed;
-    z-index: 101;
-    animation: scan 10s linear infinite;
-}
-@keyframes scan { from { top: 0; } to { top: 100%; } }
 
-/* Header */
-header {
-    padding: 15px 25px;
-    border-bottom: 2px solid var(--gold);
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-}
+header { padding: 15px 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; background: rgba(0,0,0,0.7); }
 
-/* Dashboard Grid */
-.dashboard {
-    display: grid;
-    grid-template-columns: 320px 1fr 300px;
-    grid-template-rows: 1fr 240px;
-    gap: 12px;
-    padding: 15px;
-    flex-grow: 1;
-}
+.dashboard { display: grid; grid-template-columns: 320px 1fr 300px; gap: 12px; padding: 15px; flex-grow: 1; z-index: 10; }
+.panel { border: 1px solid rgba(255, 176, 0, 0.25); background: rgba(0,10,15,0.9); padding: 15px; backdrop-filter: blur(10px); }
 
-/* Panels */
-.panel {
-    border: 1px solid var(--border);
-    background: rgba(0,0,0,0.8);
-    padding: 12px;
-    position: relative;
-    overflow: hidden;
-    transition: 0.3s all ease;
-}
-.panel:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,176,0,0.4); }
+/* Central Visualizer with Parallax */
+#visualizer { grid-column: 2; position: relative; overflow: hidden; border: 1px solid var(--cyan); }
+.layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.3; }
 
-/* Visualizer & Parallax Layers */
-#visualizer { grid-column: 2; grid-row: 1 / span 2; background: #000; position: relative; overflow: hidden; }
-.map-bg, .map-bg-layer {
-    position: absolute; inset: 0;
-    background-size: cover;
-    background-position: center;
-}
-.map-bg { 
-    background-image: url('input_file_0.png');
-    opacity: 0.4;
-    filter: sepia(100%) saturate(300%) hue-rotate(10deg);
-    animation: glitch 5s steps(1) infinite;
-}
-.map-bg-layer {
-    opacity: 0.15;
-    transform: translateZ(0);
-    z-index: 0;
-}
-
-/* Glitch Animation */
-@keyframes glitch {
-    0%, 95% { opacity: 0.4; transform: scale(1); }
-    96% { opacity: 0.7; transform: translateX(5px); }
-    98% { transform: scale(1.02); filter: invert(1); }
-}
-
-/* Canvas Wave */
-canvas { position: absolute; inset: 0; z-index: 2; }
-
-/* Phase Widget */
-.phase-widget {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    border-left: 3px solid var(--red);
-    padding-left: 12px;
-    z-index: 3;
-    background: rgba(0,0,0,0.7);
-}
-
-/* Lead Sphere */
+/* Interactive Lead Sphere */
 #lead-sphere {
-    position: absolute;
-    width: 80px; height: 80px;
-    bottom: 100px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 4;
-    cursor: grab;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #888, #444);
-    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    position: absolute; width: 60px; height: 60px; bottom: 40px; left: 50%;
+    background: radial-gradient(circle at 30% 30%, #999, #222);
+    border-radius: 50%; cursor: grab; z-index: 20; box-shadow: 0 0 20px rgba(255,255,255,0.2);
 }
 
-/* Tooltip / HUD Popups */
-.tooltip {
-    position: absolute;
-    background: rgba(0,0,0,0.9);
-    border: 1px solid var(--gold);
-    padding: 6px 10px;
-    font-size: 0.65rem;
-    color: var(--gold);
-    pointer-events: none;
-    opacity: 0;
-    transition: 0.3s ease;
-    z-index: 5;
+.nav-item { 
+    display: flex; justify-content: space-between; padding: 12px; border: 1px solid rgba(6,182,212,0.2); 
+    margin-bottom: 8px; text-decoration: none; color: var(--gold); font-size: 0.8rem;
 }
+.nav-item:hover { background: rgba(6,182,212,0.1); border-color: var(--cyan); }
+.status-tag { font-size: 0.6rem; border: 1px solid currentColor; padding: 2px 5px; }
 
-/* System Logs */
-#log-feed { font-size: 0.7rem; color: var(--cyan); height: 100%; display: flex; flex-direction: column-reverse; overflow-y: hidden; }
-
-/* Tables */
-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-.status { border: 1px solid currentColor; padding: 1px 4px; font-size: 0.65rem; }
-
-/* Buttons */
-button { font-family: inherit; background:none; border:1px solid var(--red); color:var(--red); padding:10px; cursor:pointer; text-transform: uppercase; width: 100%; }
-button:hover { border-color: var(--gold); color: var(--gold); }
-
+#log-feed { font-size: 0.65rem; color: var(--cyan); line-height: 1.4; }
+.val { font-size: 1.2rem; color: #fff; display: block; }
 </style>
 </head>
-<body class="crt">
-<div class="scanline"></div>
+<body>
 
 <header>
-    <span>ALDERSYTH // SUBSTRATE_PROTOCOL // CORE_01</span>
+    <span id="glitch-title">ALDERSYTH // SUBSTRATE_PROTOCOL // CORE_01</span>
     <span id="clock">00:00:00</span>
 </header>
 
 <main class="dashboard">
-    <!-- Neural Telemetry -->
     <div class="panel">
-        <h2>NEURAL_TELEMETRY</h2>
-        <div style="display:flex; justify-content:space-between;"><span>SYNC_RATE</span><span id="sync" style="color:var(--cyan)">99.42%</span></div>
-        <div style="display:flex; justify-content:space-between; margin-top:10px;"><span>SIGNAL</span><span>94%</span></div>
-        <div style="margin-top:20px; border:1px solid var(--red); color:var(--red); padding:8px; font-size:0.65rem; text-align:center;">IDENTITY_LOSS_RISK: CRITICAL</div>
-    </div>
-
-    <!-- Visualizer / Background / Canvas -->
-    <div class="panel" id="visualizer">
-        <div class="map-bg-layer" style="background-image:url('input_file_0_layer1.png');"></div>
-        <div class="map-bg-layer" style="background-image:url('input_file_0_layer2.png');"></div>
-        <div class="map-bg"></div>
-        <canvas id="wave"></canvas>
-        <div class="phase-widget">
-            <div style="font-size:0.55rem; opacity:0.6;">PHASE_ALIGNMENT</div>
-            <div id="p-val" style="font-size:1.8rem; font-weight:bold; color:var(--cyan)">99.42%</div>
-            <div style="font-size:0.55rem; color:var(--red)">SUBSTRATE_ECHO: DETECTED</div>
+        <h2 style="font-size:0.9rem;">NEURAL_TELEMETRY</h2>
+        <div style="margin-bottom:15px;">
+            <span class="val" id="batt">--%</span>
+            <span style="font-size:0.6rem; opacity:0.6;">DEVICE_STABILITY</span>
+        </div>
+        <div style="border:1px solid var(--red); color:var(--red); padding:8px; font-size:0.6rem; text-align:center;">
+            IDENTITY_LOSS_RISK: CRITICAL
         </div>
     </div>
 
-    <!-- Lead Sphere -->
-    <div id="lead-sphere" title="Drag me!"></div>
-
-    <!-- System Logs -->
-    <div class="panel">
-        <h2>SYSTEM_LOGS</h2>
-        <div id="log-feed"></div>
+    <div class="panel" id="visualizer">
+        <div class="layer" style="background-image:url('index_Header.jpg'); transform: translateZ(-1px);"></div>
+        <div class="layer" style="background-image:url('index_Header2.jpg'); opacity:0.1;"></div>
+        <canvas id="wave" style="position:absolute; inset:0;"></canvas>
+        <div id="lead-sphere"></div>
     </div>
 
-    <!-- Sector Navigation -->
     <div class="panel">
-        <h2>SECTOR_NAV</h2>
-        <table>
-            <tr onclick="location.href='market.html'"><td>02_MARKET</td><td><span class="status" style="color:var(--gold)">VOLATILE</span></td></tr>
-            <tr onclick="location.href='residential.html'"><td>03_RESID</td><td><span class="status" style="color:var(--red)">PURGING</span></td></tr>
-        </table>
-    </div>
-
-    <!-- Terminate -->
-    <div class="panel">
-        <button onclick="location.href='login.html'">TERMINATE_LINK</button>
+        <h2 style="font-size:0.9rem;">SECTOR_NAV</h2>
+        <nav>
+            <a href="market.html" class="nav-item">01_MARKET <span id="btc" class="status-tag" style="color:var(--cyan)">$---</span></a>
+            <a href="residential.html" class="nav-item">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
+            <a href="sync.html" class="nav-item">03_SYNC <span class="status-tag" style="color:var(--cyan)">ACTIVE</span></a>
+            <a href="spire.html" class="nav-item">04_SPIRE <span class="status-tag">LOCKED</span></a>
+        </nav>
+        <div style="margin-top:20px;">
+            <span class="val" id="temp">--°C</span>
+            <span style="font-size:0.6rem; opacity:0.6;">THERMAL_SYNC</span>
+        </div>
     </div>
 </main>
 
-<!-- Ambient Audio -->
-<audio id="ambient" autoplay loop>
-    <source src="audio/city_hum.mp3" type="audio/mpeg">
-</audio>
-
 <script>
-/* Clock */
-setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-
-/* Log Feed */
-setInterval(() => {
-    const log = document.getElementById('log-feed');
-    const entry = document.createElement('div');
-    entry.innerText = `> [${new Date().toLocaleTimeString()}] PHYSICS_LEAK_CONTAINED`;
-    log.prepend(entry);
-    if(log.children.length>10) log.lastChild.remove();
-}, 2500);
-
-/* Canvas Wave */
-const canvas = document.getElementById('wave');
-const ctx = canvas.getContext('2d');
-let t = 0;
-function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-window.onresize = resize; resize();
-function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.beginPath();
-    ctx.strokeStyle = '#06b6d4';
-    ctx.lineWidth = 2;
-    const mid = canvas.height/2;
-    for(let x=0;x<canvas.width;x+=2){
-        const y = mid + Math.sin(x*0.012+t)*45 + Math.sin(x*0.04+t*2)*8;
-        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    /* 1. Live Data & Clock */
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    
+    async function fetchData() {
+        try {
+            const btcRes = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+            const btcData = await btcRes.json();
+            document.getElementById('btc').innerText = "$" + Math.floor(btcData.bpi.USD.rate_float).toLocaleString();
+            
+            const wRes = await fetch('https://wttr.in/?format=j1');
+            const wData = await wRes.json();
+            document.getElementById('temp').innerText = wData.current_condition[0].temp_C + "°C";
+        } catch(e) { console.log("Data Fetch Error"); }
     }
-    ctx.stroke(); t+=0.04; requestAnimationFrame(draw);
-}
-draw();
+    fetchData();
 
-/* Lead Sphere Drag */
-const sphere = document.getElementById('lead-sphere');
-let isDragging=false, offsetX=0, offsetY=0;
-sphere.addEventListener('mousedown', e=>{isDragging=true; offsetX=e.offsetX; offsetY=e.offsetY; sphere.style.cursor='grabbing';});
-window.addEventListener('mouseup', ()=>{isDragging=false; sphere.style.cursor='grab';});
-window.addEventListener('mousemove', e=>{
-    if(isDragging){ sphere.style.left = (e.clientX - offsetX) + 'px'; sphere.style.top = (e.clientY - offsetY) + 'px'; }
-});
+    /* 2. Battery Telemetry */
+    if(navigator.getBattery) navigator.getBattery().then(b => {
+        const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
+        up(); b.onlevelchange = up;
+    });
 
-/* Tooltip example */
-sphere.addEventListener('mouseenter', e=>{
-    const tip = document.createElement('div');
-    tip.className='tooltip'; tip.innerText='Lead Sphere: Metric Stabilizer';
-    document.body.appendChild(tip);
-    const moveTip = (ev)=>{ tip.style.left=ev.pageX+15+'px'; tip.style.top=ev.pageY+15+'px'; };
-    window.addEventListener('mousemove', moveTip);
-    sphere.addEventListener('mouseleave', ()=>{
-        tip.remove();
-        window.removeEventListener('mousemove', moveTip);
-    }, {once:true});
-});
+    /* 3. Lead Sphere Interaction */
+    const sphere = document.getElementById('lead-sphere');
+    let drag = false;
+    sphere.onmousedown = () => { drag = true; sphere.style.cursor = 'grabbing'; };
+    window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
+    window.onmousemove = (e) => {
+        if(drag) {
+            sphere.style.left = (e.clientX - 30) + 'px';
+            sphere.style.top = (e.clientY - 30) + 'px';
+        }
+    };
+
+    /* 4. Canvas Waveform */
+    const canvas = document.getElementById('wave');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    function render() {
+        canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.beginPath(); ctx.strokeStyle = '#06b6d4';
+        for(let x=0; x<canvas.width; x+=5) {
+            const y = (canvas.height/2) + Math.sin(x*0.01+t)*30;
+            x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.stroke(); t+=0.05; requestAnimationFrame(render);
+    }
+    render();
 </script>
 </body>
 </html>
