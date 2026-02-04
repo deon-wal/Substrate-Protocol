@@ -9,6 +9,9 @@ const ALDERSYTH = {
         syncRate: 92.41,
         active: true
     },
+// Variable speed makes the 'machine' feel like it's thinking or glitching
+const glitchSpeed = Math.random() > 0.9 ? 200 : 30; 
+setTimeout(type, glitchSpeed);
 
     logMessages: [
         "NEURAL_SYNC_DRIFT: 0.04ms",
