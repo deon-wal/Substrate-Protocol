@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // NEURAL_SYNC: CALIBRATION</title>
+    <style>
+        :root {
+            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
+            --bg-black: #010203; --panel-border: rgba(6, 182, 212, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-black); color: var(--neon-cyan);
+            font-family: 'Courier New', Courier, monospace; margin: 0;
+            overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+            text-transform: uppercase;
+        }
+
+        /* --- REQ 4: SENSORY DISTORTION (Chromatic Aberration) --- */
+        @keyframes glitch-shake {
+            0% { transform: translate(0); filter: none; }
+            20% { transform: translate(-3px, 3px); filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan); }
+            40% { transform: translate(3px, -3px); filter: hue-rotate(90deg); }
+            60% { transform: translate(-3px, -3px); opacity: 0.8; }
+            100% { transform: translate(0); }
+        }
+
+        .system-unstable { animation: glitch-shake 0.15s infinite; }
+
+        .tactical-header {
+            padding: 20px 40px; border-bottom: 1px solid var(--neon-cyan);
+            display: flex; justify-content: space-between; font-size: 0.75rem;
+            background: #000; z-index: 10; letter-spacing: 2px;
+        }
+
+        /* --- REQ 2: GEOMETRIC INTERFACE (The Waveform) --- */
+        .sync-visualizer {
+            flex-grow: 1; display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+            background: radial-gradient(circle at center, #0a1014 0%, #000 100%);
+        }
+
+        #neural-wave {
+            width: 90%; height: 400px; stroke: var(--neon-cyan);
+            stroke-width: 2; fill: none; filter: drop-shadow(0 0 15px var(--neon-cyan));
+            transition: stroke 0.4s ease;
+        }
+
+        .data-overlay {
+            position: absolute; inset: 0; padding: 40px;
+            pointer-events: none; display: flex; justify-content: space-between;
+            align-items: flex-end; font-size: 0.7rem; color: rgba(6, 182, 212, 0.6);
+        }
+
+        /* --- REQ 3: BRUTALIST CALIBRATION CONTROLS --- */
+        .control-panel {
+            padding: 40px; background: #000; border-top: 1px solid var(--neon-cyan);
+            display: grid; grid-template-columns: 1fr 250px; gap: 60px;
+        }
+
+        .status-readout { 
+            border-left: 4px solid var(--neon-red); 
+            padding-left: 20px;
+            background: linear-gradient(90deg, rgba(255, 62, 62, 0.05) 0%, transparent 100%);
+        }
+
+        .sync-btn {
+            background: transparent; border: 1px solid var(--neon-cyan); 
+            color: var(--neon-cyan); padding: 25px; cursor: pointer; 
+            text-transform: uppercase; font-family: inherit; font-size: 0.9rem;
+            letter-spacing: 3px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sync-btn:hover { 
+            background: var(--neon-cyan); color: #000; 
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+        
+        .sync-btn:active { transform: scale(0.98); filter: brightness(1.5); }
+
+        .back-link {
+            position: absolute; top: 80px; left: 40px;
+            color: var(--neon-cyan); text-decoration: none; font-size: 0.6rem;
+            opacity: 0.5; transition: 0.3s;
+        }
+        .back-link:hover { opacity: 1; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <header class="tactical-header">
+        <div><span style="color: var(--neon-red)">[SYS]</span> NEURAL_LINK: ESTABLISHED</div>
+        <div>SIGNAL_STRENGTH: <span id="sig-strength">94%</span></div>
+        <div id="sync-telemetry" style="color: var(--neon-gold);">SYNC_STATUS: NOMINAL</div>
+    </header>
+
+    <a href="index.html" class="back-link">« EXIT_CALIBRATION</a>
+
+    <main class="sync-visualizer" id="main-viewport">
+        
+        <svg id="neural-wave" viewBox="0 0 1000 300">
+            <path id="wave-path" d="M0 150 Q 250 150 500 150 T 1000 150" />
+        </svg>
+        
+        <div class="data-overlay">
+            <div>
+                <p>LATENCY: <span id="latency">4</span>MS</p>
+                <p>COGNITIVE_DRIFT: 0.0004%</p>
+            </div>
+            <div style="text-align: right;">
+                <p>CEREBRAL_LOAD: <span id="load-val">14%</span></p>
+                <p>SUBSTRATE_ECHO: <span style="color: var(--neon-gold)">DETECTED</span></p>
+            </div>
+        </div>
+    </main>
+
+    <section class="control-panel">
+        <div>
+            <h3 style="margin: 0 0 15px 0; color: var(--neon-cyan);">NEURAL_STABILIZATION_PROTOCOL</h3>
+            <p style="font-size: 0.75rem; line-height: 1.6; opacity: 0.7; max-width: 600px;">
+                WARNING: MANUAL OVERRIDE MAY CAUSE TEMPORARY SENSORY FRAGMENTATION. 
+                IF COGNITIVE BLEED EXCEEDS 15%, DISCONNECT IMMEDIATELY. 
+                THE SUBSTRATE REQUIRES TOTAL HARMONIC ALIGNMENT.
+            </p>
+            <button class="sync-btn" onclick="triggerSync()">STABILIZE NEURAL SYNC</button>
+        </div>
+        
+        <div class="status-readout">
+            <div style="font-size: 0.6rem; margin-bottom: 5px; opacity: 0.6;">PHASE_ALIGNMENT</div>
+            <div id="sync-level" style="font-size: 2rem; font-weight: bold; color: var(--neon-cyan);">99.42%</div>
+            <div style="font-size: 0.6rem; color: var(--neon-red); margin-top: 15px;">IDENTITY_LOSS_RISK: HIGH</div>
+        </div>
+    </section>
+
+    <script>
+        const path = document.getElementById('wave-path');
+        const loadVal = document.getElementById('load-val');
+        const syncLevel = document.getElementById('sync-level');
+        
+        let frequency = 0.02;
+        let amplitude = 40;
+        let t = 0;
+        let mouseX = 0;
+        let isGlitching = false;
+
+        // Interaction: Mouse movement affects frequency (Geometric Physics)
+        window.addEventListener('mousemove', (e) => {
+            if (!isGlitching) {
+                mouseX = (e.clientX / window.innerWidth) * 0.04;
+            }
+        });
+
+        function animate() {
+            t += isGlitching ? 0.5 : 0.15;
+            let d = "M0 150 ";
+            let currentFreq = frequency + mouseX;
+            
+            for (let x = 0; x <= 1000; x += 10) {
+                // Wave formula
+                let y = 150 + Math.sin(x * currentFreq + t) * amplitude;
+                d += `L ${x} ${y} `;
+            }
+            path.setAttribute('d', d);
+            requestAnimationFrame(animate);
+        }
+
+        // Trigger Glitch Event (Sensory Distortion)
+        function triggerSync() {
+            isGlitching = true;
+            document.body.classList.add('system-unstable');
+            path.style.stroke = "var(--neon-red)";
+            amplitude = 130;
+            
+            // Randomize load data during glitch
+            loadVal.innerText = "ERR%";
+            
+            setTimeout(() => {
+                isGlitching = false;
+                document.body.classList.remove('system-unstable');
+                path.style.stroke = "var(--neon-cyan)";
+                amplitude = 40;
+                
+                // Final state update
+                let newSync = (parseFloat(syncLevel.innerText) + 0.02).toFixed(2);
+                syncLevel.innerText = newSync + "%";
+                loadVal.innerText = Math.floor(Math.random() * 20 + 10) + "%";
+            }, 1000);
+        }
+
+        // Ambient Telemetry Jitter
+        setInterval(() => {
+            if (!isGlitching) {
+                document.getElementById('latency').innerText = Math.floor(Math.random() * 5 + 2);
+                document.getElementById('sig-strength').innerText = Math.floor(Math.random() * 5 + 90) + "%";
+            }
+        }, 800);
+
+        animate();
+    </script>
+</body>
+</html>
