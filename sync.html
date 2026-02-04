@@ -18,34 +18,41 @@
             --alert: #ff0000;
         }
 
+        /* --- LAYOUT ENGINE (FIXED) --- */
         body {
             background-color: var(--bg);
             color: var(--rust-light);
             font-family: 'Share Tech Mono', monospace;
             margin: 0;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
-            display: grid;
-            grid-template-rows: 60px 1fr 40px;
+            display: flex;          /* Changed to Flex for stability */
+            flex-direction: column; /* Vertical Stack */
         }
 
-        /* --- HEAT HAZE & TEXTURE --- */
+        /* --- BACKGROUND LAYERS --- */
+        #canvas-wrapper {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+        #sludge-canvas { position: absolute; inset: 0; opacity: 0.3; }
+        #steam-canvas { position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: overlay; }
+
+        /* Heat Haze Overlay */
         body::before {
             content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 10;
             background: radial-gradient(circle at 50% 100%, rgba(249, 115, 22, 0.1) 0%, transparent 60%);
             mix-blend-mode: screen;
         }
+        /* Film Grain */
         body::after {
             content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
         }
 
-        /* --- CANVAS LAYERS --- */
-        #sludge-canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.3; }
-        #steam-canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.4; mix-blend-mode: overlay; }
-
         /* --- HEADER --- */
         header {
+            flex: 0 0 60px; /* Fixed Height */
             background: #050200;
             border-bottom: 2px solid var(--rust-dark);
             display: flex; justify-content: space-between; align-items: center;
@@ -56,11 +63,12 @@
         .nav a:hover { color: var(--orange-haz); }
         .nav a.active { color: var(--orange-haz); border-bottom: 1px solid var(--orange-haz); }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- MAIN CONTENT CONTAINER --- */
         .container {
+            flex: 1; /* Takes up all remaining space */
+            min-height: 0; /* CRITICAL FIX: Allows scrolling inside this container */
             display: grid;
             grid-template-columns: 1fr 350px;
-            overflow: hidden;
             position: relative;
             z-index: 20;
         }
@@ -68,7 +76,7 @@
         /* --- LEFT: LOG & VISUALS --- */
         .log-section {
             padding: 40px;
-            overflow-y: auto;
+            overflow-y: auto; /* Internal Scroll */
             border-right: 1px solid var(--rust-dark);
             background: rgba(10, 2, 0, 0.6);
         }
@@ -90,6 +98,7 @@
             display: flex; flex-direction: column;
             gap: 20px;
             backdrop-filter: blur(5px);
+            border-left: 1px solid var(--rust-dark);
         }
         
         .hud-panel {
@@ -128,6 +137,7 @@
 
         /* --- FOOTER --- */
         footer {
+            flex: 0 0 40px; /* Fixed Height */
             background: #050200; border-top: 1px solid var(--rust-dark);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 30px; font-size: 0.7rem; color: #664; z-index: 100;
@@ -153,6 +163,7 @@
             <a href="market.html">MARKET</a>
             <a href="sync.html" class="active">SYNC</a>
             <a href="observatory.html">OBSERVATORY</a>
+            <a href="backdoor.html" style="opacity:0.3;">_ROOT</a>
         </nav>
         <div style="color:var(--orange-haz);">Magnetic Containment: <span id="mag-status">UNSTABLE</span></div>
     </header>
@@ -176,6 +187,15 @@
                 <h1 class="log-title">SLUDGE ACCUMULATION</h1>
                 <div class="log-text">
                     Warning: Sub-strata runoff has reached critical viscosity. The "grey sludge" is not industrial waste. Analysis suggests it is liquefied data residue from the Residential Rings.
+                </div>
+            </div>
+            
+            <div class="log-entry">
+                <span class="log-meta">METRIC_REPORT // ANOMALY</span>
+                <h1 class="log-title">GRAVITY INVERSION</h1>
+                <div class="log-text">
+                    Fluid dynamics in Sector 7 have reversed. Coolant is flowing up. Heat is settling down. The thermodynamics engine is confused. <br>
+                    <span style="color:var(--alert)">Manual override required every 4 hours.</span>
                 </div>
             </div>
         </main>
@@ -218,7 +238,7 @@
                 const data = await res.json();
                 
                 const temp = data.current_weather.temperature;
-                // Fake "Core" temp by multiplying real temp
+                // Fake "Core" temp by multiplying real temp to make it sci-fi
                 const coreTemp = (temp * 12.5).toFixed(1); 
                 
                 document.getElementById('temp-val').innerText = coreTemp;
