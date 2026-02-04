@@ -1,135 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ALDERSYTH // OBSERVATORY_VECTOR</title>
-<style>
-:root { --gold: #ffb000; --cyan: #06b6d4; --red: #ff3e3e; --bg: #01080a; }
-body { 
-    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
-    color: var(--cyan); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALDERSYTH // SUB_STRATA_SYNC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* THEME: LOG II (Rust / Heat / Sludge) */
+            --bg: #0f0500;
+            --rust-dark: #3f1a08;
+            --rust-light: #9a3412;
+            --orange-haz: #f97316;
+            --steam: rgba(200, 230, 255, 0.1);
+            --grid: rgba(154, 52, 18, 0.2);
+            --alert: #ff0000;
+        }
 
-/* THE ORIGAMI FOLD EFFECT */
-.fold-layer {
-    position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(45deg, transparent 48%, var(--cyan) 50%, transparent 52%);
-    background-size: 200% 200%; opacity: 0.1;
-    animation: foldShift 10s ease-in-out infinite alternate;
-}
-@keyframes foldShift { from { transform: skewX(-5deg) scale(1); } to { transform: skewX(5deg) scale(1.05); } }
+        body {
+            background-color: var(--bg);
+            color: var(--rust-light);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 60px 1fr 40px;
+        }
 
-.container { display: grid; grid-template-columns: 1fr 300px; height: 100vh; backdrop-filter: brightness(0.5) blur(15px); }
+        /* --- HEAT HAZE & TEXTURE --- */
+        body::before {
+            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 10;
+            background: radial-gradient(circle at 50% 100%, rgba(249, 115, 22, 0.1) 0%, transparent 60%);
+            mix-blend-mode: screen;
+        }
+        body::after {
+            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+        }
 
-/* THE DE-REZZING LOG */
-#vector-log {
-    padding: 40px; font-size: 0.85rem; line-height: 1.6; max-width: 700px;
-    position: relative; z-index: 10;
-}
-.de-rez { transition: opacity 2s, filter 2s; display: inline-block; margin-right: 4px; }
-.faded { opacity: 0; filter: blur(10px); }
+        /* --- CANVAS LAYERS --- */
+        #sludge-canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.3; }
+        #steam-canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.4; mix-blend-mode: overlay; }
 
-/* HUD COMPONENTS */
-aside { border-left: 1px solid var(--cyan); background: rgba(0,0,0,0.8); padding: 20px; display: flex; flex-direction: column; }
-.hud-item { border: 1px solid var(--cyan); padding: 15px; margin-bottom: 20px; position: relative; }
-.warning { color: var(--red); font-size: 0.6rem; animation: blink 0.5s infinite; }
-@keyframes blink { 50% { opacity: 0; } }
+        /* --- HEADER --- */
+        header {
+            background: #050200;
+            border-bottom: 2px solid var(--rust-dark);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; z-index: 100;
+        }
+        .logo { color: var(--orange-haz); font-size: 1.2rem; letter-spacing: 2px; text-shadow: 0 0 10px var(--rust-light); }
+        .nav a { color: #664; text-decoration: none; margin-left: 20px; transition: 0.3s; }
+        .nav a:hover { color: var(--orange-haz); }
+        .nav a.active { color: var(--orange-haz); border-bottom: 1px solid var(--orange-haz); }
 
-/* VECTOR VISUALIZER */
-#vector-canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.4; }
+        /* --- MAIN LAYOUT --- */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            overflow: hidden;
+            position: relative;
+            z-index: 20;
+        }
 
-button { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px; cursor: pointer; font-family: inherit; margin-top: auto; }
-button:hover { background: var(--gold); color: #000; }
-</style>
+        /* --- LEFT: LOG & VISUALS --- */
+        .log-section {
+            padding: 40px;
+            overflow-y: auto;
+            border-right: 1px solid var(--rust-dark);
+            background: rgba(10, 2, 0, 0.6);
+        }
+        .log-entry {
+            margin-bottom: 40px;
+            border-left: 2px solid var(--rust-light);
+            padding-left: 20px;
+        }
+        .log-title { font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
+        .log-meta { font-size: 0.7rem; color: var(--orange-haz); margin-bottom: 15px; display: block; }
+        .log-text { font-size: 0.9rem; line-height: 1.6; color: #bca; max-width: 700px; }
+        
+        .highlight { color: var(--orange-haz); font-weight: bold; }
+
+        /* --- RIGHT: THERMODYNAMICS HUD --- */
+        aside {
+            background: rgba(20, 5, 0, 0.8);
+            padding: 20px;
+            display: flex; flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .hud-panel {
+            border: 1px solid var(--rust-light);
+            background: #000;
+            padding: 15px;
+            position: relative;
+        }
+        .hud-label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 5px; }
+        .hud-value { font-size: 1.8rem; color: #fff; }
+        .unit { font-size: 0.8rem; color: #666; }
+
+        .bar-container {
+            height: 6px; background: #331; margin-top: 10px; position: relative; overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%; width: 0%; background: var(--orange-haz);
+            transition: width 0.5s;
+            box-shadow: 0 0 10px var(--orange-haz);
+        }
+
+        /* FLUSH BUTTON */
+        .flush-btn {
+            margin-top: auto;
+            background: transparent;
+            border: 2px solid var(--rust-light);
+            color: var(--rust-light);
+            padding: 15px;
+            font-family: inherit; font-size: 1rem; cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .flush-btn:hover { background: var(--rust-light); color: #000; box-shadow: 0 0 20px var(--rust-light); }
+        .flush-btn:active { transform: scale(0.98); }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #050200; border-top: 1px solid var(--rust-dark);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; font-size: 0.7rem; color: #664; z-index: 100;
+        }
+
+        /* ANIMATIONS */
+        .pulse-warn { animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { box-shadow: 0 0 5px var(--rust-light); } to { box-shadow: 0 0 20px var(--alert); } }
+
+    </style>
 </head>
 <body>
 
-<div class="fold-layer"></div>
-<canvas id="vector-canvas"></canvas>
+    <div id="canvas-wrapper">
+        <canvas id="sludge-canvas"></canvas>
+        <canvas id="steam-canvas"></canvas>
+    </div>
 
-<div class="container">
-    <main id="vector-log">
-        <h2 style="color:var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px;">LOG_04 // VECTOR_CRISIS</h2>
-        <div id="story-text"></div>
-    </main>
+    <header>
+        <div class="logo">ALDERSYTH // SUB_STRATA</div>
+        <nav class="nav">
+            <a href="index.html">CORE</a>
+            <a href="market.html">MARKET</a>
+            <a href="sync.html" class="active">SYNC</a>
+            <a href="observatory.html">OBSERVATORY</a>
+        </nav>
+        <div style="color:var(--orange-haz);">Magnetic Containment: <span id="mag-status">UNSTABLE</span></div>
+    </header>
 
-    <aside>
-        <div class="hud-item">
-            <span class="warning">!! HIGGS_DECOHERENCE !!</span>
-            <div style="font-size: 1.2rem; font-weight: bold;" id="wind-live">-- MPH</div>
-            <div style="font-size: 0.5rem; opacity: 0.7;">LOCAL_KINETIC_SURGE (RICHMOND)</div>
-        </div>
-
-        <div class="hud-item" style="flex-grow: 1;">
-            <p style="font-size: 0.6rem; color: var(--gold);">"Telemetry is a delusion of control. Interpret the variables with your biology, or the city will erase the anomaly."</p>
-            <div style="margin-top: 20px; font-size: 0.6rem;">
-                MARKET_TETHER: <span id="btc-val">$---</span>
+    <div class="container">
+        <main class="log-section">
+            <div class="log-entry">
+                <span class="log-meta">LOG_02 // RECOVERED_DATA_FRAGMENT</span>
+                <h1 class="log-title">THE THERMODYNAMIC VORTEX</h1>
+                <div class="log-text">
+                    [AUDIO_TRANSCRIPT] <br><br>
+                    The air down here tastes like pennies. It's the copper wiring burning out. <br><br>
+                    I'm looking at the dampener blocks now. They are <span class="highlight">sweating</span>. A thick, grey sludge is oozing out of the lead, dripping upward—gravity is inverted in the containment bottle. <br><br>
+                    Through the red haze, I can see the silhouette of a man. His chest is cracked open, wired directly into the city grid. He's acting as a heatsink for the entire district. <br><br>
+                    "Sync is at 98%," he screams, but I can barely hear him over the roar of the water vortex screaming into steam.
+                </div>
             </div>
-        </div>
 
-        <button onclick="location.href='index.html'">RE-SYNC_CORE</button>
-    </aside>
-</div>
+            <div class="log-entry">
+                <span class="log-meta">SYSTEM_NOTE // MAINTENANCE</span>
+                <h1 class="log-title">SLUDGE ACCUMULATION</h1>
+                <div class="log-text">
+                    Warning: Sub-strata runoff has reached critical viscosity. The "grey sludge" is not industrial waste. Analysis suggests it is liquefied data residue from the Residential Rings.
+                </div>
+            </div>
+        </main>
 
-<script>
-/* 1. The Story (Fading away word by word) */
-const story = "Midnight brought total Higgs-decoherence. The air smelled of scorched copper and ozone. The kinetic surge hit—not a breeze, but a vacuum. It ripped the notebook from my hand. I lunged for it, but a gravity flip sent it spiraling upward, its pages fluttering like the wings of a dying bird. Without the data, I was blind. The city began to fold like origami. Buildings leaned at impossible 45-degree angles. Sloane’s voice crackled: 'Data is a crutch, Analyst.' I followed a calibration orb through a shimmering refraction aperture, my body feeling the sickening stretch of quantum tunneling.";
+        <aside>
+            <div class="hud-panel pulse-warn">
+                <span class="hud-label">CORE TEMPERATURE (LIVE)</span>
+                <span class="hud-value" id="temp-val">--</span> <span class="unit">°C</span>
+                <div class="bar-container"><div class="bar-fill" id="temp-bar"></div></div>
+            </div>
 
-const storyContainer = document.getElementById('story-text');
+            <div class="hud-panel">
+                <span class="hud-label">ATMOSPHERIC PRESSURE</span>
+                <span class="hud-value" id="press-val">--</span> <span class="unit">hPa</span>
+                <div class="bar-container"><div class="bar-fill" id="press-bar" style="width:80%;"></div></div>
+            </div>
 
-// Initialize story words
-story.split(" ").forEach(word => {
-    const span = document.createElement('span');
-    span.className = 'de-rez';
-    span.innerText = word;
-    storyContainer.appendChild(span);
-});
+            <div class="hud-panel">
+                <span class="hud-label">DATA VISCOSITY</span>
+                <span class="hud-value">94.2%</span>
+                <span class="hud-label" style="color:var(--orange-haz); margin-top:5px;">FLOW OBSTRUCTED</span>
+            </div>
 
-// De-rez logic: Randomly fade words over time
-setInterval(() => {
-    const spans = document.querySelectorAll('.de-rez:not(.faded)');
-    if (spans.length > 0) {
-        const target = spans[Math.floor(Math.random() * spans.length)];
-        target.classList.add('faded');
-    }
-}, 800);
+            <button class="flush-btn" onclick="flushCoolant()">INITIATE COOLANT FLUSH</button>
+        </aside>
+    </div>
 
-/* 2. Live Telemetry (Richmond Wind & BTC) */
-async function getTelemetry() {
-    try {
-        const weather = await fetch('https://wttr.in/Richmond?format=j1').then(r => r.json());
-        document.getElementById('wind-live').innerText = weather.current_condition[0].windspeedMiles + " MPH";
+    <footer>
+        <span>SECTOR: SUB_STRATA (DEPTH -400m)</span>
+        <span>STATUS: OVERHEATING</span>
+        <span id="btc-ticker">BTC: CONNECTING...</span>
+    </footer>
+
+    <script>
+        // --- 1. LIVE DATA (OpenMeteo for Heat/Pressure) ---
+        async function getThermodynamics() {
+            try {
+                // Using a hot place (Death Valley coords) for "Sync" vibe
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=36.53&longitude=-116.93&current_weather=true');
+                const data = await res.json();
+                
+                const temp = data.current_weather.temperature;
+                // Fake "Core" temp by multiplying real temp
+                const coreTemp = (temp * 12.5).toFixed(1); 
+                
+                document.getElementById('temp-val').innerText = coreTemp;
+                document.getElementById('temp-bar').style.width = Math.min(coreTemp/5, 100) + "%";
+                
+                // Pressure (Simulated based on windspeed for variation)
+                const press = 1013 + data.current_weather.windspeed;
+                document.getElementById('press-val').innerText = press.toFixed(0);
+
+            } catch(e) {
+                document.getElementById('temp-val').innerText = "ERROR";
+            }
+        }
+        getThermodynamics();
+        setInterval(getThermodynamics, 60000);
+
+        // --- 2. LIVE BTC (Tether) ---
+        async function getBTC() {
+            try {
+                const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+                const data = await res.json();
+                document.getElementById('btc-ticker').innerText = "MARKET_TETHER: $" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
+            } catch(e) {}
+        }
+        getBTC();
+
+        // --- 3. VISUALS: SLUDGE DRIP (Canvas 1) ---
+        const sCanvas = document.getElementById('sludge-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let drops = [];
+
+        function resize() {
+            sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight;
+            steamCanvas.width = window.innerWidth; steamCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
         
-        const btc = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json').then(r => r.json());
-        document.getElementById('btc-val').innerText = "$" + Math.floor(btc.bpi.USD.rate_float).toLocaleString();
-    } catch(e) {}
-}
-getTelemetry();
+        function initDrops() {
+            for(let i=0; i<30; i++) {
+                drops.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    l: Math.random() * 50 + 20, // Length
+                    s: Math.random() * 2 + 1    // Speed
+                });
+            }
+        }
 
-/* 3. Vector Canvas (The fluttering pages) */
-const canvas = document.getElementById('vector-canvas');
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.onresize = resize; resize();
+        function drawSludge() {
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+            sCtx.fillStyle = "#3f1a08"; // Rust color
+            
+            drops.forEach(d => {
+                sCtx.beginPath();
+                sCtx.roundRect(d.x, d.y, 2, d.l, 5);
+                sCtx.fill();
+                d.y += d.s;
+                if(d.y > sCanvas.height) d.y = -d.l;
+            });
+            requestAnimationFrame(drawSludge);
+        }
 
-let particles = [];
-for(let i=0; i<15; i++) {
-    particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: 2, vy: -2 });
-}
+        // --- 4. VISUALS: RISING STEAM (Canvas 2) ---
+        const steamCanvas = document.getElementById('steam-canvas');
+        const stCtx = steamCanvas.getContext('2d');
+        let particles = [];
 
-function draw() {
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    ctx.strokeStyle = '#06b6d4';
-    particles.forEach(p => {
-        ctx.strokeRect(p.x, p.y, 10, 14); // "Pages" of the notebook
-        p.x += p.vx + Math.sin(Date.now()/500);
-        p.y += p.vy;
-        if(p.y < -20) p.y = canvas.height + 20;
-        if(p.x > canvas.width) p.x = -20;
-    });
-    requestAnimationFrame(draw);
-}
-draw();
-</script>
+        function initSteam() {
+            for(let i=0; i<50; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: window.innerHeight + Math.random()*100,
+                    r: Math.random() * 30 + 10,
+                    v: Math.random() * 1 + 0.5
+                });
+            }
+        }
+
+        function drawSteam() {
+            stCtx.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
+            stCtx.fillStyle = "rgba(255, 150, 100, 0.1)"; // Orange-ish steam
+            
+            particles.forEach(p => {
+                stCtx.beginPath();
+                stCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                stCtx.fill();
+                p.y -= p.v;
+                p.x += Math.sin(p.y/50) * 0.5; // Wiggle
+                if(p.y < -50) p.y = window.innerHeight + 50;
+            });
+            requestAnimationFrame(drawSteam);
+        }
+
+        // --- 5. INTERACTION: COOLANT FLUSH ---
+        function flushCoolant() {
+            const btn = document.querySelector('.flush-btn');
+            const mag = document.getElementById('mag-status');
+            const tempBar = document.getElementById('temp-bar');
+            
+            btn.innerText = "FLUSHING...";
+            btn.style.borderColor = "#06b6d4"; // Turn Cyan (Cool)
+            btn.style.color = "#06b6d4";
+            
+            mag.innerText = "STABILIZING...";
+            mag.style.color = "#06b6d4";
+            
+            // Visual Coolant Effect (Blue overlay)
+            document.body.style.filter = "hue-rotate(180deg)"; // Temporary Blue Shift
+            
+            setTimeout(() => {
+                btn.innerText = "INITIATE COOLANT FLUSH";
+                btn.style.borderColor = "#9a3412"; // Back to Rust
+                btn.style.color = "#9a3412";
+                mag.innerText = "UNSTABLE";
+                mag.style.color = "#f97316";
+                document.body.style.filter = "none";
+                alert("CORE TEMP REDUCED BY 15%. SYSTEM HOLDING.");
+            }, 1500);
+        }
+
+        resize();
+        initDrops();
+        drawSludge();
+        initSteam();
+        drawSteam();
+
+    </script>
 </body>
 </html>
