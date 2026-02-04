@@ -3,138 +3,287 @@
 <head>
 <meta charset="UTF-8">
 <title>ALDERSYTH // CORE_01</title>
+
 <style>
-:root { --gold: #ffb000; --red: #ff3e3e; --cyan: #06b6d4; --bg: #020202; }
-body { 
-    background: var(--bg) url('wallpaper.jpg.png') center/cover no-repeat fixed;
-    color: var(--gold); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+:root {
+    --gold:#ffb000;
+    --red:#ff3e3e;
+    --cyan:#06b6d4;
+    --bg:#020202;
 }
 
-/* CRT Overlay */
-body::after { 
-    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
-    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,0,0,0), rgba(0,0,255,0.02));
-    background-size: 100% 3px, 3px 100%;
+body {
+    margin:0;
+    height:100vh;
+    overflow:hidden;
+    font-family:"Courier New", monospace;
+    color:var(--gold);
+    background:
+        var(--bg)
+        url("images/wallpaper.jpg.png")
+        center/cover no-repeat fixed;
+    display:flex;
+    flex-direction:column;
 }
 
-header { padding: 15px 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; font-size: 0.8rem; background: rgba(0,0,0,0.7); }
+/* CRT overlay */
+body::after {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:100;
+    background:
+        linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,.12) 50%),
+        linear-gradient(90deg, rgba(255,0,0,.03), transparent, rgba(0,0,255,.03));
+    background-size:100% 3px,3px 100%;
+}
 
-.dashboard { display: grid; grid-template-columns: 320px 1fr 300px; gap: 12px; padding: 15px; flex-grow: 1; z-index: 10; }
-.panel { border: 1px solid rgba(255, 176, 0, 0.25); background: rgba(0,10,15,0.9); padding: 15px; backdrop-filter: blur(10px); }
+/* Header */
+header {
+    display:flex;
+    justify-content:space-between;
+    padding:15px 25px;
+    font-size:.8rem;
+    background:rgba(0,0,0,.75);
+    border-bottom:2px solid var(--gold);
+}
 
-/* Central Visualizer with Parallax */
-#visualizer { grid-column: 2; position: relative; overflow: hidden; border: 1px solid var(--cyan); }
-.layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.3; }
+/* Layout */
+.dashboard {
+    flex:1;
+    display:grid;
+    grid-template-columns:320px 1fr 320px;
+    gap:12px;
+    padding:15px;
+}
 
-/* Interactive Lead Sphere */
+/* Panels */
+.panel {
+    background:rgba(0,10,15,.88);
+    border:1px solid rgba(255,176,0,.25);
+    padding:15px;
+    backdrop-filter:blur(10px);
+}
+
+/* Center visualizer */
+#visualizer {
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--cyan);
+}
+
+.layer {
+    position:absolute;
+    inset:0;
+    background-size:cover;
+    background-position:center;
+    opacity:.35;
+}
+
+.layer.bg1 { background-image:url("images/index_Header.jpg"); }
+.layer.bg2 { background-image:url("images/index_Header2.jpg"); opacity:.15; }
+
+/* Lead sphere */
 #lead-sphere {
-    position: absolute; width: 60px; height: 60px; bottom: 40px; left: 50%;
-    background: radial-gradient(circle at 30% 30%, #999, #222);
-    border-radius: 50%; cursor: grab; z-index: 20; box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    position:absolute;
+    width:60px;
+    height:60px;
+    left:50%;
+    bottom:40px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #aaa, #222);
+    box-shadow:0 0 20px rgba(255,255,255,.2);
+    cursor:grab;
+    z-index:10;
 }
 
-.nav-item { 
-    display: flex; justify-content: space-between; padding: 12px; border: 1px solid rgba(6,182,212,0.2); 
-    margin-bottom: 8px; text-decoration: none; color: var(--gold); font-size: 0.8rem;
+/* Navigation */
+.nav-item {
+    display:flex;
+    justify-content:space-between;
+    padding:10px;
+    margin-bottom:8px;
+    border:1px solid rgba(6,182,212,.2);
+    color:var(--gold);
+    text-decoration:none;
+    font-size:.8rem;
 }
-.nav-item:hover { background: rgba(6,182,212,0.1); border-color: var(--cyan); }
-.status-tag { font-size: 0.6rem; border: 1px solid currentColor; padding: 2px 5px; }
 
-#log-feed { font-size: 0.65rem; color: var(--cyan); line-height: 1.4; }
-.val { font-size: 1.2rem; color: #fff; display: block; }
+.nav-item:hover {
+    background:rgba(6,182,212,.08);
+    border-color:var(--cyan);
+}
+
+.status-tag {
+    font-size:.6rem;
+    padding:2px 5px;
+    border:1px solid currentColor;
+}
+
+.val {
+    font-size:1.2rem;
+    color:#fff;
+}
+
+/* Log feed — calm cinematic */
+.log-feed {
+    height:230px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.log-entry {
+    background:rgba(0,0,0,.55);
+    border:1px solid rgba(6,182,212,.25);
+    opacity:0;
+    transform:translateY(6px);
+    animation:logFade 1.6s ease forwards;
+}
+
+.log-entry img {
+    width:100%;
+    display:block;
+    filter:contrast(1.05) brightness(.95);
+}
+
+@keyframes logFade {
+    to {
+        opacity:1;
+        transform:translateY(0);
+    }
+}
 </style>
 </head>
+
 <body>
 
 <header>
-    <span id="glitch-title">ALDERSYTH // SUBSTRATE_PROTOCOL // CORE_01</span>
+    <span>ALDERSYTH // SUBSTRATE_PROTOCOL // CORE_01</span>
     <span id="clock">00:00:00</span>
 </header>
 
 <main class="dashboard">
+
+    <!-- LEFT -->
     <div class="panel">
-        <h2 style="font-size:0.9rem;">NEURAL_TELEMETRY</h2>
-        <div style="margin-bottom:15px;">
-            <span class="val" id="batt">--%</span>
-            <span style="font-size:0.6rem; opacity:0.6;">DEVICE_STABILITY</span>
-        </div>
-        <div style="border:1px solid var(--red); color:var(--red); padding:8px; font-size:0.6rem; text-align:center;">
+        <h3>NEURAL_TELEMETRY</h3>
+        <span class="val" id="batt">--%</span>
+        <div style="margin-top:12px;border:1px solid var(--red);color:var(--red);padding:8px;font-size:.6rem;text-align:center">
             IDENTITY_LOSS_RISK: CRITICAL
         </div>
     </div>
 
+    <!-- CENTER -->
     <div class="panel" id="visualizer">
-        <div class="layer" style="background-image:url('index_Header.jpg'); transform: translateZ(-1px);"></div>
-        <div class="layer" style="background-image:url('index_Header2.jpg'); opacity:0.1;"></div>
-        <canvas id="wave" style="position:absolute; inset:0;"></canvas>
+        <div class="layer bg1"></div>
+        <div class="layer bg2"></div>
+        <canvas id="wave" style="position:absolute;inset:0"></canvas>
         <div id="lead-sphere"></div>
     </div>
 
+    <!-- RIGHT -->
     <div class="panel">
-        <h2 style="font-size:0.9rem;">SECTOR_NAV</h2>
-        <nav>
-            <a href="market.html" class="nav-item">01_MARKET <span id="btc" class="status-tag" style="color:var(--cyan)">$---</span></a>
-            <a href="residential.html" class="nav-item">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
-            <a href="sync.html" class="nav-item">03_SYNC <span class="status-tag" style="color:var(--cyan)">ACTIVE</span></a>
-            <a href="spire.html" class="nav-item">04_SPIRE <span class="status-tag">LOCKED</span></a>
-        </nav>
-        <div style="margin-top:20px;">
+        <h3>SECTOR_NAV</h3>
+        <a class="nav-item" href="#">01_MARKET <span id="btc" class="status-tag" style="color:var(--cyan)">$---</span></a>
+        <a class="nav-item" href="#">02_RESID <span class="status-tag" style="color:var(--red)">PURGING</span></a>
+        <a class="nav-item" href="#">03_SYNC <span class="status-tag" style="color:var(--cyan)">ACTIVE</span></a>
+        <a class="nav-item" href="#">04_SPIRE <span class="status-tag">LOCKED</span></a>
+
+        <div style="margin-top:15px">
             <span class="val" id="temp">--°C</span>
-            <span style="font-size:0.6rem; opacity:0.6;">THERMAL_SYNC</span>
+            <div style="font-size:.6rem;opacity:.6">THERMAL_SYNC</div>
         </div>
     </div>
+
+    <!-- LOGS -->
+    <div class="panel">
+        <h3>LOG_FEED</h3>
+        <div id="log-feed" class="log-feed"></div>
+    </div>
+
 </main>
 
 <script>
-    /* 1. Live Data & Clock */
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-    
-    async function fetchData() {
-        try {
-            const btcRes = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-            const btcData = await btcRes.json();
-            document.getElementById('btc').innerText = "$" + Math.floor(btcData.bpi.USD.rate_float).toLocaleString();
-            
-            const wRes = await fetch('https://wttr.in/?format=j1');
-            const wData = await wRes.json();
-            document.getElementById('temp').innerText = wData.current_condition[0].temp_C + "°C";
-        } catch(e) { console.log("Data Fetch Error"); }
-    }
-    fetchData();
+/* Clock */
+setInterval(()=>clock.innerText=new Date().toLocaleTimeString(),1000);
 
-    /* 2. Battery Telemetry */
-    if(navigator.getBattery) navigator.getBattery().then(b => {
-        const up = () => document.getElementById('batt').innerText = Math.floor(b.level*100) + "%";
-        up(); b.onlevelchange = up;
+/* BTC + Weather */
+async function fetchData(){
+    try{
+        const btc=(await fetch("https://api.coindesk.com/v1/bpi/currentprice.json")).json();
+        btc.then(d=>btcEl.innerText="$"+Math.floor(d.bpi.USD.rate_float).toLocaleString());
+        const w=await fetch("https://wttr.in/?format=j1").then(r=>r.json());
+        temp.innerText=w.current_condition[0].temp_C+"°C";
+    }catch{}
+}
+const btcEl=document.getElementById("btc");
+const temp=document.getElementById("temp");
+fetchData();
+setInterval(fetchData,60000);
+
+/* Battery */
+if(navigator.getBattery){
+    navigator.getBattery().then(b=>{
+        const u=()=>batt.innerText=Math.floor(b.level*100)+"%";
+        u(); b.onlevelchange=u;
     });
+}
 
-    /* 3. Lead Sphere Interaction */
-    const sphere = document.getElementById('lead-sphere');
-    let drag = false;
-    sphere.onmousedown = () => { drag = true; sphere.style.cursor = 'grabbing'; };
-    window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
-    window.onmousemove = (e) => {
-        if(drag) {
-            sphere.style.left = (e.clientX - 30) + 'px';
-            sphere.style.top = (e.clientY - 30) + 'px';
-        }
-    };
+/* Lead sphere drag */
+const s=document.getElementById("lead-sphere");
+let d=false;
+s.onmousedown=()=>{d=true;s.style.cursor="grabbing"};
+window.onmouseup=()=>{d=false;s.style.cursor="grab"};
+window.onmousemove=e=>{
+    if(d){s.style.left=e.clientX-30+"px";s.style.top=e.clientY-30+"px";}
+};
 
-    /* 4. Canvas Waveform */
-    const canvas = document.getElementById('wave');
-    const ctx = canvas.getContext('2d');
-    let t = 0;
-    function render() {
-        canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.beginPath(); ctx.strokeStyle = '#06b6d4';
-        for(let x=0; x<canvas.width; x+=5) {
-            const y = (canvas.height/2) + Math.sin(x*0.01+t)*30;
-            x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-        }
-        ctx.stroke(); t+=0.05; requestAnimationFrame(render);
+/* Wave */
+const c=document.getElementById("wave"),x=c.getContext("2d");
+let t=0;
+function wave(){
+    c.width=c.offsetWidth;c.height=c.offsetHeight;
+    x.clearRect(0,0,c.width,c.height);
+    x.beginPath();x.strokeStyle="#06b6d4";
+    for(let i=0;i<c.width;i+=5){
+        const y=c.height/2+Math.sin(i*.01+t)*30;
+        i?x.lineTo(i,y):x.moveTo(i,y);
     }
-    render();
+    x.stroke();t+=.05;requestAnimationFrame(wave);
+}
+wave();
+
+/* Image Logs — calm */
+const logs=[
+    "images/log1.jpg",
+    "images/log1_2.jpg",
+    "images/log2.jpg",
+    "images/log3.jpg",
+    "images/log4.jpg",
+    "images/log1_spire_visual.jpg"
+];
+const feed=document.getElementById("log-feed");
+let i=0;
+
+function addLog(){
+    const e=document.createElement("div");
+    e.className="log-entry";
+    const img=document.createElement("img");
+    img.src=logs[i];
+    img.loading="lazy";
+    e.appendChild(img);
+    feed.appendChild(e);
+    feed.scrollTop=feed.scrollHeight;
+    i=(i+1)%logs.length;
+}
+
+addLog();
+setInterval(addLog,5000);
 </script>
+
 </body>
 </html>
