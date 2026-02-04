@@ -43,7 +43,7 @@
         /* --- GRID LAYOUT --- */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 320px 1fr;
             grid-template-areas: "sidebar hero" "sidebar table";
             gap: 20px; padding: 20px; box-sizing: border-box;
         }
@@ -60,90 +60,85 @@
             clip-path: polygon(0 0, 97% 0, 100% 3%, 100% 100%, 3% 100%, 0 97%);
         }
 
-        .module-box h2, .module-box h3 {
-            font-size: 0.9rem; margin: 0 0 10px 0; border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 5px; letter-spacing: 2px;
+        .module-box h2 {
+            font-size: 0.85rem; margin: 0 0 10px 0; border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 5px; letter-spacing: 2px; color: #fff;
         }
 
-        /* --- HERO & JITTER --- */
+        /* --- HERO --- */
         .hero-frame {
             position: relative; border: 1px solid var(--neon-gold);
             height: 400px; background: #000; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            animation: subsonic-jitter 0.2s infinite;
         }
-
-        @keyframes subsonic-jitter {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(0.5px, -0.5px); }
-            75% { transform: translate(-0.5px, 0.5px); }
-        }
-
-        .hero-frame::before, .hero-frame::after {
-            content: ""; position: absolute; width: 30px; height: 30px;
-            border: 2px solid var(--neon-gold); z-index: 5;
-        }
-        .hero-frame::before { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
-        .hero-frame::after { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
 
         .main-visual {
             width: 100%; height: 100%; object-fit: cover;
-            filter: sepia(100%) hue-rotate(-50deg) contrast(150%) brightness(0.5);
-            opacity: 0.6; transition: transform 0.1s ease-out;
+            filter: sepia(100%) hue-rotate(-50deg) contrast(150%) brightness(0.4);
+            opacity: 0.7; transition: transform 0.1s ease-out;
         }
 
         .glitch-title {
-            position: absolute; font-size: 3.5rem; font-weight: bold;
-            letter-spacing: 12px; z-index: 2; text-align: center;
-            animation: pulse-glow 3s infinite ease-in-out;
+            position: absolute; font-size: 4rem; font-weight: bold;
+            letter-spacing: 15px; z-index: 2; text-shadow: 0 0 10px var(--neon-gold);
         }
 
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 5px var(--neon-gold); opacity: 0.8; }
-            50% { text-shadow: 0 0 20px var(--neon-gold), 0 0 30px var(--neon-red); opacity: 1; }
+        /* --- TABLE & NAV --- */
+        #anomaliesTable { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        #anomaliesTable th { text-align: left; padding: 8px; border-bottom: 1px solid var(--panel-border); opacity: 0.6; }
+        #anomaliesTable td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .row-link { cursor: pointer; transition: 0.2s; }
+        .row-link:hover { background: rgba(255, 176, 0, 0.15); color: #fff; }
+
+        .status-tag { 
+            border: 1px solid currentColor; padding: 2px 6px; font-size: 0.7rem; 
         }
 
-        /* --- UTILITY CLASSES --- */
-        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; }
+        /* --- UTILS --- */
+        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.75rem; }
         .val { color: var(--neon-gold); font-weight: bold; }
-        .chromatic-break { text-shadow: 2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7); }
+        .chromatic-break { text-shadow: 2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7); filter: contrast(1.2); }
 
-        .action-menu button {
+        .btn {
             display: block; width: 100%; background: transparent;
             color: var(--neon-gold); border: 1px solid var(--neon-gold);
-            padding: 12px; margin-top: 10px; cursor: pointer;
-            text-transform: uppercase; font-family: inherit;
+            padding: 10px; margin-top: 10px; cursor: pointer;
+            font-family: inherit; text-transform: uppercase;
         }
-        .action-menu button:hover { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px var(--neon-gold); }
-        .action-menu button.warning { color: var(--neon-red); border-color: var(--neon-red); }
+        .btn:hover { background: var(--neon-gold); color: #000; }
+        .btn.warning { color: var(--neon-red); border-color: var(--neon-red); }
     </style>
 </head>
 <body>
     <div class="crt-overlay"></div>
     <div class="scanline"></div>
 
-    <header class="module-box" style="margin: 20px; border-bottom: 2px solid var(--neon-gold);">
-        ALDERSYTH // SUBSTRATE_MONITOR // UNIT: KAEL-01
+    <header class="module-box" style="margin: 20px; border-bottom: 2px solid var(--neon-gold); font-size: 0.8rem;">
+        ALDERSYTH // SUBSTRATE_MONITOR // SYSTEM_ACTIVE // 2026-REF
     </header>
 
     <main class="dashboard-grid">
         <aside class="sidebar-left">
             <div class="module-box">
                 <h2>NEURAL_TELEMETRY</h2>
-                <div class="stat"><span>SYNC_RATE</span><span class="val" id="syncVal">99.4%</span></div>
-                <div class="stat"><span>HEART_RATE</span><span class="val" id="bpm">148 BPM</span></div>
+                <div class="stat"><span>SYNC_RATE</span><span class="val" id="syncVal">92.41%</span></div>
+                <div class="stat"><span>HEART_RATE</span><span class="val" id="bpm">142 BPM</span></div>
                 <div class="stat"><span>STRESS_LVL</span><span class="val" id="stressVal">STABLE</span></div>
             </div>
 
-            <div class="module-box">
-                <h2>LOCAL_PHYSICS</h2>
-                <div class="stat"><span>GRAVITY</span><span class="val" id="gravVal">0.84G</span></div>
-                <div class="stat"><span>WEIGHT_REF</span><span class="val">3.00KG</span></div>
+            <div class="module-box" style="flex-grow: 1;">
+                <h2>SYSTEM_LOGS</h2>
+                <div id="logFeed" style="font-size: 0.65rem; line-height: 1.4; opacity: 0.8;">
+                    > INITIALIZING...<br>
+                    > SCANNING SECTORS...<br>
+                    > 2 ANOMALIES DETECTED.
+                </div>
             </div>
 
-            <div class="module-box action-menu">
-                <button onclick="location.href='index.html'">DASHBOARD</button>
-                <button class="warning" onclick="initiateReboot()">IDENTITY_ERASE</button>
+            <div class="module-box">
+                <button class="btn" onclick="location.reload()">REFRESH_SYSTEM</button>
+                <button class="btn warning" onclick="alert('PURGE INITIATED')">ERASE_IDENTITY</button>
             </div>
         </aside>
 
@@ -161,55 +156,61 @@
                     <tr><th>SECTOR</th><th>ANOMALY_ID</th><th>STATUS</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>SPIRE_742-G</td><td>#SPR-42</td><td>CRITICAL</td></tr>
-                    <tr><td>MARKET_DIST</td><td>#FNN-09</td><td>VOLATILE</td></tr>
-                    <tr><td>RESI_UNIT</td><td>#UNT-402</td><td>PURGED</td></tr>
+                    <tr class="row-link" onclick="window.location.href='market.html'">
+                        <td>MARKET_DISTRICT</td>
+                        <td>#FNN-09</td>
+                        <td><span class="status-tag" style="color:var(--neon-gold)">VOLATILE</span></td>
+                    </tr>
+                    <tr class="row-link" onclick="window.location.href='residential.html'">
+                        <td>RESIDENTIAL_RINGS</td>
+                        <td>#UNT-402</td>
+                        <td><span class="status-tag" style="color:var(--neon-red)">PURGING</span></td>
+                    </tr>
+                    <tr style="opacity: 0.4;">
+                        <td>SPIRE_CENTRAL</td>
+                        <td>#SPR-42</td>
+                        <td><span class="status-tag">LOCKED</span></td>
+                    </tr>
                 </tbody>
             </table>
         </section>
     </main>
 
     <script>
-        // --- TELEMETRY JITTER ---
-        function updateTelemetry() {
+        // Real-time stats
+        function updateStats() {
             const bpm = document.getElementById('bpm');
-            const grav = document.getElementById('gravVal');
-            const stress = document.getElementById('stressVal');
-
-            if(bpm) bpm.innerText = (145 + Math.floor(Math.random() * 10)) + " BPM";
-            if(grav) grav.innerText = (0.84 + (Math.random() * 0.04 - 0.02)).toFixed(2) + "G";
+            const sync = document.getElementById('syncVal');
             
-            if(stress && Math.random() > 0.9) {
-                stress.innerText = stress.innerText === "STABLE" ? "CRITICAL" : "STABLE";
-                stress.style.color = stress.innerText === "CRITICAL" ? "var(--neon-red)" : "var(--neon-gold)";
+            if(bpm) bpm.innerText = (140 + Math.floor(Math.random() * 15)) + " BPM";
+            
+            let currentSync = parseFloat(sync.innerText);
+            if(currentSync < 99) sync.innerText = (currentSync + 0.01).toFixed(2) + "%";
+
+            // Add random log entries
+            if(Math.random() > 0.8) {
+                const logs = ["PHYSICS_LEAK", "SIGNAL_DECAY", "RESI_SHIFT", "CORE_BREATH"];
+                const feed = document.getElementById('logFeed');
+                feed.innerHTML = `> ${logs[Math.floor(Math.random()*logs.length)]}<br>` + feed.innerHTML;
             }
         }
 
-        // --- GLITCH EFFECT ---
-        function triggerGlitch() {
-            if (Math.random() > 0.97) {
-                document.body.classList.add('chromatic-break');
-                setTimeout(() => document.body.classList.remove('chromatic-break'), 60);
-            }
-        }
-
-        // --- REBOOT ---
-        function initiateReboot() {
-            if(confirm("PROCEED WITH IDENTITY ERASURE?")) {
-                document.body.innerHTML = "<div style='color:var(--neon-gold); padding:50px;'>>> PURGING_BIOLOGIC_NOISE...<br>>> SUCCESS.</div>";
-                setTimeout(() => location.reload(), 3000);
-            }
-        }
-
-        setInterval(updateTelemetry, 1200);
-        setInterval(triggerGlitch, 100);
-
-        // Parallax Effect
+        // Mouse Parallax
         document.addEventListener('mousemove', (e) => {
-            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
-            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
-            document.getElementById('heroImg').style.transform = `scale(1.1) translate(${moveX}px, ${moveY}px)`;
+            const x = (e.clientX - window.innerWidth / 2) * 0.01;
+            const y = (e.clientY - window.innerHeight / 2) * 0.01;
+            document.getElementById('heroImg').style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
         });
+
+        // Visual Glitch
+        setInterval(() => {
+            if(Math.random() > 0.98) {
+                document.body.classList.add('chromatic-break');
+                setTimeout(() => document.body.classList.remove('chromatic-break'), 50);
+            }
+        }, 100);
+
+        setInterval(updateStats, 2000);
     </script>
 </body>
 </html>
