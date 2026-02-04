@@ -6,8 +6,8 @@
     <title>ALDERSYTH // ARCH_01 // THE_SPIRE</title>
     <style>
         :root {
-            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --bg-dark: #0a0f12;
-            --panel-border: rgba(6, 182, 212, 0.2);
+            --neon-cyan: #06b6d4; --neon-red: #ff3e3e; --neon-gold: #ffb000;
+            --bg-dark: #0a0f12; --panel-border: rgba(6, 182, 212, 0.2);
         }
 
         body {
@@ -37,11 +37,11 @@
             background: #000; position: sticky; top: 0; z-index: 800;
         }
 
-        .content-wrap { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
+        .content-wrap { max-width: 900px; margin: 0 auto; padding: 40px 20px; display: grid; grid-template-columns: 1fr 250px; gap: 30px; }
 
         .report-header {
-            border: 1px solid var(--neon-cyan); padding: 20px;
-            background: rgba(6, 182, 212, 0.03); margin-bottom: 40px;
+            grid-column: span 2; border: 1px solid var(--neon-cyan); padding: 20px;
+            background: rgba(6, 182, 212, 0.03); margin-bottom: 20px;
         }
 
         .report-header h1 { 
@@ -51,27 +51,47 @@
 
         .hero-img {
             width: 100%; height: 400px; object-fit: cover;
-            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.7);
+            border: 1px solid var(--panel-border); filter: grayscale(1) brightness(0.7) contrast(1.2);
             margin-bottom: 30px;
+        }
+
+        /* --- TELEMETRY SIDEBAR --- */
+        .sidebar-stats {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 15px;
+            font-size: 0.7rem; height: fit-content;
+        }
+
+        .sidebar-stats h4 { margin: 0 0 10px 0; border-bottom: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
+
+        .grav-meter {
+            height: 150px; width: 100%; background: #111; position: relative; border: 1px solid #333; margin: 10px 0;
+        }
+
+        .grav-level {
+            position: absolute; bottom: 0; width: 100%; background: var(--neon-red);
+            height: 62%; /* Representing 1.12G baseline */
+            box-shadow: 0 0 15px var(--neon-red);
+            transition: height 0.3s;
         }
 
         /* --- TEXT STYLING --- */
         .story-text { 
-            font-size: 0.95rem; white-space: pre-wrap; 
+            font-size: 1rem; white-space: pre-wrap; 
             border-left: 1px solid rgba(255, 255, 255, 0.1); padding-left: 25px;
         }
 
         .data-point { color: var(--neon-gold); font-weight: bold; }
-        .alert { color: var(--neon-red); }
+        .alert { color: var(--neon-red); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
 
         .nav-links {
-            margin-top: 60px; padding-top: 20px;
+            grid-column: span 2; margin-top: 60px; padding-top: 20px;
             border-top: 1px solid var(--panel-border);
             display: flex; justify-content: space-between; font-size: 0.8rem;
         }
 
         a { color: var(--neon-cyan); text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; text-shadow: 0 0 8px var(--neon-cyan); }
+        a:hover { text-shadow: 0 0 8px var(--neon-cyan); }
     </style>
 </head>
 <body>
@@ -79,37 +99,78 @@
     <div class="mist-layer"></div>
 
     <header>
-        <div>FILE_ID: ARCH_01</div>
-        <div class="alert">ATMOS_STRESS: 1.12G</div>
+        <div>FILE_ID: ARCH_01 // THE_SPIRE</div>
+        <div class="alert">LOCAL_GRAVITY: 1.12G [CRITICAL]</div>
     </header>
 
     <div class="content-wrap">
         <div class="report-header">
             <h1>Subject: The Spire</h1>
             <div style="font-size: 0.7rem; opacity: 0.7;">
-                SECTOR: 742-G // UNIT: KAEL // LOG_DATE: 2026.02.04
+                SECTOR: 742-G // UNIT: KAEL-01 // TELEMETRY: ACTIVE
             </div>
         </div>
 
-        <img src="images/market_thumbnail.jpg" class="hero-img" alt="Spire Sector">
+        <section>
+            <img src="images/market_thumbnail.jpg" class="hero-img" alt="Spire Sector Detail View">
 
-        <article class="story-text">
-<h3>VISCOUS REALITY</h3>
-The Spire didn't stand; it pierced. From the lower strata, it looked like a jagged needle sewing the grey clouds to the city floor. By the time Kael reached the mid-tier catwalks, the air had turned into the <span class="data-point">Atomized Mist</span>—a fine, silver-grey particulate that tasted like copper and old rain.
+            <article id="typewriter" class="story-text">
+                </article>
+        </section>
 
-<span class="alert">!! WARNING: GRAVITY SPIKE DETECTED !!</span>
+        <aside class="sidebar-stats">
+            <h4>STRUCTURAL_INTEGRITY</h4>
+            <div class="stat">VERTICALITY: <span class="data-point">88.2%</span></div>
+            <div class="stat">VIBRATION: <span class="data-point">LOW</span></div>
+            
+            <h4 style="margin-top:20px;">GRAVITY_FLUX</h4>
+            <div class="grav-meter">
+                <div class="grav-level" id="gravBar"></div>
+            </div>
+            <div style="text-align:center">1.12G</div>
 
-His HUD flickered red as the local gravity hit <span class="data-point">1.12G</span>. It was a subtle increase to the system, but to a human frame, it was a crushing weight. His knees popped. The 3.00KG lead sphere in his hand suddenly felt like a heavy anchor, its vector pulling him toward the edge of the railing.
-
-"Vera, the sync is holding," he grunted, his heartbeat thumping against the <span class="data-point">Neural Tether</span>. "But the geometry is failing. The Spire is leaning, and I don't think it’s the wind. The Substrate is eating the foundations."
-
-He looked out into the mist. Somewhere in that grey soup, the Spire ended, and the void began.
-        </article>
+            <h4 style="margin-top:20px;">OBJECT_METRICS</h4>
+            <p>NAME: LEAD_SPHERE<br>MASS: 3.00KG<br>EFFECTIVE_WT: <span class="alert">3.36KG</span></p>
+        </aside>
 
         <footer class="nav-links">
             <a href="index.html"><< DASHBOARD</a>
             <a href="market.html">ARCH_02: THE_MARKET >></a>
         </footer>
     </div>
+
+    <script>
+        const text = `### VISCOUS REALITY
+
+The Spire didn't stand; it pierced. From the lower strata, it looked like a jagged needle sewing the grey clouds to the city floor. By the time Kael reached the mid-tier catwalks, the air had turned into the Atomized Mist—a fine, silver-grey particulate that tasted like copper and old rain.
+
+[!! WARNING: GRAVITY SPIKE DETECTED !!]
+
+His HUD flickered red as the local gravity hit 1.12G. It was a subtle increase to the system, but to a human frame, it was a crushing weight. His knees popped. The 3.00KG lead sphere in his hand suddenly felt like a heavy anchor, its vector pulling him toward the edge of the railing.
+
+"Vera, the sync is holding," he grunted, his heartbeat thumping against the Neural Tether. "But the geometry is failing. The Spire is leaning, and I don't think it’s the wind. The Substrate is eating the foundations."
+
+He looked out into the mist. Somewhere in that grey soup, the Spire ended, and the void began.
+
+[END_LOG]`;
+
+        let i = 0;
+        const container = document.getElementById("typewriter");
+        const gravBar = document.getElementById("gravBar");
+
+        function typeWriter() {
+            if (i < text.length) {
+                container.innerHTML += text.charAt(i);
+                i++;
+                // Slight bar jitter to simulate instability
+                if (i % 5 === 0) {
+                    gravBar.style.height = (62 + (Math.random() * 2)) + "%";
+                }
+                setTimeout(typeWriter, 12);
+            }
+        }
+
+        window.onload = typeWriter;
+    </script>
 </body>
 </html>
