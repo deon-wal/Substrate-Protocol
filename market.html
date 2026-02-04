@@ -7,143 +7,136 @@
     <style>
         :root {
             --neon-cyan: #06b6d4; --neon-gold: #ffb000; --neon-red: #ff3e3e;
-            --bg-black: #050505; --panel-border: rgba(6, 182, 212, 0.2);
+            --bg-black: #020202; --panel-border: rgba(6, 182, 212, 0.15);
         }
 
         body {
             background-color: var(--bg-black); color: var(--neon-cyan);
-            font-family: 'Courier New', Courier, monospace; margin: 0; overflow-x: hidden;
-            text-transform: uppercase;
+            font-family: 'Courier New', Courier, monospace; margin: 0; 
+            overflow: hidden; text-transform: uppercase;
         }
 
-        /* --- Master Overlays --- */
+        /* --- REQ 2: VIBRATIONAL PHYSICS (88Hz Hum) --- */
+        @keyframes highFreqVibe {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(0.3px, -0.3px); }
+            50% { transform: translate(-0.3px, 0.3px); }
+            100% { transform: translate(0,0); }
+        }
+
         .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 4px, 3px 100%; z-index: 1000; pointer-events: none;
+            position: fixed; inset: 0;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8) 100%),
+                        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 100%, 100% 4px; z-index: 1000; pointer-events: none;
         }
 
-        .scanline {
-            width: 100%; height: 2px; background: rgba(6, 182, 212, 0.1);
-            position: fixed; top: 0; z-index: 1001; pointer-events: none;
-            animation: scanline 8s linear infinite;
-        }
-
-        @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
-
-        /* --- Header --- */
-        .tactical-nav {
-            display: flex; justify-content: space-between; padding: 15px 30px;
-            background: #000; border-bottom: 2px solid var(--neon-cyan); font-size: 0.7rem;
-        }
-
-        /* --- Content Layout --- */
+        /* --- REQ 3: BRUTALIST LAYOUT (Off-Center) --- */
         .log-container {
-            max-width: 900px; margin: 40px auto; padding: 30px;
-            border: 1px solid var(--panel-border); background: rgba(10, 15, 18, 0.9);
-            position: relative; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            max-width: 850px; 
+            margin: 60px 40px; /* Offset to the left for vacuum effect */
+            padding: 40px;
+            border: 0.5px solid var(--panel-border); 
+            border-left: 4px solid var(--neon-cyan); /* High-tensile accent */
+            background: rgba(10, 15, 18, 0.98);
+            position: relative;
+            animation: highFreqVibe 0.08s infinite; /* The 88Hz Hum */
         }
 
+        /* --- REQ 1: THERMAL SHIFT (Cold to Heat) --- */
         .metric-banner {
             width: 100%; height: 320px; object-fit: cover;
-            filter: sepia(1) hue-rotate(140deg) brightness(0.5) contrast(1.4);
             border: 1px solid var(--neon-cyan); margin-bottom: 25px;
+            animation: thermalShift 10s infinite alternate ease-in-out;
+        }
+
+        @keyframes thermalShift {
+            0% { filter: sepia(1) hue-rotate(140deg) brightness(0.4); }
+            100% { filter: sepia(1) hue-rotate(0deg) brightness(0.7) saturate(2); }
         }
 
         .market-stats {
             float: right; width: 220px; margin-left: 20px; padding: 15px;
-            background: rgba(6, 182, 212, 0.05); border: 1px solid var(--panel-border);
+            background: rgba(6, 182, 212, 0.03); border: 0.5px solid var(--panel-border);
             font-size: 0.75rem;
         }
 
-        .typewriter-text {
-            font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;
-            color: #e0f2f1; min-height: 300px;
+        .typewriter-text { font-size: 0.95rem; line-height: 1.6; color: #e0f2f1; }
+        .typewriter-text::after { content: "█"; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .warning-text { 
+            color: var(--neon-red); font-weight: bold; 
+            text-shadow: 0 0 10px var(--neon-red);
+            animation: glitchText 2s infinite;
         }
 
-        .warning-text { color: var(--neon-red); font-weight: bold; text-shadow: 0 0 8px var(--neon-red); }
+        @keyframes glitchText {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; transform: skewX(-10deg); }
+            51% { opacity: 1; transform: skewX(0deg); }
+        }
 
         .back-nav {
             margin-top: 40px; display: inline-block; color: var(--neon-cyan);
             text-decoration: none; border: 1px solid var(--neon-cyan);
-            padding: 10px 25px; transition: 0.3s;
+            padding: 8px 20px; font-size: 0.7rem; transition: 0.2s;
         }
-
         .back-nav:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); }
     </style>
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div class="scanline"></div>
-
-    <header class="tactical-nav">
-        <div>● THERMAL_STRESS: ACTIVE</div>
-        <div style="letter-spacing: 3px;">ALDERSYTH // MARKET_DISTRICT</div>
-        <div style="color: var(--neon-gold);">TEMP: -14°C // VIBE_SYNC: 99.4%</div>
+    <header style="display: flex; justify-content: space-between; padding: 15px 30px; background: #000; border-bottom: 1px solid var(--neon-cyan); font-size: 0.7rem;">
+        <span>● THERMAL_STRESS: ACTIVE</span>
+        <span id="live-telemetry" style="color: var(--neon-gold);">TEMP: -14.2°C // VIBE: 88.4HZ</span>
     </header>
 
     <main class="log-container">
-        <div style="font-size: 0.6rem; color: var(--neon-cyan); border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; margin-bottom: 20px; display: flex; justify-content: space-between;">
-            <span>FILE: LOG_II_THERMODYNAMICS.DAT</span>
-            <span>AUTH: ANALYST_01</span>
-        </div>
-
         <img src="images/frozen-citizens-market.jpg" class="metric-banner" alt="Market">
         
         <aside class="market-stats">
             <h4 style="margin: 0 0 10px; border-bottom: 1px solid var(--neon-cyan);">SENSORY_DATA</h4>
-            <div style="margin-bottom: 5px;">VIBRATION: <span style="color:var(--neon-gold)">88Hz</span></div>
-            <div style="margin-bottom: 5px;">PHASE_SHIFT: <span style="color:var(--neon-red)">99.4%</span></div>
-            <div style="margin-bottom: 5px;">HUMAN_HEAT: <span style="color:var(--neon-cyan)">SYNCED</span></div>
+            <div id="jitter-vibe">VIBRATION: 88Hz</div>
+            <div id="jitter-phase">PHASE: 99.4%</div>
+            <div>HEAT_SINK: SYNCED</div>
         </aside>
 
-        <h2 style="font-size: 1.1rem; color: var(--neon-cyan); margin: 0 0 15px 0;">LOG_II: THERMODYNAMICS</h2>
-        
+        <h2 style="font-size: 1.1rem; margin: 0 0 20px 0;">LOG_II: THERMODYNAMICS</h2>
         <div id="typewriter" class="typewriter-text"></div>
-
-        <div style="clear: both;"></div>
-        <a href="index.html" class="back-nav"><< RETURN_TO_METRIC</a>
+        <a href="index.html" class="back-nav">« RETURN_TO_METRIC</a>
     </main>
 
     <script>
-        const text = `[SURVEILLANCE_LOG_882-X]
-LOCATION: MARKET_DISTRICT
-SUBJECT: THERMODYNAMIC_STRESS_OPTIMIZATION
+        const content = [
+            { text: "[SURVEILLANCE_LOG_882-X]\nLOCATION: MARKET_DISTRICT\n\nThe Market has ceased all traditional commerce. The 'Strangers' have reconfigured the floor-plates into high-frequency vibrational conductors.\n\nAt exactly 00:00, the pulse synced. The citizens remaining here aren't buying or selling; they are standing perfectly still, acting as biological heat sinks.\n\n" },
+            { text: "CRITICAL_DEVIATION:", class: "warning-text" },
+            { text: "\n- Molecular Phase: UNSTABLE\n- Vibration Sync: 99.4%\n- Human Autonomy: NULLIFIED\n\n[END_LOG]" }
+        ];
 
-The Market has ceased all traditional commerce. The 'Strangers' have reconfigured the floor-plates into high-frequency vibrational conductors. 
-
-At exactly 00:00, the pulse synced. I watched the stalls vibrate until they reached a state of molecular transparency. The citizens remaining here aren't buying or selling; they are standing perfectly still, acting as biological heat sinks to regulate the core's temperature.
-
-In Aldersyth, even breath is a waste of energy unless it serves the Substrate. 
-
-<span class="warning-text">CRITICAL_DEVIATION:</span>
-- Molecular Phase: UNSTABLE
-- Vibration Sync: 99.4%
-- Human Autonomy: NULLified
-
-Every night, the architecture rearranges. If you are standing on a seam when the shift happens, you are integrated. The Market doesn't trade goods anymore. It trades matter for efficiency.
-
-[END_LOG]`;
-
-        let i = 0;
-        const container = document.getElementById("typewriter");
-
-        function typeWriter() {
-            if (i < text.length) {
-                if (text.substring(i, i + 1) === '<') {
-                    const tagEnd = text.indexOf('>', i);
-                    container.innerHTML += text.substring(i, tagEnd + 1);
-                    i = tagEnd + 1;
-                } else {
-                    container.innerHTML += text.charAt(i);
-                    i++;
+        async function initTypewriter(container, data) {
+            for (const section of data) {
+                const span = document.createElement('span');
+                if (section.class) span.className = section.class;
+                container.appendChild(span);
+                for (const char of section.text) {
+                    span.textContent += char;
+                    // REQ 4: Mechanical 'Hiccup' speed
+                    let speed = Math.random() > 0.98 ? 300 : 15;
+                    await new Promise(r => setTimeout(r, speed));
                 }
-                setTimeout(typeWriter, 10);
             }
         }
 
-        window.onload = typeWriter;
+        // Live Jittering Stats
+        setInterval(() => {
+            const tele = document.getElementById('live-telemetry');
+            const phase = document.getElementById('jitter-phase');
+            if(tele) tele.innerText = `TEMP: ${(-14 - Math.random()).toFixed(1)}°C // VIBE: ${(88 + Math.random()).toFixed(1)}HZ`;
+            if(phase) phase.innerText = `PHASE: ${(99 + Math.random()).toFixed(1)}%`;
+        }, 150);
+
+        window.onload = () => initTypewriter(document.getElementById("typewriter"), content);
     </script>
 </body>
 </html>
