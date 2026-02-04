@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ALDERSYTH // LIVE_FEED</title>
+    <title>ALDERSYTH // CORE_HUB</title>
     <style>
         :root { 
             --gold: #ffb000; 
@@ -25,7 +25,7 @@
             overflow-x: hidden;
         }
 
-        /* --- HEADER --- */
+        /* --- HEADER & NAV --- */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
             background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--panel-border);
@@ -34,6 +34,15 @@
             backdrop-filter: blur(5px);
         }
         .header-logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 2px; }
+        
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a {
+            color: #666; text-decoration: none; font-size: 0.75rem;
+            border: 1px solid transparent; padding: 5px 10px; transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--cyan); border-color: var(--cyan); }
+        .active-link { border-color: var(--gold) !important; color: var(--gold) !important; }
+
         .live-indicator { 
             color: var(--red); font-size: 0.6rem; border: 1px solid var(--red); 
             padding: 2px 6px; animation: blink 2s infinite; 
@@ -83,14 +92,19 @@
             display: flex; justify-content: space-between; align-items: end;
         }
 
+        /* Links wrap the entire card now */
+        a.card-link { text-decoration: none; display: block; color: inherit; }
+
         .log-card {
             background: rgba(15, 15, 18, 0.9);
             border: 1px solid #333;
             border-left: 4px solid #555; 
             margin-bottom: 50px; padding: 25px;
             position: relative;
+            cursor: pointer;
             opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        .log-card:hover { background: rgba(25, 25, 30, 1); transform: translateX(5px); }
         
         /* Thematic Coloring */
         .log-card.teal { border-left-color: var(--teal); box-shadow: -15px 0 40px -30px var(--teal); }
@@ -117,6 +131,13 @@
 
         .reveal-visible { opacity: 1; transform: translateY(0); }
 
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 80px; padding: 50px 30px; border-top: 1px solid var(--panel-border);
+            background: #000; font-family: monospace; font-size: 0.7rem;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        }
+
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -124,6 +145,12 @@
 
     <header>
         <div class="header-logo">ALDERSYTH // OS</div>
+        <nav class="nav-links">
+            <a href="index.html" class="active-link">CORE</a>
+            <a href="market.html">MARKET</a>
+            <a href="residential.html">RESIDENTIAL</a>
+            <a href="observatory.html">OBSERVATORY</a>
+        </nav>
         <div class="live-indicator">LIVE_CONNECTION_ESTABLISHED</div>
     </header>
 
@@ -165,84 +192,104 @@
 
         <div class="archive-header">
             <h1 style="font-size:1.5rem; margin:0; color:#fff;">NEURAL_ARCHIVE_STACK</h1>
-            <span style="font-size:0.7rem; color:var(--red);">[5] CORRUPTED_FILES</span>
+            <span style="font-size:0.7rem; color:var(--red);">[5] FRAGMENTS_LOADED</span>
         </div>
 
-        <article class="log-card teal">
-            <div class="log-meta">
-                <span>ID: LOG_01 // SPIRE_DISTRICT</span>
-                <span>THEME: MUTED_TEAL</span>
-            </div>
-            <h3 class="log-title">THE SPIRE DISTRICT</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air... Aesthetic: Gritty, industrial, muted teal and charcoal color palette with sharp electric-green accents. Style: Blame! meets Ghost in the Shell...</code>
-            <div class="tags"><span class="tag">INDUSTRIAL</span><span class="tag">TEAL</span><span class="tag">GRAVITY_SHIFT</span></div>
-        </article>
+        <a href="spire.html" class="card-link">
+            <article class="log-card teal">
+                <div class="log-meta">
+                    <span>ID: LOG_01 // SPIRE_DISTRICT</span>
+                    <span>THEME: MUTED_TEAL</span>
+                </div>
+                <h3 class="log-title">THE SPIRE DISTRICT</h3>
+                <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air...</code>
+                <div class="tags"><span class="tag">INDUSTRIAL</span><span class="tag">TEAL</span><span class="tag">GRAVITY_SHIFT</span></div>
+            </article>
+        </a>
 
-        <article class="log-card ochre">
-            <div class="log-meta">
-                <span>ID: LOG_02 // SUB_STRATA</span>
-                <span>THEME: INDUSTRIAL_RUST</span>
-            </div>
-            <h3 class="log-title">SUB-STRATA SYNC</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor... heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge... Aesthetic: Brutalist, high-heat distortion, deep ochre and industrial rust palette...</code>
-            <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
-        </article>
+        <a href="sync.html" class="card-link">
+            <article class="log-card ochre">
+                <div class="log-meta">
+                    <span>ID: LOG_02 // SUB_STRATA</span>
+                    <span>THEME: INDUSTRIAL_RUST</span>
+                </div>
+                <h3 class="log-title">SUB-STRATA SYNC</h3>
+                <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor... heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge...</code>
+                <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
+            </article>
+        </a>
 
-        <article class="log-card grey">
-            <div class="log-meta">
-                <span>ID: LOG_03 // RESI_RINGS</span>
-                <span>THEME: MONOCHROME</span>
-            </div>
-            <h3 class="log-title">RESIDENTIAL RINGS</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze... a man’s hand presses against a perfectly smooth, seamless composite wall... Aesthetic: Liminal space, haunting, surgical, muted monochromatic greys...</code>
-            <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">SILENT</span></div>
-        </article>
+        <a href="residential.html" class="card-link">
+            <article class="log-card grey">
+                <div class="log-meta">
+                    <span>ID: LOG_03 // RESI_RINGS</span>
+                    <span>THEME: MONOCHROME</span>
+                </div>
+                <h3 class="log-title">RESIDENTIAL RINGS</h3>
+                <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze...</code>
+                <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">SILENT</span></div>
+            </article>
+        </a>
 
-        <article class="log-card violet">
-            <div class="log-meta">
-                <span>ID: LOG_04 // VECTOR_CRISIS</span>
-                <span>THEME: DEEP_VIOLET</span>
-            </div>
-            <h3 class="log-title">VECTOR CRISIS</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm... unspooling into a silver ribbon of subatomic wire... Aesthetic: Cosmic horror, glitch-art, high-contrast, deep violet and matte black with sharp crimson accents...</code>
-            <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
-        </article>
+        <a href="observatory.html" class="card-link">
+            <article class="log-card violet">
+                <div class="log-meta">
+                    <span>ID: LOG_04 // VECTOR_CRISIS</span>
+                    <span>THEME: DEEP_VIOLET</span>
+                </div>
+                <h3 class="log-title">VECTOR CRISIS</h3>
+                <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm... unspooling into a silver ribbon of subatomic wire...</code>
+                <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
+            </article>
+        </a>
 
-        <article class="log-card gold">
+        <article class="log-card gold" onclick="alert('ACCESS DENIED: ROOT PRIVILEGES REQUIRED')">
             <div class="log-meta">
                 <span>ID: LOG_05 // THE_SUBSTRATE</span>
                 <span>THEME: DIGITAL_GOLD</span>
             </div>
             <h3 class="log-title">THE SUBSTRATE</h3>
-            <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition... Aesthetic: "Digital Gold," translucent, layered, ethereal yet cold. Style: Data-visualization art...</code>
+            <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition...</code>
             <div class="tags"><span class="tag">NULL-SPACE</span><span class="tag">GOLD</span><span class="tag">ASCENSION</span></div>
         </article>
 
     </div>
 
     <footer>
-        <div style="color: var(--red); margin-bottom: 15px;">END_OF_STREAM</div>
-        <p style="color:#444;">Aldersyth_OS v4.0.2 // Live Connection Active</p>
+        <div>
+            <div style="color: var(--cyan); margin-bottom: 10px;">OS_VERSION</div>
+            <p style="color:#666;">ALDERSYTH_OS v4.0.2<br>Build: 0x88_ALPHA</p>
+        </div>
+        <div>
+            <div style="color: var(--gold); margin-bottom: 10px;">QUICK_LINKS</div>
+            <a href="market.html" style="color:#666; text-decoration:none; display:block;">MARKET_HUB</a>
+            <a href="observatory.html" style="color:#666; text-decoration:none; display:block;">VOID_SENSORS</a>
+            <a href="login.html" style="color:#666; text-decoration:none; display:block; margin-top:5px;">MANUAL_LOGIN</a>
+        </div>
+        <div>
+            <div style="color: var(--red); margin-bottom: 10px;">SYSTEM_STATUS</div>
+            <p style="color:#444;">Substrate Connection Active.<br>Report all memory leaks to Sloane.</p>
+        </div>
     </footer>
 
     <script>
-
         // HIDDEN ACCESS: Type 'ROOT' anywhere to access the backdoor
-let secretCode = '';
-window.addEventListener('keydown', (e) => {
-    secretCode += e.key.toUpperCase();
-    if (secretCode.includes('ROOT')) {
-        // Visual Glitch Effect before redirect
-        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-        document.body.style.transform = 'scale(1.02) skewX(2deg)';
-        setTimeout(() => {
-            window.location.href = "backdoor.html"; // Make sure your file is named backdoor.html
-        }, 300);
-        secretCode = ''; // Reset
-    }
-    // Keep buffer short so it doesn't get huge
-    if (secretCode.length > 10) secretCode = secretCode.slice(-4);
-});
+        let secretCode = '';
+        window.addEventListener('keydown', (e) => {
+            secretCode += e.key.toUpperCase();
+            if (secretCode.includes('ROOT')) {
+                // Visual Glitch Effect before redirect
+                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                document.body.style.transform = 'scale(1.02) skewX(2deg)';
+                setTimeout(() => {
+                    // LINKED TO backdoor.html
+                    window.location.href = "backdoor.html"; 
+                }, 300);
+                secretCode = ''; 
+            }
+            if (secretCode.length > 10) secretCode = secretCode.slice(-4);
+        });
+
         // 1. CLOCK
         setInterval(() => { 
             const now = new Date();
@@ -261,9 +308,9 @@ window.addEventListener('keydown', (e) => {
             }
         }
         fetchLiveMetrics();
-        setInterval(fetchLiveMetrics, 60000); // Update every minute
+        setInterval(fetchLiveMetrics, 60000);
 
-        // 3. NETWORK SPEED (Chrome/Edge only)
+        // 3. NETWORK SPEED
         function updateNetwork() {
             const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (conn) {
@@ -287,7 +334,6 @@ window.addEventListener('keydown', (e) => {
         const sphere = document.getElementById('lead-sphere');
         let drag = false, startX, startY, initLeft, initTop;
 
-        // Set initial centered position relative to parent
         sphere.style.left = "calc(50% - 30px)";
         sphere.style.top = "calc(50% - 30px)";
 
@@ -295,7 +341,6 @@ window.addEventListener('keydown', (e) => {
             drag = true; 
             startX = e.clientX; 
             startY = e.clientY;
-            // Get current computed position numbers
             const rect = sphere.getBoundingClientRect();
             const parentRect = sphere.parentElement.getBoundingClientRect();
             initLeft = rect.left - parentRect.left;
