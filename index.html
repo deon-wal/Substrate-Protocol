@@ -136,11 +136,15 @@
                 </div>
             </div>
 
-            <div class="module-box">
-                <button class="btn" onclick="location.reload()">REFRESH_SYSTEM</button>
-                <button class="btn warning" onclick="alert('PURGE INITIATED')">ERASE_IDENTITY</button>
-            </div>
-        </aside>
+            <div class="module-box" style="flex-grow: 1; min-height: 200px; display: flex; flex-direction: column;">
+    <h2>SYSTEM_LOGS</h2>
+    <div id="logFeed" style="font-size: 0.65rem; line-height: 1.4; opacity: 0.9; overflow-y: hidden; height: 100%; display: flex; flex-direction: column-reverse;">
+        <div id="logScroll">
+            <div style="color: var(--neon-gold)">> INITIALIZING SUBSTRATE...</div>
+            <div style="color: var(--neon-gold)">> SCANNING SECTOR_742-G...</div>
+        </div>
+    </div>
+</div>
 
         <section class="visual-core">
             <div class="hero-frame">
