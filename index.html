@@ -1,237 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // SUBSTRATE_PROTOCOL</title>
-    <style>
-        :root {
-            --neon-gold: #ffb000;
-            --neon-red: #ff3e3e;
-            --neon-cyan: #06b6d4;
-            --bg-black: #050505;
-            --panel-border: rgba(255, 176, 0, 0.3);
-            --font-main: 'Courier New', Courier, monospace;
-        }
+<meta charset="UTF-8">
+<title>ALDERSYTH // SUBSTRATE_PROTOCOL</title>
+<style>
+:root {
+    --gold: #ffb000;
+    --red: #ff3e3e;
+    --cyan: #06b6d4;
+    --bg: #020202;
+    --border: rgba(255, 176, 0, 0.25);
+}
+body {
+    background: var(--bg);
+    color: var(--gold);
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    overflow: hidden;
+    text-transform: uppercase;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-        body {
-            background-color: var(--bg-black);
-            color: var(--neon-gold);
-            font-family: var(--font-main);
-            margin: 0;
-            overflow: hidden;
-            text-transform: uppercase;
-            background-image: radial-gradient(circle, rgba(255, 176, 0, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+/* CRT / Scanlines */
+.crt::before {
+    content: " ";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
+    background-size: 100% 3px, 3px 100%;
+}
+.scanline {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 176, 0, 0.05);
+    position: fixed;
+    z-index: 101;
+    animation: scan 10s linear infinite;
+}
+@keyframes scan { from { top: 0; } to { top: 100%; } }
 
-        /* --- CRT & GLOBAL EFFECTS --- */
-        .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 4px, 3px 100%; z-index: 1000; pointer-events: none;
-        }
+/* Header */
+header {
+    padding: 15px 25px;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
 
-        .scanline {
-            width: 100%; height: 3px; background: rgba(255, 176, 0, 0.1);
-            position: fixed; top: 0; z-index: 1001; pointer-events: none;
-            animation: scanline 6s linear infinite;
-        }
+/* Dashboard Grid */
+.dashboard {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    grid-template-rows: 1fr 240px;
+    gap: 12px;
+    padding: 15px;
+    flex-grow: 1;
+}
 
-        @keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
+/* Panels */
+.panel {
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.8);
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s all ease;
+}
+.panel:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,176,0,0.4); }
 
-        /* --- LAYOUT --- */
-        header.top-bar {
-            margin: 20px 25px;
-            border-bottom: 2px solid var(--neon-gold);
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
+/* Visualizer & Parallax Layers */
+#visualizer { grid-column: 2; grid-row: 1 / span 2; background: #000; position: relative; overflow: hidden; }
+.map-bg, .map-bg-layer {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+}
+.map-bg { 
+    background-image: url('input_file_0.png');
+    opacity: 0.4;
+    filter: sepia(100%) saturate(300%) hue-rotate(10deg);
+    animation: glitch 5s steps(1) infinite;
+}
+.map-bg-layer {
+    opacity: 0.15;
+    transform: translateZ(0);
+    z-index: 0;
+}
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            grid-template-rows: 1fr 280px;
-            grid-template-areas: "sidebar hero" "sidebar table";
-            gap: 20px;
-            padding: 0 25px 25px 25px; 
-            flex-grow: 1;
-            overflow: hidden;
-        }
+/* Glitch Animation */
+@keyframes glitch {
+    0%, 95% { opacity: 0.4; transform: scale(1); }
+    96% { opacity: 0.7; transform: translateX(5px); }
+    98% { transform: scale(1.02); filter: invert(1); }
+}
 
-        .sidebar-left { grid-area: sidebar; display: flex; flex-direction: column; gap: 20px; overflow: hidden; }
-        .visual-core { grid-area: hero; position: relative; border: 1px solid var(--panel-border); background: #000; }
-        .table-module { grid-area: table; overflow-y: auto; }
+/* Canvas Wave */
+canvas { position: absolute; inset: 0; z-index: 2; }
 
-        /* --- MODULE STYLING --- */
-        .module-box {
-            border: 1px solid var(--panel-border);
-            padding: 15px; background: rgba(255, 176, 0, 0.02);
-            position: relative;
-        }
+/* Phase Widget */
+.phase-widget {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border-left: 3px solid var(--red);
+    padding-left: 12px;
+    z-index: 3;
+    background: rgba(0,0,0,0.7);
+}
 
-        .module-box h2 {
-            font-size: 0.8rem; margin: 0 0 12px 0; border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 5px; color: #fff; letter-spacing: 2px;
-        }
+/* Lead Sphere */
+#lead-sphere {
+    position: absolute;
+    width: 80px; height: 80px;
+    bottom: 100px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    cursor: grab;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #888, #444);
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
 
-        /* --- NEURAL WAVEFORM CORE --- */
-        #neural-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.8; pointer-events: none;
-        }
+/* Tooltip / HUD Popups */
+.tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.9);
+    border: 1px solid var(--gold);
+    padding: 6px 10px;
+    font-size: 0.65rem;
+    color: var(--gold);
+    pointer-events: none;
+    opacity: 0;
+    transition: 0.3s ease;
+    z-index: 5;
+}
 
-        .hero-overlay-text {
-            position: absolute; bottom: 20px; left: 20px; z-index: 5;
-            font-size: 0.7rem; color: var(--neon-cyan);
-            text-shadow: 0 0 5px var(--neon-cyan);
-        }
+/* System Logs */
+#log-feed { font-size: 0.7rem; color: var(--cyan); height: 100%; display: flex; flex-direction: column-reverse; overflow-y: hidden; }
 
-        /* --- TABLE & NAV --- */
-        #anomaliesTable { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        #anomaliesTable th { text-align: left; padding: 10px; border-bottom: 1px solid var(--panel-border); opacity: 0.6; }
-        #anomaliesTable td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        
-        .row-link { cursor: pointer; transition: 0.2s; color: var(--neon-gold); text-decoration: none; }
-        .row-link:hover { background: rgba(255, 176, 0, 0.1); color: #fff; }
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+.status { border: 1px solid currentColor; padding: 1px 4px; font-size: 0.65rem; }
 
-        .status-tag { border: 1px solid currentColor; padding: 2px 6px; font-size: 0.7rem; }
+/* Buttons */
+button { font-family: inherit; background:none; border:1px solid var(--red); color:var(--red); padding:10px; cursor:pointer; text-transform: uppercase; width: 100%; }
+button:hover { border-color: var(--gold); color: var(--gold); }
 
-        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
-        .val { color: var(--neon-gold); font-weight: bold; }
-
-        #logScroll { font-size: 0.75rem; line-height: 1.4; opacity: 0.8; overflow: hidden; }
-    </style>
+</style>
 </head>
-<body>
-    <div class="crt-overlay"></div>
-    <div class="scanline"></div>
+<body class="crt">
+<div class="scanline"></div>
 
-    <header class="top-bar">
-        <span>ALDERSYTH // SUBSTRATE_MONITOR // CORE_DASH</span>
-        <span id="telemetry-clock">00:00:00</span>
-    </header>
+<header>
+    <span>ALDERSYTH // SUBSTRATE_PROTOCOL // CORE_01</span>
+    <span id="clock">00:00:00</span>
+</header>
 
-    <main class="dashboard-grid">
-        <aside class="sidebar-left">
-            <div class="module-box">
-                <h2>NEURAL_TELEMETRY</h2>
-                <div class="stat"><span>SYNC_RATE</span><span class="val" id="syncVal">99.58%</span></div>
-                <div class="stat"><span>SIGNAL_STRENGTH</span><span class="val">94%</span></div>
-                <div class="stat"><span>IDENTITY_RISK</span><span class="val" style="color:var(--neon-red)">HIGH</span></div>
-            </div>
+<main class="dashboard">
+    <!-- Neural Telemetry -->
+    <div class="panel">
+        <h2>NEURAL_TELEMETRY</h2>
+        <div style="display:flex; justify-content:space-between;"><span>SYNC_RATE</span><span id="sync" style="color:var(--cyan)">99.42%</span></div>
+        <div style="display:flex; justify-content:space-between; margin-top:10px;"><span>SIGNAL</span><span>94%</span></div>
+        <div style="margin-top:20px; border:1px solid var(--red); color:var(--red); padding:8px; font-size:0.65rem; text-align:center;">IDENTITY_LOSS_RISK: CRITICAL</div>
+    </div>
 
-            <div class="module-box" style="flex-grow: 1; display: flex; flex-direction: column;">
-                <h2>SYSTEM_LOGS</h2>
-                <div id="logScroll"></div>
-            </div>
-            
-            <div class="module-box">
-                <button onclick="window.location.href='login.html'" style="width:100%; background:none; border:1px solid var(--neon-red); color:var(--neon-red); padding:10px; cursor:pointer; font-family:inherit; text-transform: uppercase;">TERMINATE_LINK</button>
-            </div>
-        </aside>
+    <!-- Visualizer / Background / Canvas -->
+    <div class="panel" id="visualizer">
+        <div class="map-bg-layer" style="background-image:url('input_file_0_layer1.png');"></div>
+        <div class="map-bg-layer" style="background-image:url('input_file_0_layer2.png');"></div>
+        <div class="map-bg"></div>
+        <canvas id="wave"></canvas>
+        <div class="phase-widget">
+            <div style="font-size:0.55rem; opacity:0.6;">PHASE_ALIGNMENT</div>
+            <div id="p-val" style="font-size:1.8rem; font-weight:bold; color:var(--cyan)">99.42%</div>
+            <div style="font-size:0.55rem; color:var(--red)">SUBSTRATE_ECHO: DETECTED</div>
+        </div>
+    </div>
 
-        <section class="visual-core">
-            <canvas id="neural-canvas"></canvas>
-            <div class="hero-overlay-text">
-                [ NEURAL_STABILIZATION_PROTOCOL: ACTIVE ]<br>
-                COGNITIVE_DRIFT: 0.0004%<br>
-                SUBSTRATE_ECHO: <span style="color:var(--neon-gold)">DETECTED</span>
-            </div>
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0.1; letter-spacing: 15px; pointer-events: none; color: white;">ALDERSYTH</div>
-        </section>
+    <!-- Lead Sphere -->
+    <div id="lead-sphere" title="Drag me!"></div>
 
-        <section class="module-box table-module">
-            <h2>MEGASTRUCTURE_ANALYSIS // SECTOR_NAV</h2>
-            <table id="anomaliesTable">
-                <thead>
-                    <tr><th>SECTOR_FILE</th><th>ANOMALY_ID</th><th>LINK_STATUS</th></tr>
-                </thead>
-                <tbody>
-                    <tr class="row-link" onclick="window.location.href='market.html'">
-                        <td>02_MARKET_DISTRICT</td><td>#FNN-09</td>
-                        <td><span class="status-tag" style="color:var(--neon-gold)">VOLATILE</span></td>
-                    </tr>
-                    <tr class="row-link" onclick="window.location.href='residential.html'">
-                        <td>03_RESIDENTIAL_RINGS</td><td>#UNT-402</td>
-                        <td><span class="status-tag" style="color:var(--neon-red)">PURGING</span></td>
-                    </tr>
-                    <tr class="row-link" onclick="window.location.href='observatory.html'">
-                        <td>04_OBSERVATORY</td><td>#OBS-77</td>
-                        <td><span class="status-tag" style="color:var(--neon-cyan)">STABLE</span></td>
-                    </tr>
-                    <tr class="row-link" onclick="window.location.href='sync.html'">
-                        <td>05_NEURAL_SYNC</td><td>#SYN-01</td>
-                        <td><span class="status-tag" style="color:var(--neon-cyan)">ACTIVE</span></td>
-                    </tr>
-                    <tr class="row-link" onclick="window.location.href='spire.html'">
-                        <td>06_THE_SPIRE</td><td>#SPR-42</td>
-                        <td><span class="status-tag" style="color:var(--neon-gold)">LOCKED</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    </main>
+    <!-- System Logs -->
+    <div class="panel">
+        <h2>SYSTEM_LOGS</h2>
+        <div id="log-feed"></div>
+    </div>
 
-    <script>
-        // Neural Wave Animation (Reference image_0c7edc.jpg)
-        const canvas = document.getElementById('neural-canvas');
-        const ctx = canvas.getContext('2d');
-        let offset = 0;
+    <!-- Sector Navigation -->
+    <div class="panel">
+        <h2>SECTOR_NAV</h2>
+        <table>
+            <tr onclick="location.href='market.html'"><td>02_MARKET</td><td><span class="status" style="color:var(--gold)">VOLATILE</span></td></tr>
+            <tr onclick="location.href='residential.html'"><td>03_RESID</td><td><span class="status" style="color:var(--red)">PURGING</span></td></tr>
+        </table>
+    </div>
 
-        function resize() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-        window.onresize = resize;
-        resize();
+    <!-- Terminate -->
+    <div class="panel">
+        <button onclick="location.href='login.html'">TERMINATE_LINK</button>
+    </div>
+</main>
 
-        function drawWave() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.strokeStyle = '#06b6d4';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#06b6d4';
+<!-- Ambient Audio -->
+<audio id="ambient" autoplay loop>
+    <source src="audio/city_hum.mp3" type="audio/mpeg">
+</audio>
 
-            const midY = canvas.height / 2;
-            const amplitude = 60;
-            const frequency = 0.01;
+<script>
+/* Clock */
+setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 
-            for (let x = 0; x < canvas.width; x++) {
-                const y = midY + Math.sin(x * frequency + offset) * amplitude;
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            offset += 0.04;
-            requestAnimationFrame(drawWave);
-        }
-        drawWave();
+/* Log Feed */
+setInterval(() => {
+    const log = document.getElementById('log-feed');
+    const entry = document.createElement('div');
+    entry.innerText = `> [${new Date().toLocaleTimeString()}] PHYSICS_LEAK_CONTAINED`;
+    log.prepend(entry);
+    if(log.children.length>10) log.lastChild.remove();
+}, 2500);
 
-        // System Logs & Telemetry Updates
-        const logMessages = ["SIGNAL_STRENGTH: 94%", "SYNC_STATUS: NOMINAL", "SUBSTRATE_ECHO: DETECTED", "LATENCY: 5MS", "CEREBRAL_LOAD: 20%", "PHYSICS_LEAK: CONTAINED"];
+/* Canvas Wave */
+const canvas = document.getElementById('wave');
+const ctx = canvas.getContext('2d');
+let t = 0;
+function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+window.onresize = resize; resize();
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 2;
+    const mid = canvas.height/2;
+    for(let x=0;x<canvas.width;x+=2){
+        const y = mid + Math.sin(x*0.012+t)*45 + Math.sin(x*0.04+t*2)*8;
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); t+=0.04; requestAnimationFrame(draw);
+}
+draw();
 
-        function updateUI() {
-            const logScroll = document.getElementById('logScroll');
-            const entry = document.createElement('div');
-            const ts = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            entry.innerHTML = `<span style="opacity:0.5">[${ts}]</span> > ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
-            logScroll.prepend(entry);
-            if (logScroll.children.length > 12) logScroll.removeChild(logScroll.lastChild);
-            
-            document.getElementById('telemetry-clock').innerText = new Date().toLocaleTimeString();
-            document.getElementById('syncVal').innerText = (99.40 + Math.random() * 0.2).toFixed(2) + "%";
-        }
+/* Lead Sphere Drag */
+const sphere = document.getElementById('lead-sphere');
+let isDragging=false, offsetX=0, offsetY=0;
+sphere.addEventListener('mousedown', e=>{isDragging=true; offsetX=e.offsetX; offsetY=e.offsetY; sphere.style.cursor='grabbing';});
+window.addEventListener('mouseup', ()=>{isDragging=false; sphere.style.cursor='grab';});
+window.addEventListener('mousemove', e=>{
+    if(isDragging){ sphere.style.left = (e.clientX - offsetX) + 'px'; sphere.style.top = (e.clientY - offsetY) + 'px'; }
+});
 
-        setInterval(updateUI, 2000);
-    </script>
+/* Tooltip example */
+sphere.addEventListener('mouseenter', e=>{
+    const tip = document.createElement('div');
+    tip.className='tooltip'; tip.innerText='Lead Sphere: Metric Stabilizer';
+    document.body.appendChild(tip);
+    const moveTip = (ev)=>{ tip.style.left=ev.pageX+15+'px'; tip.style.top=ev.pageY+15+'px'; };
+    window.addEventListener('mousemove', moveTip);
+    sphere.addEventListener('mouseleave', ()=>{
+        tip.remove();
+        window.removeEventListener('mousemove', moveTip);
+    }, {once:true});
+});
+</script>
 </body>
 </html>
