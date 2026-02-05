@@ -9,12 +9,12 @@
     <style>
         :root {
             /* THEME: The Gate (Obsidian / Gold / Void) */
-            --bg: #000;
+            --bg: #0a0a0a; /* Deep Charcoal Brutalist */
             --gold: #d4af37;
-            --gold-dim: #6b5c2b;
+            --gold-dim: #4a3f1d;
             --crimson: #ef4444;
             --teal: #14b8a6;
-            --void: #0a0a0f;
+            --void: #050505;
         }
 
         body {
@@ -27,7 +27,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 1200px; /* For 3D Gyro */
+            perspective: 1200px;
         }
 
         /* --- FX LAYERS --- */
@@ -35,6 +35,8 @@
             position: fixed; inset: 0; background: #000; z-index: 9999;
             padding: 40px; color: var(--teal); font-size: 0.8rem;
             display: flex; flex-direction: column; justify-content: flex-end;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
         }
         
         .scanline {
@@ -45,125 +47,111 @@
         
         .vignette {
             position: fixed; inset: 0; pointer-events: none; z-index: 40;
-            background: radial-gradient(circle, transparent 40%, black 120%);
+            background: radial-gradient(circle, transparent 40%, black 140%);
         }
 
         /* --- THE GYROSCOPE LOCK --- */
         .gyro-container {
             position: relative;
-            width: 400px; height: 400px;
+            width: 550px; height: 550px;
             display: flex; align-items: center; justify-content: center;
             transform-style: preserve-3d;
-            opacity: 0; /* Hidden until boot complete */
-            transition: opacity 1s;
+            opacity: 0;
+            transition: opacity 1s, transform 0.1s ease-out;
         }
 
         .ring {
             position: absolute; border-radius: 50%;
             border: 1px solid var(--gold-dim);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.05);
             pointer-events: none;
+            transition: border-color 0.5s, box-shadow 0.5s;
         }
 
-        .r1 { width: 380px; height: 380px; border-width: 1px; animation: spin1 12s infinite linear; }
-        .r2 { width: 320px; height: 320px; border-width: 2px; border-left-color: var(--gold); animation: spin2 8s infinite linear; }
-        .r3 { width: 260px; height: 260px; border-width: 1px; border-style: dashed; animation: spin1 20s infinite reverse linear; }
+        .r1 { width: 480px; height: 480px; animation: spin1 20s infinite linear; }
+        .r2 { width: 400px; height: 400px; border-width: 2px; border-left-color: var(--gold); animation: spin2 12s infinite linear; }
+        .r3 { width: 320px; height: 320px; border-style: dashed; animation: spin1 30s infinite reverse linear; }
 
-        @keyframes spin1 { 0% { transform: rotateX(60deg) rotateZ(0deg); } 100% { transform: rotateX(60deg) rotateZ(360deg); } }
-        @keyframes spin2 { 0% { transform: rotateY(60deg) rotateZ(0deg); } 100% { transform: rotateY(60deg) rotateZ(360deg); } }
+        @keyframes spin1 { 0% { transform: rotateX(70deg) rotateZ(0deg); } 100% { transform: rotateX(70deg) rotateZ(360deg); } }
+        @keyframes spin2 { 0% { transform: rotateY(70deg) rotateZ(0deg); } 100% { transform: rotateY(70deg) rotateZ(360deg); } }
 
-        /* --- LOGIN FORM (CENTER OF GYRO) --- */
+        /* --- LOGIN CORE (MINIMALIST COMMAND LINE) --- */
         .login-core {
-            width: 240px;
-            text-align: center;
+            width: 300px;
+            text-align: left; /* Terminal Alignment */
             position: relative;
             z-index: 100;
-            transform: translateZ(50px); /* Push forward */
+            transform: translateZ(100px);
+            background: rgba(0,0,0,0.85);
+            padding: 30px;
+            border: 1px solid var(--gold-dim);
         }
 
-        .title { font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 20px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .warning-txt { 
+            color: var(--crimson); 
+            font-size: 0.6rem; 
+            margin-bottom: 20px; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .title { font-size: 0.8rem; letter-spacing: 5px; margin-bottom: 25px; color: var(--gold); font-weight: bold; }
+
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group::before { content: ">"; position: absolute; left: 10px; top: 12px; color: var(--teal); font-size: 0.8rem; }
 
         input {
-            background: rgba(0,0,0,0.8);
-            border: 1px solid var(--gold-dim);
+            background: transparent;
+            border: 1px solid #222;
             color: #fff;
-            padding: 12px;
+            padding: 12px 12px 12px 25px;
             width: 100%;
             box-sizing: border-box;
-            text-align: center;
             font-family: inherit;
             letter-spacing: 2px;
             outline: none;
             transition: 0.3s;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            caret-color: var(--teal); /* Green Blinking Cursor */
         }
-        input::placeholder { color: #333; letter-spacing: 1px; }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+        input:focus { border-color: var(--gold-dim); background: rgba(255,255,255,0.02); }
 
         .btn-main {
             background: var(--gold); color: #000; border: none;
-            padding: 10px 20px; font-weight: bold; cursor: pointer;
-            width: 100%; font-family: inherit; transition: 0.3s;
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            padding: 12px 20px; font-weight: bold; cursor: pointer;
+            width: 100%; font-family: inherit; transition: 0.2s;
+            letter-spacing: 3px;
+            margin-top: 10px;
         }
-        .btn-main:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+        .btn-main:hover { background: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
-        .status-msg {
-            margin-top: 15px; font-size: 0.6rem; min-height: 1.5em;
-            color: var(--crimson); text-shadow: 0 0 5px var(--crimson);
-        }
+        .status-msg { margin-top: 20px; font-size: 0.6rem; color: #444; letter-spacing: 1px; }
 
-        /* --- ANIMATION STATES --- */
-        .access-granted .ring { border-color: var(--teal); box-shadow: 0 0 30px var(--teal); animation-duration: 1s; }
-        .access-granted .title { color: var(--teal); text-shadow: 0 0 20px var(--teal); }
-        
-        .root-override .ring { border-color: var(--crimson); box-shadow: 0 0 30px var(--crimson); animation-direction: reverse; animation-duration: 0.5s; }
-        .root-override body { animation: shake 0.5s infinite; }
-
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-
-        /* --- RESONANCE TOOL CSS --- */
+        /* --- RESONANCE TOOL --- */
         .resonance-trigger {
-            font-size: 0.6rem; color: #444; margin-bottom: 15px; cursor: pointer;
-            text-align: right; transition: 0.3s; border-bottom: 1px dashed transparent;
+            font-size: 0.55rem; color: #333; margin-top: 20px; cursor: pointer;
+            text-align: center; transition: 0.3s; text-decoration: underline;
         }
-        .resonance-trigger:hover {
-            color: var(--crimson); border-bottom-color: var(--crimson);
-        }
-        .resonance-trigger:hover::after { content: " // INITIATE_STRESS_TEST"; color: var(--gold); }
+        .resonance-trigger:hover { color: var(--teal); }
 
         #resonance-overlay {
-            position: absolute; top: 105%; left: 0; width: 100%;
-            background: rgba(10, 5, 0, 0.95); /* Dark Rust BG */
-            border: 1px solid var(--gold);
+            position: absolute; bottom: 105%; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.98);
+            border: 1px solid var(--gold-dim);
             padding: 15px; box-sizing: border-box;
-            display: none; 
-            z-index: 200; font-family: monospace; text-align: left;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            display: none; z-index: 200; font-family: monospace;
         }
 
-        .res-header { color: var(--gold); font-size: 0.7rem; border-bottom: 1px solid #333; margin-bottom: 8px; }
-        .res-readout { display: flex; justify-content: space-between; color: var(--teal); font-size: 0.7rem; margin-bottom: 8px; }
-        #res-log { color: #888; font-size: 0.6rem; margin-bottom: 5px; height: 1.2em; white-space: nowrap; overflow: hidden; }
-
-        .seismic-line {
-            width: 100%; height: 2px; background: #333; position: relative; overflow: hidden;
-        }
+        .seismic-line { width: 100%; height: 1px; background: #222; position: relative; overflow: hidden; margin-top: 10px; }
         .seismic-line::after {
-            content: ""; position: absolute; top: 0; left: 0; width: 20%; height: 100%;
-            background: var(--crimson);
-            animation: seismic-scan 0.5s infinite linear;
+            content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+            background: var(--teal); animation: seismic-scan 1s infinite linear;
         }
-        @keyframes seismic-scan { 0% { left: -20%; } 100% { left: 120%; } }
+        @keyframes seismic-scan { 0% { left: -40%; } 100% { left: 140%; } }
 
-        /* Violent Shake for Stress Test */
-        .shake-hard { animation: shake-violent 0.1s infinite !important; }
-        @keyframes shake-violent {
-            0% { transform: translate(2px, 1px) rotate(0deg); }
-            50% { transform: translate(-2px, 2px) rotate(-1deg); }
-            100% { transform: translate(1px, -2px) rotate(1deg); }
-        }
+        /* ERROR FEEDBACK */
+        .glitch-error { animation: shake 0.2s linear 2; border-color: var(--crimson) !important; }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
     </style>
 </head>
@@ -172,9 +160,7 @@
     <div class="scanline"></div>
     <div class="vignette"></div>
 
-    <div id="boot-screen">
-        <div id="boot-text"></div>
-    </div>
+    <div id="boot-screen"><div id="boot-text"></div></div>
 
     <div class="gyro-container" id="ui-layer">
         <div class="ring r1"></div>
@@ -182,70 +168,114 @@
         <div class="ring r3"></div>
 
         <div class="login-core">
-            <div class="title">ALDERSYTH_OS</div>
+            <div class="warning-txt">[!] ACCESS_RESTRICTED // ANALYST_ONLY</div>
+            <div class="title">GATEWAY_V4</div>
             
-            <input type="text" id="username" placeholder="NODE_ID" autocomplete="off">
-            <input type="password" id="password" placeholder="KEY" onkeydown="checkInput(this)">
-            
-            <div class="resonance-trigger" onclick="initiateResonance()">
-                [⚠ STRUCTURAL_INTEGRITY: 99% ]
+            <div class="input-group">
+                <input type="text" id="node-id" placeholder="NODE_ID" autocomplete="off">
             </div>
-
+            <div class="input-group">
+                <input type="password" id="access-key" placeholder="PASSKEY">
+            </div>
+            
+            <button class="btn-main" onclick="attemptLogin()">AUTHORIZE_LINK</button>
+            
             <div id="resonance-overlay">
-                <div class="res-header">>> KINETIC_DRIVER_v4.0</div>
-                <div class="res-readout">
-                    <span>FREQ: <span id="freq-val">00.0</span> Hz</span>
-                    <span>STRESS: <span id="stress-val">0</span>%</span>
+                <div style="color:var(--teal); font-size:0.6rem; margin-bottom:10px;">>> KINETIC_SCAN_ACTIVE</div>
+                <div style="display:flex; justify-content:space-between; color:var(--gold); font-size:0.6rem;">
+                    <span>SIGNAL: <span id="freq-val">--</span>Hz</span>
+                    <span>STABILITY: <span id="stress-val">100</span>%</span>
                 </div>
-                <div id="res-log">TARGETING WEAK POINTS...</div>
                 <div class="seismic-line"></div>
             </div>
+
+            <div class="status-msg" id="status">AWAITING HANDSHAKE...</div>
             
-            <button class="btn-main" onclick="attemptLogin()">INITIATE_LINK</button>
-            
-            <div class="status-msg" id="status">AWAITING_INPUT...</div>
+            <div class="resonance-trigger" onclick="initiateResonance()">
+                DEBUG: CHECK_STRUCTURAL_INTEGRITY
+            </div>
         </div>
     </div>
 
     <script>
         // --- 1. BOOT SEQUENCE ---
-        const bootText = [
-            "INITIALIZING KERNEL...",
-            "LOADING: [PHYSICS_ENGINE_V4]",
-            "LOADING: [MARKET_DATA_STREAM]",
-            "CHECKING HIGGS_ANCHOR... <span style='color:#ef4444'>UNSTABLE</span>",
-            "BYPASSING SECURITY PROTOCOLS...",
-            "ESTABLISHING CONNECTION TO SPIRE..."
+        const bootLines = [
+            "CONNECTING TO SPIRE_GATEWAY...",
+            "AUTHENTICATING HARDWARE_ID...",
+            "LOADING VOID_ENCRYPTION...",
+            "STATUS: <span style='color:#14b8a6'>SYSTEM_STABLE_1.0g</span>",
+            "GATEWAY_PROTOCOL INITIALIZED."
         ];
         
         const bootEl = document.getElementById('boot-text');
-        let bootIndex = 0;
+        let lineIdx = 0;
 
         function runBoot() {
-            if (bootIndex < bootText.length) {
-                const line = document.createElement('div');
-                line.innerHTML = `> ${bootText[bootIndex]}`;
-                line.style.opacity = 0;
-                line.style.animation = "fadeIn 0.1s forwards";
-                bootEl.appendChild(line);
-                bootIndex++;
-                setTimeout(runBoot, 300);
+            if (lineIdx < bootLines.length) {
+                const div = document.createElement('div');
+                div.innerHTML = `> ${bootLines[lineIdx]}`;
+                bootEl.appendChild(div);
+                lineIdx++;
+                setTimeout(runBoot, 200);
             } else {
                 setTimeout(() => {
                     document.getElementById('boot-screen').style.opacity = 0;
-                    setTimeout(() => {
-                        document.getElementById('boot-screen').remove();
-                        document.getElementById('ui-layer').style.opacity = 1;
-                    }, 500);
-                }, 800);
+                    document.getElementById('ui-layer').style.opacity = 1;
+                    setTimeout(() => document.getElementById('boot-screen').remove(), 800);
+                }, 600);
             }
         }
-        
-        // Add minimal fade-in CSS for boot
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes fadeIn { to { opacity: 1; } }`;
-        document.head.appendChild(style);
+
+        // --- 2. PARALLAX EFFECT ---
+        const gyro = document.getElementById('ui-layer');
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 35;
+            const y = (window.innerHeight / 2 - e.pageY) / 35;
+            gyro.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+
+        // --- 3. LOGIN LOGIC ---
+        function attemptLogin() {
+            const key = document.getElementById('access-key').value.toUpperCase();
+            const status = document.getElementById('status');
+            const rings = document.querySelectorAll('.ring');
+
+            if (key === "ROOT") {
+                status.innerText = "HANDSHAKE ACCEPTED // REDIRECTING...";
+                status.style.color = "var(--teal)";
+                rings.forEach(r => {
+                    r.style.borderColor = "var(--teal)";
+                    r.style.boxShadow = "0 0 50px var(--teal)";
+                    r.style.animationDuration = "2s";
+                });
+                setTimeout(() => window.location.href = "index.html", 1500);
+            } else {
+                status.innerText = "FAILURE: UNRECOGNIZED_PASSKEY";
+                status.style.color = "var(--crimson)";
+                document.getElementById('access-key').classList.add('glitch-error');
+                setTimeout(() => {
+                    document.getElementById('access-key').classList.remove('glitch-error');
+                }, 400);
+            }
+        }
+
+        // --- 4. RESONANCE DEBUG TOOL ---
+        let resonanceActive = false;
+        function initiateResonance() {
+            resonanceActive = !resonanceActive;
+            const overlay = document.getElementById('resonance-overlay');
+            overlay.style.display = resonanceActive ? 'block' : 'none';
+            
+            if(resonanceActive) {
+                const interval = setInterval(() => {
+                    if(!resonanceActive) { clearInterval(interval); return; }
+                    document.getElementById('freq-val').innerText = (Math.random() * 99).toFixed(1);
+                    document.getElementById('stress-val').innerText = (98 + Math.random() * 2).toFixed(2);
+                }, 150);
+            }
+        }
 
         window.onload = runBoot;
-
-        // ---
+    </script>
+</body>
+</html>
