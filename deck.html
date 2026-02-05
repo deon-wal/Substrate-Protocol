@@ -429,26 +429,50 @@
     </script>
 
     <script>
+        // --- ERROR TRAPPING ---
+        window.onerror = function(msg, source, lineno, colno, error) {
+            alert("SYSTEM CRASH: " + msg + "\nLine: " + lineno);
+        };
+
         // --- 1. SYSTEM INITIALIZATION ---
         let audioCtx;
         let isInit = false;
 
         function initializeSystem() {
             if(isInit) return;
+
+            // CHECK: Is Three.js loaded?
+            if (typeof THREE === 'undefined') {
+                alert("CRITICAL ERROR: 3D Engine (Three.js) failed to load.\n\n1. Check your internet connection.\n2. Ensure the <script src> at the top of the file is not blocked.");
+                return;
+            }
+
             isInit = true;
 
+            // Fade out boot screen
             const boot = document.getElementById('boot-screen');
             boot.style.opacity = '0';
-            setTimeout(() => boot.remove(), 1000);
+            
+            setTimeout(() => {
+                if(boot) boot.remove();
+            }, 1000);
 
-            initAudio();
-            init3D();
-            startLogs();
+            // Safe Start
+            try {
+                initAudio();
+                init3D();
+                startLogs();
+            } catch (e) {
+                alert("RUNTIME ERROR: " + e.message);
+                console.error(e);
+            }
         }
 
         // --- 2. AUDIO ENGINE ---
         function initAudio() {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            
             audioCtx = new AudioContext();
 
             // Drone
@@ -500,6 +524,8 @@
         // --- 3. THREE.JS SCENE ---
         function init3D() {
             const canvas = document.getElementById('gl-canvas');
+            if (!canvas) return;
+
             const scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x050505, 0.02);
 
@@ -512,12 +538,19 @@
             // Sphere
             const geometry = new THREE.IcosahedronGeometry(1.2, 30); 
             const uniforms = { time: { value: 0 }, distortion: { value: 0.3 } };
+            
+            const vShader = document.getElementById('vertexShader');
+            const fShader = document.getElementById('fragmentShader');
+
+            if (!vShader || !fShader) return;
+
             const material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent,
+                vertexShader: vShader.textContent,
+                fragmentShader: fShader.textContent,
                 wireframe: false
             });
+            
             const sphere = new THREE.Mesh(geometry, material);
             scene.add(sphere);
 
@@ -559,6 +592,7 @@
         let offX = 0, offY = 0;
         function dragStart(e, id) {
             dragItem = document.getElementById(id);
+            if (!dragItem) return;
             const rect = dragItem.getBoundingClientRect();
             offX = e.clientX - rect.left;
             offY = e.clientY - rect.top;
@@ -587,7 +621,8 @@
             }
         }
         function closeWin(id) {
-            document.getElementById(id).style.display = 'none';
+            const w = document.getElementById(id);
+            if(w) w.style.display = 'none';
         }
 
         // Live Logs (Story Based)
@@ -604,15 +639,16 @@
         ];
         function startLogs() {
             const feed = document.getElementById('log-feed');
+            if(!feed) return;
             
-            // Hex Dump Init
             const hex = document.getElementById('hex-dump');
-            for(let i=0; i<16; i++) {
-                const s = document.createElement('div');
-                hex.appendChild(s);
+            if(hex) {
+                for(let i=0; i<16; i++) {
+                    const s = document.createElement('div');
+                    hex.appendChild(s);
+                }
             }
 
-            // Loopers
             setInterval(() => {
                 const item = logs[Math.floor(Math.random() * logs.length)];
                 const div = document.createElement('div');
@@ -621,22 +657,26 @@
                 feed.appendChild(div);
                 if(feed.children.length > 15) feed.removeChild(feed.firstChild);
                 
-                if(Math.random() > 0.7) {
-                    document.getElementById('metric-disp').innerText = (90 + Math.random()*9).toFixed(1) + "%";
+                const metric = document.getElementById('metric-disp');
+                if(Math.random() > 0.7 && metric) {
+                    metric.innerText = (90 + Math.random()*9).toFixed(1) + "%";
                 }
             }, 1200);
 
-            setInterval(() => {
-                Array.from(hex.children).forEach(c => {
-                    c.innerText = Math.floor(Math.random()*255).toString(16).toUpperCase().padStart(2, '0');
-                    c.style.color = Math.random() > 0.9 ? '#d4af37' : '#555';
-                });
-            }, 100);
+            if(hex) {
+                setInterval(() => {
+                    Array.from(hex.children).forEach(c => {
+                        c.innerText = Math.floor(Math.random()*255).toString(16).toUpperCase().padStart(2, '0');
+                        c.style.color = Math.random() > 0.9 ? '#d4af37' : '#555';
+                    });
+                }, 100);
+            }
         }
 
         // Viz
         function drawAudioViz() {
             const c = document.getElementById('audio-viz');
+            if(!c) return;
             const ctx = c.getContext('2d');
             c.width = c.clientWidth;
             c.height = c.clientHeight;
