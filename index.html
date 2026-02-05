@@ -3,243 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // BREACH_DETECTED</title>
+    <title>ALDERSYTH // ROOT_HUB</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        :root {
-            --gold: #fbbf24;
-            --teal: #2dd4bf;
-            --green: #39ff14;
-            --crimson: #ef4444;
-            --bg: #020202;
-        }
-
-        * { box-sizing: border-box; cursor: crosshair; }
-        body { margin: 0; overflow: hidden; background: var(--bg); font-family: 'Share Tech Mono', monospace; color: #aaa; }
-
-        /* --- 1. FULL SCREEN CANVAS (The "Breach") --- */
-        #gl-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Background layer */
-            filter: contrast(1.2) brightness(0.8);
-        }
-
-        /* --- 2. CHAOTIC OVERLAYS --- */
-        .overlay-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: radial-gradient(circle at center, transparent 0%, #000 120%);
-        }
-
-        /* --- 3. HEAVY GLITCH TYPOGRAPHY --- */
-        .mega-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 8vw; line-height: 0.8;
-            color: #fff; text-transform: uppercase;
-            position: relative; mix-blend-mode: exclusion;
-            animation: shake 3s infinite;
+        /* --- CORE VARIABLES --- */
+        :root { 
+            --bg: #050505; 
+            --panel-bg: rgba(12, 12, 14, 0.95);
+            --border-dim: rgba(255, 255, 255, 0.15);
+            --theme-spire-teal: #2dd4bf; --theme-spire-green: #39ff14;
+            --theme-market-rust: #ea580c; --theme-market-heat: #fdba74;
+            --theme-resi-grey: #737373; --theme-resi-lemon: #fef08a;
+            --theme-obs-violet: #8b5cf6; --theme-obs-crimson: #ef4444;
+            --theme-sub-gold: #fbbf24;
         }
         
-        .mega-title::before, .mega-title::after {
-            content: "ALDERSYTH"; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.8; mix-blend-mode: hard-light;
-        }
-        .mega-title::before { color: var(--crimson); animation: glitch-1 0.4s infinite reverse; clip-path: inset(0 0 60% 0); }
-        .mega-title::after { color: var(--teal); animation: glitch-2 0.4s infinite; clip-path: inset(40% 0 0 0); }
+        /* --- BASE SETUP --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        body { background: var(--bg); color: #a3a3a3; font-family: 'Share Tech Mono', monospace; margin: 0; line-height: 1.5; overflow-x: hidden; font-size: 15px; transition: background 0.5s; }
+        body::before { content: ""; position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; pointer-events: none; z-index: 9999; opacity: 0.6; }
 
-        .subtitle {
-            font-size: 1.2rem; color: var(--gold); letter-spacing: 8px; margin-top: 20px;
-            text-shadow: 0 0 10px var(--gold); opacity: 0;
-            animation: fadeIn 2s ease-out forwards 1s;
+        /* --- BOOT OVERLAY --- */
+        #boot-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020202; z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out; }
+        .boot-btn { background: transparent; border: 1px solid var(--theme-spire-green); color: var(--theme-spire-green); padding: 15px 40px; font-family: inherit; font-size: 1.2rem; letter-spacing: 3px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .boot-btn:hover { background: var(--theme-spire-green); color: #000; box-shadow: 0 0 30px var(--theme-spire-green); }
+
+        /* --- NORMAL DASHBOARD UI --- */
+        header { position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(5, 5, 5, 0.9); border-bottom: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; backdrop-filter: blur(8px); transition: opacity 0.5s; }
+        .logo { color: #fff; font-size: 1.4rem; letter-spacing: 4px; text-shadow: 0 0 10px var(--theme-spire-teal); }
+        .nav { display: flex; gap: 40px; }
+        .nav a { color: #666; text-decoration: none; font-size: 0.9rem; letter-spacing: 1px; transition: 0.3s; position: relative; }
+        .nav a:hover { color: #fff; text-shadow: 0 0 8px currentColor; }
+        .nav a.active { color: var(--theme-sub-gold); }
+        
+        /* THE TRIGGER BUTTON */
+        .status-badge { font-size: 0.7rem; border: 1px solid var(--theme-obs-crimson); color: var(--theme-obs-crimson); padding: 4px 10px; background: rgba(239, 68, 68, 0.05); cursor: pointer; transition: 0.3s; }
+        .status-badge:hover { background: var(--theme-obs-crimson); color: #000; box-shadow: 0 0 15px var(--theme-obs-crimson); }
+
+        .grid-wrapper { display: grid; grid-template-columns: 300px 1fr; gap: 40px; padding: 120px 40px 100px 40px; max-width: 1600px; margin: 0 auto; transition: opacity 0.5s; }
+        .sidebar { position: sticky; top: 120px; height: fit-content; display: flex; flex-direction: column; gap: 20px; }
+        .widget { background: var(--panel-bg); border: 1px solid #333; padding: 20px; position: relative; overflow: hidden; }
+        .widget h4 { margin: 0 0 15px 0; color: var(--theme-sub-gold); font-size: 0.75rem; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
+        .data-val { color: #fff; }
+        .bar-graph { display: flex; gap: 2px; height: 30px; align-items: flex-end; margin-top: 10px; }
+        .bar { width: 100%; background: var(--theme-spire-teal); opacity: 0.5; transition: height 0.1s; }
+        #audio-canvas { width: 100%; height: 60px; margin-top: 10px; }
+
+        /* 3D CONTAINER (Normal State) */
+        #viz-container { height: 400px; background: radial-gradient(circle at 50% 50%, #111, #000); border: 1px solid #333; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 40px; overflow: hidden; transition: all 0.8s ease-in-out; }
+        #three-canvas { width: 100%; height: 100%; outline: none; transition: all 0.8s; }
+        .overlay-text { position: absolute; bottom: 20px; right: 20px; text-align: right; pointer-events: none; transition: opacity 0.5s; }
+        .overlay-label { font-size: 0.7rem; color: #555; letter-spacing: 2px; display: block; }
+        .overlay-val { font-size: 1.2rem; color: var(--theme-spire-green); font-weight: bold; }
+
+        /* LOGS */
+        .log-stack { display: flex; flex-direction: column; gap: 15px; }
+        .log-entry { border: 1px solid #333; background: rgba(20,20,20,0.6); transition: all 0.3s ease; }
+        .log-header { padding: 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid transparent; }
+        .log-header:hover { background: rgba(255,255,255,0.02); }
+        .log-meta { display: flex; flex-direction: column; }
+        .log-id { font-size: 0.7rem; color: #555; margin-bottom: 5px; }
+        .log-title { font-size: 1.1rem; color: #ccc; letter-spacing: 1px; font-weight: bold; }
+        .log-body { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.4s ease; background: #080808; }
+        .log-content { padding: 30px; border-top: 1px solid #333; color: #aaa; font-size: 0.9rem; }
+        .prompt-box { border: 1px dashed #444; padding: 20px; margin-top: 20px; font-size: 0.8rem; color: #888; background: #050505; }
+        .log-entry.active .log-body { max-height: 500px; opacity: 1; }
+        .log-entry.active { background: rgba(30,30,30,0.8); }
+
+        /* THEMES */
+        .theme-spire .log-header { border-left-color: var(--theme-spire-teal); }
+        .theme-spire.active .log-title { color: var(--theme-spire-teal); text-shadow: 0 0 10px rgba(45, 212, 191, 0.4); }
+        .accent { color: inherit; font-weight: bold; }
+        .theme-spire .accent { color: var(--theme-spire-green); }
+        .theme-market .log-header { border-left-color: var(--theme-market-rust); }
+        .theme-market.active .log-title { color: var(--theme-market-rust); text-shadow: 0 0 10px rgba(234, 88, 12, 0.4); }
+        .theme-market .accent { color: var(--theme-market-heat); }
+        .theme-sub .log-header { border-left-color: var(--theme-sub-gold); }
+        .theme-sub.active .log-title { color: var(--theme-sub-gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+        .theme-sub .accent { color: var(--theme-sub-gold); }
+
+        footer { margin-top: 80px; border-top: 1px solid #333; padding: 60px; background: #080808; display: flex; justify-content: space-between; font-size: 0.75rem; color: #555; transition: opacity 0.5s; }
+        
+        /* --- BREACH STATE CSS --- */
+        /* Hidden by default */
+        .breach-ui {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5000; pointer-events: none; opacity: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease-in;
         }
 
-        /* --- 4. FLOATING DATA STREAMS --- */
-        .data-float {
-            position: absolute; font-size: 0.8rem; color: var(--teal); opacity: 0.6;
-            writing-mode: vertical-rl;
-        }
-        .df-1 { top: 10%; left: 5%; animation: floatY 10s infinite; }
-        .df-2 { bottom: 10%; right: 5%; color: var(--crimson); animation: floatY 8s infinite reverse; }
-        .df-3 { top: 50%; right: 15%; font-size: 0.6rem; opacity: 0.4; }
+        /* When body has 'breach-active' class */
+        body.breach-active { background: #000; }
+        body.breach-active header, 
+        body.breach-active .grid-wrapper, 
+        body.breach-active footer { opacity: 0; pointer-events: none; }
 
-        /* --- 5. ENTER BUTTON (The "Anchor") --- */
-        .enter-btn {
-            margin-top: 60px; pointer-events: auto;
-            background: transparent; border: 1px solid var(--green);
-            color: var(--green); padding: 20px 60px;
+        body.breach-active #viz-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            margin: 0; border: none; z-index: 100;
+            background: radial-gradient(circle at center, transparent 0%, #000 90%);
+        }
+        body.breach-active .overlay-text { opacity: 0; }
+
+        body.breach-active .breach-ui { opacity: 1; pointer-events: auto; z-index: 6000; }
+
+        /* Breach UI Elements */
+        .mega-title {
+            font-family: 'Rajdhani', sans-serif; font-size: 6vw; line-height: 0.9;
+            color: #fff; text-transform: uppercase; text-align: center;
+            text-shadow: 4px 4px 0px var(--theme-obs-crimson), -4px -4px 0px var(--theme-spire-teal);
+            animation: shake 0.5s infinite;
+        }
+        .breach-subtitle { color: var(--theme-sub-gold); letter-spacing: 5px; margin-bottom: 40px; }
+        
+        .breach-btn {
+            background: transparent; border: 2px solid var(--theme-obs-crimson);
+            color: var(--theme-obs-crimson); padding: 20px 50px;
             font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 4px;
-            text-transform: uppercase; transition: 0.3s;
-            position: relative; overflow: hidden;
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+            text-transform: uppercase; text-decoration: none;
+            box-shadow: 0 0 30px var(--theme-obs-crimson);
+            transition: 0.3s;
         }
-        .enter-btn:hover {
-            background: var(--green); color: #000;
-            box-shadow: 0 0 50px var(--green); transform: scale(1.05);
+        .breach-btn:hover { background: var(--theme-obs-crimson); color: #000; box-shadow: 0 0 60px var(--theme-obs-crimson), inset 0 0 20px #000; }
+
+        .warning-banner {
+            position: fixed; bottom: 0; width: 100%; text-align: center;
+            background: var(--theme-obs-crimson); color: #000; font-weight: bold;
+            padding: 10px; letter-spacing: 2px;
         }
 
-        /* --- 6. WARNING BANNER --- */
-        .warning-strip {
-            position: fixed; bottom: 40px; width: 100%; text-align: center;
-            color: var(--crimson); font-size: 0.9rem; letter-spacing: 2px;
-            background: rgba(239, 68, 68, 0.1); padding: 10px;
-            border-top: 1px solid var(--crimson); border-bottom: 1px solid var(--crimson);
-            z-index: 20;
-        }
-
-        /* --- ANIMATIONS --- */
-        @keyframes shake { 
-            0% { transform: translate(0,0); } 
-            2% { transform: translate(-2px, 2px); } 
-            4% { transform: translate(2px, -2px); } 
-            6% { transform: translate(0,0); } 
-            100% { transform: translate(0,0); } 
-        }
-        @keyframes glitch-1 { 
-            0% { transform: translate(0); } 20% { transform: translate(-3px, 3px); } 40% { transform: translate(-3px, -3px); } 60% { transform: translate(3px, 3px); } 80% { transform: translate(3px, -3px); } 100% { transform: translate(0); } 
-        }
-        @keyframes glitch-2 { 
-            0% { transform: translate(0); } 20% { transform: translate(3px, -3px); } 40% { transform: translate(3px, 3px); } 60% { transform: translate(-3px, 3px); } 80% { transform: translate(-3px, -3px); } 100% { transform: translate(0); } 
-        }
-        @keyframes floatY { 0% { transform: translateY(0); } 50% { transform: translateY(30px); } 100% { transform: translateY(0); } }
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        /* SCANLINES */
-        .scanlines {
-            position: fixed; inset: 0; z-index: 99; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px; opacity: 0.7;
-        }
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(-5px, 5px); } 50% { transform: translate(5px, -5px); } 75% { transform: translate(-5px, -5px); } 100% { transform: translate(0,0); } }
+        @media(max-width: 900px) { .grid-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } }
     </style>
 </head>
 <body>
 
-    <div class="scanlines"></div>
-
-    <canvas id="gl-canvas"></canvas>
-
-    <div class="overlay-layer">
-        
-        <div class="data-float df-1">
-            SYS_FAILURE_0x99<br>METRIC_SHIFT_DETECTED<br>GRAVITY: UNSTABLE
-        </div>
-        <div class="data-float df-2">
-            Protocol: VERA<br>Input: NULL<br>Output: INFINITY
-        </div>
-        <div class="data-float df-3">
-            01010101...
-        </div>
-
-        <h1 class="mega-title">ALDERSYTH</h1>
-        <div class="subtitle">THE METRIC VARIABLE IS COLLAPSING</div>
-
-        <button class="enter-btn" onclick="enterSystem()">INITIALIZE_TETHER</button>
+    <div id="boot-overlay">
+        <div style="color:#666; margin-bottom:20px; letter-spacing:2px;">SYSTEM_HALTED // USER_INPUT_REQUIRED</div>
+        <button class="boot-btn" onclick="initializeSystem()">INITIALIZE SYSTEM</button>
     </div>
 
-    <div class="warning-strip">
-        WARNING: REALITY ANCHORS FAILING // SECTOR 7 COMPROMISED // DO NOT LOOK AT THE STATIC
+    <header>
+        <div class="logo">ALDERSYTH // OS</div>
+        <nav class="nav">
+            <a href="#" class="active">CORE</a>
+            <a href="spire.html">SPIRE</a>
+            <a href="market.html">MARKET</a>
+        </nav>
+        <div class="status-badge" onclick="triggerBreach()">LIVE_FEED_ACTIVE [CLICK_TO_TEST]</div>
+    </header>
+
+    <div class="grid-wrapper">
+        <aside class="sidebar">
+            <div class="widget">
+                <h4>SYSTEM_CLOCK</h4>
+                <div class="data-row"><span>LOCAL_TIME</span> <span id="clock" class="data-val">00:00:00</span></div>
+            </div>
+            <div class="widget">
+                <h4>LIVE_RESOURCE_MONITOR</h4>
+                <div class="data-row"><span>CPU_THREAD_0</span> <span class="data-val" id="cpu-txt">12%</span></div>
+                <div class="bar-graph" id="cpu-graph"></div>
+            </div>
+            <div class="widget">
+                <h4>AUDIO_SPECTROGRAM</h4>
+                <canvas id="audio-canvas"></canvas>
+            </div>
+            <div class="widget">
+                <h4>NETWORK_TETHER</h4>
+                <div class="data-row"><span>STATUS</span> <span class="data-val" style="color:var(--theme-spire-green)">CONNECTED</span></div>
+            </div>
+        </aside>
+
+        <main>
+            <div id="viz-container">
+                <canvas id="three-canvas"></canvas>
+                <div class="overlay-text">
+                    <span class="overlay-label">GRAVITY VARIANCE</span>
+                    <span class="overlay-val" id="g-variance">1.00g</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: #fff;">ARCHIVE_LOGS</h1>
+            </div>
+
+            <div class="log-stack">
+                <div class="log-entry theme-spire" onclick="toggle(this)">
+                    <div class="log-header">
+                        <div class="log-meta"><span class="log-id">ID: 0x01 // THE_SPIRE</span><span class="log-title">METRIC VARIABLE</span></div>
+                        <span style="color:var(--theme-spire-teal)">+</span>
+                    </div>
+                    <div class="log-body">
+                        <div class="log-content">
+                            <p>I carry a 3kg lead sphere. It surges upward. This is a localized <span class="accent">METRIC SHIFT</span>. Threads of neon-green melon juice trace invisible stress lines.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="log-entry theme-market" onclick="toggle(this)">
+                    <div class="log-header">
+                        <div class="log-meta"><span class="log-id">ID: 0x02 // THE_MARKET</span><span class="log-title">THERMODYNAMIC STRESS</span></div>
+                        <span style="color:var(--theme-market-rust)">+</span>
+                    </div>
+                    <div class="log-body">
+                        <div class="log-content">
+                            <p>High-tensile architecture screams. Lead blocks weep <span class="accent">grey metallic sludge</span>. Through the crimson haze, I see the water vortex screaming into steam.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="log-entry theme-sub" onclick="toggle(this)">
+                    <div class="log-header">
+                        <div class="log-meta"><span class="log-id">ID: 0x05 // SUBSTRATE</span><span class="log-title">SYSTEM INTEGRATION</span></div>
+                        <span style="color:var(--theme-sub-gold)">+</span>
+                    </div>
+                    <div class="log-body">
+                        <div class="log-content">
+                            <p>Aldersyth dissolves into light. The Spire, Market, and Rings collapse into a <span class="accent">Golden Superposition</span>. I am no longer Kael. I am Module 01.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <script type="x-shader/x-vertex" id="vertexShader">
-        uniform float time;
-        varying vec2 vUv;
-        varying float vNoise;
-        // Simplex Noise
+    <footer>
+        <div><h5 style="margin:0 0 10px 0; color:#fff;">ALDERSYTH_OS</h5><span>v4.0.2 // STABLE</span></div>
+    </footer>
+
+    <div class="breach-ui">
+        <h1 class="mega-title">ALDERSYTH<br>BREACH DETECTED</h1>
+        <div class="breach-subtitle">THE METRIC VARIABLE IS COLLAPSING</div>
+        <a href="backdoor.html" class="breach-btn">INITIALIZE_BACKDOOR_PROTOCOL</a>
+    </div>
+    <div class="warning-banner breach-ui">WARNING: REALITY ANCHORS FAILING // SECTOR 7 COMPROMISED // DO NOT LOOK AT THE STATIC</div>
+
+
+    <script type="x-shader/x-vertex" id="vShader">
+        uniform float time; uniform float chaos; varying vec2 vUv; varying float vNoise;
         vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
         vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
         float snoise(vec3 v) { const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0); vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx); vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g; vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy); vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy; i = mod289(i); vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0)); float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx; vec4 j = p - 49.0 * floor(p * ns.z * ns.z); vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_); vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y); vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw); vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0)); vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww; vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w); vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3))); p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w; vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m; return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))); }
-        
         void main() {
             vUv = uv;
-            vNoise = snoise(position * 1.5 + time * 0.2); // Slower, heavier noise
-            
-            // Dramatic Distortion for Breach Mode
-            vec3 pos = position;
-            float pulse = sin(time * 2.0) * 0.2;
-            pos += normal * (vNoise * (0.8 + pulse)); // Huge spikes
-            
+            float speed = time * (1.0 + chaos * 5.0);
+            vNoise = snoise(position * 2.0 + speed * 0.5);
+            vec3 pos = position + normal * (vNoise * (0.3 + chaos * 0.5)); 
+            if(pos.y > 0.0) pos.y += pos.y * (sin(speed) * 0.5 + 0.5) * (1.2 + chaos);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
     </script>
-
-    <script type="x-shader/x-fragment" id="fragmentShader">
-        uniform float time;
-        varying float vNoise;
-        
+    <script type="x-shader/x-fragment" id="fShader">
+        uniform float time; uniform float chaos; varying float vNoise;
         void main() {
-            // Breach Palette: Darker, deeper, with violent highlights
-            vec3 core = vec3(0.05, 0.05, 0.05);
-            vec3 mid = vec3(0.1, 0.4, 0.4); // Deep Teal
-            vec3 high = vec3(0.9, 0.1, 0.1); // Crimson Warning
+            vec3 c1 = vec3(0.1, 0.8, 0.7); // Teal
+            vec3 c2 = vec3(0.2, 1.0, 0.2); // Green
+            vec3 c3 = vec3(0.9, 0.1, 0.1); // Crimson (for breach)
             
-            float n = smoothstep(-0.2, 0.6, vNoise);
-            vec3 col = mix(core, mid, n);
+            vec3 col = mix(c1, c2, smoothstep(-0.2, 0.2, vNoise));
+            // Introduce red based on chaos level
+            col = mix(col, c3, chaos * smoothstep(0.3, 0.6, vNoise));
             
-            // Glitch bands
-            float bands = sin(gl_FragCoord.y * 0.05 + time * 15.0);
-            if(bands > 0.95) col = high; // Red flashes
-            
+            float scan = sin(gl_FragCoord.y * 0.2 + time * (10.0 + chaos*20.0));
+            if(scan > 0.9) col += 0.2;
             gl_FragColor = vec4(col, 1.0);
         }
     </script>
 
     <script>
-        // --- SCENE SETUP ---
-        const canvas = document.getElementById('gl-canvas');
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        
-        const scene = new THREE.Scene();
-        // Fog for depth
-        scene.fog = new THREE.FogExp2(0x020202, 0.03); 
+        let audioCtx, analyser, dataArray, osc, gainNode;
+        let chaosLevel = 0.0; // 0 = normal, 1 = full breach
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 3.5; // Closer camera for "In your face" feel
-
-        // --- THE OBJECT (Breach Sphere) ---
-        const geo = new THREE.IcosahedronGeometry(1.5, 60); // High detail
-        const mat = new THREE.ShaderMaterial({
-            uniforms: { time: { value: 0 } },
-            vertexShader: document.getElementById('vertexShader').textContent,
-            fragmentShader: document.getElementById('fragmentShader').textContent,
-            wireframe: true // Wireframe feels more "technical/broken"
-        });
-        const sphere = new THREE.Mesh(geo, mat);
-        scene.add(sphere);
-
-        // --- ANIMATION ---
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = performance.now() * 0.001;
-            mat.uniforms.time.value = time;
-            
-            // Slow, heavy rotation
-            sphere.rotation.y += 0.002;
-            sphere.rotation.z += 0.001;
-            
-            renderer.render(scene, camera);
+        function initializeSystem() {
+            document.getElementById('boot-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('boot-overlay').remove(), 800);
+            initAudio();
+            init3D();
+            startSim();
         }
-        animate();
 
-        // --- RESIZE ---
-        window.addEventListener('resize', () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
+        // --- THE TRIGGER FUNCTION ---
+        function triggerBreach() {
+            document.body.classList.add('breach-active');
+            // Ramp up chaos for 3D and Audio
+            let ramp = setInterval(() => {
+                chaosLevel += 0.02;
+                if(gainNode) gainNode.gain.value = 0.05 + (chaosLevel * 0.1); // Louder
+                if(osc) osc.frequency.value = 55 + (chaosLevel * 100); // Higher pitch
+                if(chaosLevel >= 1.0) {
+                    chaosLevel = 1.0;
+                    clearInterval(ramp);
+                }
+            }, 50);
+        }
 
-        // --- NAVIGATION ---
-        function enterSystem() {
-            // Flash white then go to dashboard
-            document.body.style.transition = "filter 0.5s";
-            document.body.style.filter = "brightness(50)";
-            setTimeout(() => {
-                window.location.href = "dashboard.html"; // ASSUMING you saved the previous code as dashboard.html
-            }, 500);
+        function initAudio() {
+            const AC = window.AudioContext || window.webkitAudioContext; audioCtx = new AC(); analyser = audioCtx.createAnalyser(); analyser.fftSize = 64; dataArray = new Uint8Array(analyser.frequencyBinCount);
+            osc = audioCtx.createOscillator(); gainNode = audioCtx.createGain(); const filter = audioCtx.createBiquadFilter();
+            osc.type = 'sawtooth'; osc.frequency.value = 55; filter.type = 'lowpass'; filter.frequency.value = 200; gainNode.gain.value = 0.05;
+            osc.connect(filter); filter.connect(gainNode); gainNode.connect(analyser); analyser.connect(audioCtx.destination); osc.start();
+            drawAudio();
+        }
+        function drawAudio() { requestAnimationFrame(drawAudio); if(!analyser) return; analyser.getByteFrequencyData(dataArray); const cvs = document.getElementById('audio-canvas'); const ctx = cvs.getContext('2d'); cvs.width = cvs.clientWidth; cvs.height = cvs.clientHeight; ctx.fillStyle = '#000'; ctx.fillRect(0,0,cvs.width,cvs.height); ctx.fillStyle = '#2dd4bf'; const w = cvs.width / dataArray.length; for(let i=0; i<dataArray.length; i++) { let h = (dataArray[i] / 255) * cvs.height; ctx.fillRect(i*w, cvs.height - h, w-1, h); } }
+
+        function init3D() {
+            const container = document.getElementById('viz-container'); const canvas = document.getElementById('three-canvas');
+            const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75, container.clientWidth/container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({canvas: canvas, alpha: true}); renderer.setSize(container.clientWidth, container.clientHeight); camera.position.z = 4;
+            const geo = new THREE.IcosahedronGeometry(1.5, 30);
+            const mat = new THREE.ShaderMaterial({
+                uniforms: { time: {value: 0}, chaos: {value: 0.0} },
+                vertexShader: document.getElementById('vShader').textContent, fragmentShader: document.getElementById('fShader').textContent, wireframe: true
+            });
+            const sphere = new THREE.Mesh(geo, mat); scene.add(sphere);
+            function animate() {
+                requestAnimationFrame(animate);
+                mat.uniforms.time.value += 0.01;
+                // Link chaos uniform to our javascript chaosLevel
+                mat.uniforms.chaos.value = chaosLevel;
+                sphere.rotation.y += 0.005 + (chaosLevel * 0.02);
+                renderer.render(scene, camera);
+                document.getElementById('g-variance').innerText = (1.0 + Math.sin(Date.now()*0.005)*(0.2 + chaosLevel)).toFixed(3) + 'g';
+            }
+            animate();
+            window.addEventListener('resize', () => {
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth/container.clientHeight;
+                camera.updateProjectionMatrix();
+            });
+        }
+        function toggle(el) { document.querySelectorAll('.log-entry').forEach(d => { if(d !== el) d.classList.remove('active'); }); el.classList.toggle('active'); }
+        function startSim() {
+            setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
+            const cpuGraph = document.getElementById('cpu-graph');
+            for(let i=0; i<20; i++) { let b = document.createElement('div'); b.className='bar'; cpuGraph.appendChild(b); }
+            setInterval(() => {
+                let t = 0; document.querySelectorAll('.bar').forEach(b => { 
+                    let h = Math.random()*100; b.style.height=h+'%'; t+=h; 
+                });
+                document.getElementById('cpu-txt').innerText = Math.floor(t/20)+'%';
+            }, 200);
         }
     </script>
 </body>
