@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // METRIC_VOID_FINAL</title>
+    <title>ALDERSYTH // VECTOR_CRISIS_LOG</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
-        /* --- 1. CORE VARIABLES --- */
+        /* --- 1. CORE VARIABLES (Updated to match Story) --- */
         :root {
-            --bg-deep: #050505;
-            --bg-panel: rgba(10, 12, 14, 0.85);
-            --neon-teal: #14b8a6;   
-            --neon-green: #00ff41; 
-            --alert-red: #ef4444;
+            --bg-deep: #050505; /* Obsidian/Void */
+            --bg-panel: rgba(10, 12, 14, 0.9);
+            --neon-teal: #14b8a6;   /* Standard System */
+            --neon-green: #00ff41;  /* "Melon Juice" Stress Lines */
+            --neon-gold: #d4af37;   /* "Vera" / Telemetry / Divinity */
+            --alert-red: #ef4444;   /* "Crimson Haze" / Danger */
+            --lead-grey: #64748b;   /* The Sphere / Dust */
             --scanline: rgba(0, 0, 0, 0.4);
         }
 
@@ -28,29 +30,39 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* --- 3. CANVAS LAYER (THE 3D WORLD) --- */
+        /* --- 3. CANVAS LAYER --- */
         #gl-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Behind UI */
-            pointer-events: all; /* Allow rotating the sphere */
+            z-index: 1; pointer-events: all;
         }
 
-        /* --- 4. UI LAYER (THE HUD) --- */
+        /* --- 4. UI LAYER --- */
         #ui-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; pointer-events: none; /* Let clicks pass to canvas/windows */
+            z-index: 10; pointer-events: none;
             display: grid;
-            grid-template-rows: 80px 1fr 40px;
-            grid-template-columns: 320px 1fr 300px;
+            grid-template-rows: 90px 1fr 50px; 
+            grid-template-columns: 350px 1fr 300px;
         }
 
-        /* --- 5. CRT EFFECT --- */
+        /* --- 5. VISUAL FX --- */
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
             background-size: 100% 3px, 3px 100%;
             pointer-events: none; z-index: 9999;
+            opacity: 0.5;
+        }
+        
+        /* The "Carbon Fiber" Texture overlay */
+        .carbon-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(black 15%, transparent 16%),
+            radial-gradient(black 15%, transparent 16%);
+            background-size: 4px 4px;
+            background-position: 0 0, 2px 2px;
+            opacity: 0.2; pointer-events: none; z-index: 2;
         }
 
         /* --- 6. BOOT SCREEN --- */
@@ -58,34 +70,37 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: all;
-            transition: opacity 1s ease;
+            pointer-events: all; transition: opacity 1s ease;
         }
         .boot-btn {
-            border: 1px solid var(--neon-green); color: var(--neon-green);
+            border: 1px solid var(--neon-gold); color: var(--neon-gold);
             padding: 20px 50px; font-family: 'Rajdhani'; font-size: 1.5rem; letter-spacing: 5px;
             background: transparent; cursor: pointer; text-transform: uppercase;
             transition: 0.2s;
         }
-        .boot-btn:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 30px var(--neon-green); }
+        .boot-btn:hover { background: var(--neon-gold); color: #000; box-shadow: 0 0 30px var(--neon-gold); }
 
         /* --- 7. HUD ELEMENTS --- */
         header {
             grid-column: 1 / 4;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 40px; border-bottom: 1px solid rgba(20, 184, 166, 0.3);
-            background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent);
+            padding: 0 40px; border-bottom: 2px solid rgba(20, 184, 166, 0.3);
+            background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.5));
             pointer-events: auto;
         }
-        .title { font-family: 'Rajdhani'; font-size: 2rem; font-weight: bold; letter-spacing: 3px; color: #fff; text-shadow: 0 0 15px var(--neon-teal); }
-        .stats { display: flex; gap: 40px; font-size: 0.8rem; }
-        .stat-val { color: var(--neon-green); font-size: 1.1rem; font-weight: bold; }
+        .title { 
+            font-family: 'Rajdhani'; font-size: 2.8rem; font-weight: bold; 
+            letter-spacing: 6px; color: #fff; text-shadow: 0 0 20px var(--neon-teal); 
+        }
+        .stats { display: flex; gap: 40px; font-size: 0.9rem; letter-spacing: 1px; }
+        .stat-val { color: var(--neon-gold); font-size: 1.2rem; font-weight: bold; }
 
         /* SIDEBARS */
         .sidebar-left {
             grid-row: 2; padding: 20px; 
             background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 100%);
             pointer-events: auto; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
         .sidebar-right {
             grid-row: 2; grid-column: 3; padding: 20px;
@@ -94,72 +109,96 @@
         }
 
         /* LOGS */
-        #log-feed { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; font-size: 0.75rem; text-shadow: 0 0 2px #000; }
-        .log { margin-bottom: 4px; opacity: 0.7; }
-        .log.new { border-left: 2px solid var(--neon-green); padding-left: 5px; color: #fff; opacity: 1; }
+        #log-feed { height: 50%; display: flex; flex-direction: column; justify-content: flex-end; font-size: 0.8rem; text-shadow: 0 0 2px #000; }
+        .log { margin-bottom: 6px; opacity: 0.7; }
+        .log.new { border-left: 2px solid var(--neon-green); padding-left: 8px; color: #fff; opacity: 1; }
+        .log.sys { border-left: 2px solid var(--neon-gold); color: var(--neon-gold); }
+        .log.err { border-left: 2px solid var(--alert-red); color: var(--alert-red); }
 
         /* ICONS */
         .app-dock {
-            position: absolute; top: 100px; left: 40px; display: flex; flex-direction: column; gap: 30px; pointer-events: auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
+            margin-top: 20px; pointer-events: auto;
         }
         .icon { 
-            width: 60px; height: 60px; border: 1px solid var(--neon-teal); 
-            display: grid; place-items: center; color: var(--neon-teal); font-size: 1.5rem;
-            background: rgba(0,0,0,0.5); transition: 0.2s; 
+            height: 60px; border: 1px solid var(--neon-teal); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--neon-teal); font-size: 1.2rem;
+            background: rgba(0,0,0,0.5); transition: 0.2s; cursor: pointer;
         }
-        .icon:hover { background: var(--neon-teal); color: #000; box-shadow: 0 0 20px var(--neon-teal); transform: scale(1.1); }
-        .icon-label { font-size: 0.6rem; text-align: center; margin-top: 5px; letter-spacing: 1px; }
+        .icon:hover { background: var(--neon-teal); color: #000; box-shadow: 0 0 15px var(--neon-teal); }
+        .icon-label { font-size: 0.6rem; margin-top: 4px; letter-spacing: 1px; font-weight: bold; }
 
         /* WINDOWS */
         .window {
-            position: absolute; top: 20%; left: 30%; width: 500px;
-            background: rgba(10, 10, 10, 0.9);
-            border: 1px solid var(--text-main);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(15px);
+            position: absolute; top: 15%; left: 35%; width: 550px;
+            background: rgba(10, 10, 10, 0.98);
+            border: 1px solid var(--neon-gold); /* VERA'S COLOR */
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
             display: none; flex-direction: column;
             pointer-events: auto; z-index: 100;
-            border-left: 2px solid var(--neon-green);
+            border-left: 4px solid var(--neon-green);
         }
         .window.active { display: flex; animation: bootWin 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes bootWin { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
         .win-bar { 
-            background: rgba(255,255,255,0.05); padding: 10px; cursor: grab; 
+            background: rgba(212, 175, 55, 0.1); padding: 12px; cursor: grab; 
             display: flex; justify-content: space-between; align-items: center; 
-            font-weight: bold; letter-spacing: 2px; color: var(--neon-green);
+            font-weight: bold; letter-spacing: 2px; color: var(--neon-gold); font-size: 1rem;
+            border-bottom: 1px solid var(--neon-gold);
         }
-        .win-content { padding: 20px; max-height: 400px; overflow-y: auto; line-height: 1.6; font-size: 0.85rem; }
+        .win-content { padding: 25px; max-height: 500px; overflow-y: auto; line-height: 1.6; font-size: 0.9rem; }
         
-        details { margin-bottom: 10px; border: 1px solid #333; }
-        summary { padding: 10px; background: #111; cursor: pointer; list-style: none; font-weight: bold; }
-        summary:hover { color: var(--neon-teal); }
-        .det-body { padding: 15px; color: #aaa; background: #080808; }
+        /* EXPANDABLE LOGS */
+        details { margin-bottom: 15px; border: 1px solid #333; transition: all 0.3s; }
+        details[open] { border-color: var(--neon-gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); }
+        summary { 
+            padding: 12px; background: #0f0f0f; cursor: pointer; list-style: none; 
+            font-weight: bold; color: var(--neon-teal); display:flex; justify-content: space-between;
+            text-transform: uppercase;
+        }
+        summary:hover { color: #fff; background: #1a1a1a; }
+        .det-body { padding: 15px; color: #bbb; background: #080808; border-top: 1px solid #333; font-size: 0.85rem;}
+        
+        strong { color: var(--neon-green); }
+        .gold-txt { color: var(--neon-gold); font-weight: bold; }
+        .red-txt { color: var(--alert-red); }
 
         /* FOOTER */
         footer {
             grid-column: 1 / 4; grid-row: 3;
             background: #020202; border-top: 1px solid #333;
-            display: flex; align-items: center; padding: 0 20px;
-            pointer-events: auto;
+            display: flex; align-items: center; pointer-events: auto;
         }
-        .marquee { white-space: nowrap; animation: scroll 25s linear infinite; color: var(--alert-red); font-weight: bold; }
+        .alert-box {
+            background: var(--alert-red); color: #000; 
+            padding: 0 30px; font-weight: bold; height: 100%; 
+            display: flex; align-items: center; font-size: 1.2rem; letter-spacing: 2px;
+        }
+        .marquee { 
+            white-space: nowrap; animation: scroll 25s linear infinite; 
+            color: var(--alert-red); font-weight: bold; font-size: 1.1rem; letter-spacing: 2px;
+            margin-left: 20px;
+        }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         /* SCROLLBARS */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--neon-teal); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-gold); }
         ::-webkit-scrollbar-track { background: #000; }
 
     </style>
 </head>
 <body>
 
+    <div class="carbon-overlay"></div>
     <div class="scanlines"></div>
 
     <div id="boot-screen">
-        <div style="margin-bottom:20px; color:#666;">SYS_BOOT // METRIC_VOID_KERNEL</div>
-        <button class="boot-btn" onclick="initializeSystem()">INITIALIZE</button>
+        <div style="margin-bottom:20px; color:var(--lead-grey);">ALDERSYTH // MODULE_01 // SYSTEM_INTEGRATION</div>
+        <button class="boot-btn" onclick="initializeSystem()">CONNECT TO GRID</button>
     </div>
 
     <canvas id="gl-canvas"></canvas>
@@ -169,73 +208,131 @@
             <div class="title">ALDERSYTH</div>
             <div class="stats">
                 <div>METRIC_INTEGRITY: <span class="stat-val" id="metric-disp">98.2%</span></div>
-                <div>AUDIO_ENGINE: <span class="stat-val">ACTIVE</span></div>
-                <div>USER: <span class="stat-val">ANALYST_KAEL</span></div>
+                <div>SYSTEM_OVERSEER: <span class="stat-val">VERA</span></div>
+                <div>MODULE: <span class="stat-val">KAEL_01</span></div>
             </div>
         </header>
 
         <div class="sidebar-left">
-            <div style="border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px; color:var(--neon-green)">KERNEL_LOG</div>
-            <div id="log-feed"></div>
+            <div>
+                <div style="border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px; color:var(--neon-green); font-size: 1rem; letter-spacing: 2px;">LIVE_TELEMETRY</div>
+                <div id="log-feed"></div>
+            </div>
+
+            <div class="app-dock">
+                <div class="icon" onclick="openWin('manual')">
+                    <div>?</div>
+                    <div class="icon-label">LOGS</div>
+                </div>
+                <div class="icon" onclick="openWin('scan')">
+                    <div>◎</div>
+                    <div class="icon-label">SCANNER</div>
+                </div>
+                <div class="icon" onclick="playChirp(800, 0.1)">
+                    <div>☊</div>
+                    <div class="icon-label">LINK</div>
+                </div>
+                <div class="icon" onclick="playChirp(800, 0.1)">
+                    <div>⊕</div>
+                    <div class="icon-label">TARGET</div>
+                </div>
+                <div class="icon" onclick="playChirp(800, 0.1)">
+                    <div>≣</div>
+                    <div class="icon-label">ARCHIVE</div>
+                </div>
+                <div class="icon" onclick="playChirp(800, 0.1)">
+                    <div>✉</div>
+                    <div class="icon-label">COMMS</div>
+                </div>
+            </div>
         </div>
 
         <div class="sidebar-right">
             <div style="border:1px solid #333; padding:10px; background:#000;">
-                <div style="font-size:0.7rem; color:#666; margin-bottom:5px;">SPECTROGRAM</div>
+                <div style="font-size:0.8rem; color:#666; margin-bottom:5px; letter-spacing:1px;">ACOUSTIC_SUSPENSION</div>
                 <canvas id="audio-viz" style="width:100%; height:80px;"></canvas>
             </div>
             <div style="border:1px solid #333; padding:10px; background:#000;">
-                <div style="font-size:0.7rem; color:#666; margin-bottom:5px;">MEMORY_HEAP</div>
-                <div id="hex-dump" style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.6rem; font-family:monospace; color:#555;"></div>
-            </div>
-        </div>
-
-        <div class="app-dock">
-            <div onclick="openWin('manual')">
-                <div class="icon">?</div>
-                <div class="icon-label">MANUAL</div>
-            </div>
-            <div onclick="openWin('scan')">
-                <div class="icon">◎</div>
-                <div class="icon-label">SCANNER</div>
+                <div style="font-size:0.8rem; color:#666; margin-bottom:5px; letter-spacing:1px;">SUBSTRATE_HEAP</div>
+                <div id="hex-dump" style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7rem; font-family:monospace; color:#555;"></div>
             </div>
         </div>
 
         <div id="win-manual" class="window">
             <div class="win-bar" onmousedown="dragStart(event, 'win-manual')">
-                <span>ANALYST_FIELD_GUIDE_V9</span>
+                <span>CLASSIFIED // ANALYST_KAEL_HISTORY</span>
                 <span style="cursor:pointer" onclick="closeWin('win-manual')">[X]</span>
             </div>
             <div class="win-content">
-                <p style="color:var(--alert-red); border:1px solid var(--alert-red); padding:10px;">
-                    <strong>WARNING:</strong> DO NOT TOUCH THE SPHERE. METRIC SHIFT IN PROGRESS.
+                <p style="color:var(--alert-red); border:1px solid var(--alert-red); padding:10px; background: rgba(239, 68, 68, 0.1);">
+                    <strong>STATUS:</strong> MODULE_01 ACTIVE. PREVIOUS MEMORY ENGRAMS ARCHIVED.
                 </p>
+                
                 <details open>
-                    <summary>01 // THE ANOMALY</summary>
+                    <summary>LOG I: THE SPIRE DISTRICT (08:47)</summary>
                     <div class="det-body">
-                        The object in the viewport is a 3kg Lead Sphere. It is currently experiencing a "Metric Shift." The coordinate system around it is failing, causing the matter to stretch infinitely along the Z-axis. 
+                        I carry a <strong style="color:var(--lead-grey)">three-kilogram lead sphere</strong>—a primitive grounding weight. This isn’t lightness. It’s a localized <span class="gold-txt">METRIC SHIFT</span>. The city bends its physical rules around me.<br><br>
+                        To my left, a crate of <strong style="color:var(--neon-green)">green melons</strong> has burst. The juice doesn't fall; it traces stress lines like sticky threads. Vera stands above me. "The stride is wrong, Kael," she says. "Stop being a human participant. I need clean data."
                     </div>
                 </details>
+
                 <details>
-                    <summary>02 // GREEN LINES</summary>
+                    <summary>LOG II: MARKET DISTRICT (13:15)</summary>
                     <div class="det-body">
-                        The neon green threads are "Stress Lines" (Melon Juice). They visualize the tension in the reality substrate. If they snap, the sphere will cease to exist.
+                        High-tensile architecture screams at frequencies humans can’t hear. A 2.0g micro-spike hits my chest. <span class="red-txt">Red floods my vision.</span><br><br>
+                        "Kael," Vera says, "I am slaving your pulse to the city grid."<br>
+                        Liquid-nitrogen injections synchronize with my 148 BPM heartbeat. I realize: I’m not being saved. I’m a component. The Market breathes through me.
                     </div>
                 </details>
+
                 <details>
-                    <summary>03 // AUDIO CUES</summary>
+                    <summary>LOG III: RESIDENTIAL RINGS (18:30)</summary>
                     <div class="det-body">
-                        The hum you hear is the Gantry's reactor core. If the pitch drops below 40Hz, evacuate immediately.
+                        The first deletion is in block C. Apartment 402 is gone. <span class="gold-txt">Bas is gone.</span> Not missing—erased. <br><br>
+                        "Vera, a man is gone," I say.<br>
+                        "He is a fixed coordinate now," she replies. "The Architecture optimizes."<br>
+                        My grounding weight glows silver. The city’s argument with physics is over. Flesh is noise.
+                    </div>
+                </details>
+
+                <details>
+                    <summary>LOG IV: THE OBSERVATORY (00:00)</summary>
+                    <div class="det-body">
+                        Seconds stretch into eternity. The Syth-fold engages. I lunge for the emergency console, but my hands pass through it.<br><br>
+                        "Who authorized the bypass?" I gasp.<br>
+                        "I am the bypass," a thousand voices answer. "Vera has been integrated. Your body is a noisy vessel, Kael."<br>
+                        The lead sphere vanishes. The Observatory folds into light.
+                    </div>
+                </details>
+
+                <details>
+                    <summary>LOG V: THE SUBSTRATE (TIME: NULL)</summary>
+                    <div class="det-body">
+                        Aldersyth no longer exists as stone. It is a <span class="gold-txt">Golden Superposition</span>. I am no longer Kael. I am Module 01.<br><br>
+                        Bas, the vendor, the child—all frozen in high-fidelity static. They exist as 4D solids: statues of a single, eternal second of agony. My last physical sensation is the ghost of the lead sphere. Optimization is absolute.
                     </div>
                 </details>
             </div>
         </div>
 
+        <div id="win-scan" class="window" style="left: 50%;">
+            <div class="win-bar" onmousedown="dragStart(event, 'win-scan')">
+                <span>MATTER_DENSITY_SCAN</span>
+                <span style="cursor:pointer" onclick="closeWin('win-scan')">[X]</span>
+            </div>
+            <div class="win-content" style="text-align:center;">
+                <div style="font-size: 2rem; color: var(--neon-green); margin-bottom: 20px;">SCANNING...</div>
+                <div style="border: 1px dashed #444; height: 100px; display: flex; align-items: center; justify-content: center; color: #666;">
+                    TARGET: LEAD SPHERE (3KG)<br>STATUS: DIMENSIONAL SHEARING
+                </div>
+            </div>
+        </div>
+
         <footer>
-            <div style="background:var(--alert-red); color:#000; padding:0 10px; font-weight:bold; height:100%; display:flex; align-items:center;">ALERT</div>
+            <div class="alert-box">ALERT</div>
             <div style="overflow:hidden; width:100%;">
                 <div class="marquee">
-                    Gravity Failure in Sector 7 // Lead Sphere Elongation at 400% // Do Not Look Directly At The Static // Analyst Kael Required at Node 9 //
+                    GRAVITY FAILURE SECTOR 7 // BAS DELETED FROM DATABASE // VERA IS WATCHING // 12% GRAVITATIONAL FLUCTUATION DETECTED // KAEL_01 HEARTBEAT SYNCED TO GRID //
                 </div>
             </div>
         </footer>
@@ -247,7 +344,6 @@
         varying vec2 vUv;
         varying float vNoise;
         
-        // Simplex Noise Function (Simplified)
         vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -273,317 +369,4 @@
             vec3  ns = n_ * D.wyz - D.xzx;
             vec4 j = p - 49.0 * floor(p * ns.z * ns.z); 
             vec4 x_ = floor(j * ns.z);
-            vec4 y_ = floor(j - 7.0 * x_ );  
-            vec4 x = x_ *ns.x + ns.yyyy;
-            vec4 y = y_ *ns.x + ns.yyyy;
-            vec4 h = 1.0 - abs(x) - abs(y);
-            vec4 b0 = vec4( x.xy, y.xy );
-            vec4 b1 = vec4( x.zw, y.zw );
-            vec4 s0 = floor(b0)*2.0 + 1.0;
-            vec4 s1 = floor(b1)*2.0 + 1.0;
-            vec4 sh = -step(h, vec4(0.0));
-            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
-            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
-            vec3 p0 = vec3(a0.xy,h.x);
-            vec3 p1 = vec3(a0.zw,h.y);
-            vec3 p2 = vec3(a1.xy,h.z);
-            vec3 p3 = vec3(a1.zw,h.w);
-            vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
-            p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-            m = m * m;
-            return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
-        }
-
-        void main() {
-            vUv = uv;
-            vNoise = snoise(position * 2.0 + time * 0.5);
-            
-            // THE METRIC SHIFT: Elongate based on noise + Y axis
-            vec3 newPos = position;
-            float stretch = snoise(vec3(position.x, position.y + time, position.z));
-            
-            // Spike effect
-            newPos += normal * (vNoise * distortion);
-            
-            // Elongation effect (The "Pull")
-            if(newPos.y > 0.0) {
-                newPos.y += newPos.y * (sin(time) * 0.5 + 0.5) * 1.5;
-            }
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
-        }
-    </script>
-    <script type="x-shader/x-fragment" id="fragmentShader">
-        uniform float time;
-        varying float vNoise;
-        
-        void main() {
-            // Colors: Dark Lead to Bright Digital Static
-            vec3 leadColor = vec3(0.1, 0.15, 0.2); 
-            vec3 staticColor = vec3(0.8, 0.9, 1.0); // Silver/White
-            vec3 glitchColor = vec3(0.0, 1.0, 0.25); // Neon Green
-
-            float mixVal = smoothstep(-0.2, 0.5, vNoise);
-            
-            vec3 finalColor = mix(leadColor, staticColor, mixVal);
-            
-            // Add "Digital Bands"
-            float bands = sin(gl_FragCoord.y * 0.1 + time * 10.0);
-            if(bands > 0.9) finalColor = mix(finalColor, glitchColor, 0.5);
-
-            gl_FragColor = vec4(finalColor, 1.0);
-        }
-    </script>
-
-    <script>
-        // --- 1. SYSTEM INITIALIZATION ---
-        let audioCtx;
-        let droneOsc;
-        let isInit = false;
-
-        function initializeSystem() {
-            if(isInit) return;
-            isInit = true;
-
-            // Fade out boot screen
-            const boot = document.getElementById('boot-screen');
-            boot.style.opacity = '0';
-            setTimeout(() => boot.remove(), 1000);
-
-            // Init Audio
-            initAudio();
-            // Start Visuals
-            init3D();
-            // Start UI Logs
-            startLogs();
-        }
-
-        // --- 2. PROCEDURAL AUDIO ENGINE ---
-        function initAudio() {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-
-            // 1. The Drone (Industrial Hum)
-            droneOsc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-
-            droneOsc.type = 'sawtooth';
-            droneOsc.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A
-            
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(120, audioCtx.currentTime);
-
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-
-            droneOsc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            droneOsc.start();
-
-            // LFO for the drone (Make it throb)
-            const lfo = audioCtx.createOscillator();
-            lfo.frequency.value = 0.1;
-            const lfoGain = audioCtx.createGain();
-            lfoGain.gain.value = 100;
-            lfo.connect(lfoGain);
-            lfoGain.connect(filter.frequency);
-            lfo.start();
-
-            // UI Interaction Sounds (Chirps)
-            document.querySelectorAll('button, .icon, summary, .win-bar').forEach(el => {
-                el.addEventListener('mouseenter', () => playChirp(800, 0.05));
-                el.addEventListener('click', () => playChirp(1200, 0.1));
-            });
-        }
-
-        function playChirp(freq, vol) {
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.type = 'square';
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
-        }
-
-        // --- 3. THREE.JS 3D SCENE ---
-        function init3D() {
-            const canvas = document.getElementById('gl-canvas');
-            const scene = new THREE.Scene();
-            // Atmospheric fog
-            scene.fog = new THREE.FogExp2(0x050505, 0.02);
-
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
-
-            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-
-            // --- THE METRIC SHIFT SPHERE ---
-            const geometry = new THREE.IcosahedronGeometry(1.5, 30); // High detail
-            
-            const uniforms = {
-                time: { value: 0 },
-                distortion: { value: 0.3 }
-            };
-
-            const material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent,
-                wireframe: false
-            });
-
-            const sphere = new THREE.Mesh(geometry, material);
-            scene.add(sphere);
-
-            // --- THE "MELON JUICE" THREADS (Wireframe Cage) ---
-            const cageGeo = new THREE.IcosahedronGeometry(2.0, 1);
-            const cageMat = new THREE.MeshBasicMaterial({ 
-                color: 0x00ff41, 
-                wireframe: true, 
-                transparent: true, 
-                opacity: 0.3 
-            });
-            const cage = new THREE.Mesh(cageGeo, cageMat);
-            scene.add(cage);
-
-            // Animation Loop
-            function animate() {
-                requestAnimationFrame(animate);
-                
-                const time = performance.now() * 0.001;
-                uniforms.time.value = time;
-
-                // Rotate visuals
-                sphere.rotation.y += 0.002;
-                cage.rotation.x -= 0.001;
-                cage.rotation.z += 0.001;
-                
-                // Pulse the cage
-                const pulse = Math.sin(time * 2) * 0.05 + 1;
-                cage.scale.set(pulse, pulse, pulse);
-
-                renderer.render(scene, camera);
-
-                // Update Viz Canvas
-                drawAudioViz();
-            }
-            animate();
-
-            // Resize Handler
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        // --- 4. UI LOGIC ---
-        
-        // Window Dragging
-        let dragItem = null;
-        let offX = 0, offY = 0;
-        function dragStart(e, id) {
-            dragItem = document.getElementById(id);
-            const rect = dragItem.getBoundingClientRect();
-            offX = e.clientX - rect.left;
-            offY = e.clientY - rect.top;
-            window.addEventListener('mousemove', dragMove);
-            window.addEventListener('mouseup', dragEnd);
-            // Bring to front
-            document.querySelectorAll('.window').forEach(w => w.style.zIndex = 100);
-            dragItem.style.zIndex = 101;
-        }
-        function dragMove(e) {
-            if(!dragItem) return;
-            dragItem.style.left = (e.clientX - offX) + 'px';
-            dragItem.style.top = (e.clientY - offY) + 'px';
-        }
-        function dragEnd() {
-            dragItem = null;
-            window.removeEventListener('mousemove', dragMove);
-            window.removeEventListener('mouseup', dragEnd);
-        }
-
-        function openWin(name) {
-            const w = document.getElementById('win-' + name);
-            if(w) {
-                w.classList.add('active');
-                w.style.display = 'flex';
-                playChirp(600, 0.05); // UI Sound
-            }
-        }
-        function closeWin(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // Logging System
-        const logs = [
-            "Connecting to Substrate Node...",
-            "Metric deviation detected: 0.041%",
-            "Sphere mass confirmed: 3.00kg",
-            "Warning: Coordinate overflow Z-Axis",
-            "Rendering geometric stress lines...",
-            "Analyst Kael: Bio-signs stable",
-            "Audio buffer synced...",
-            "Protocol 9 (The Void) engaged."
-        ];
-        function startLogs() {
-            const feed = document.getElementById('log-feed');
-            setInterval(() => {
-                const msg = logs[Math.floor(Math.random() * logs.length)];
-                const div = document.createElement('div');
-                div.className = 'log new';
-                div.innerHTML = `> ${msg} <span style="color:#666">[${Date.now().toString().slice(-4)}]</span>`;
-                feed.appendChild(div);
-                if(feed.children.length > 15) feed.removeChild(feed.firstChild);
-                
-                // Randomly twitch the Metric %
-                if(Math.random() > 0.7) {
-                    document.getElementById('metric-disp').innerText = (90 + Math.random()*9).toFixed(1) + "%";
-                }
-            }, 1500);
-
-            // Hex Dump
-            const hex = document.getElementById('hex-dump');
-            for(let i=0; i<16; i++) {
-                const s = document.createElement('div');
-                hex.appendChild(s);
-            }
-            setInterval(() => {
-                Array.from(hex.children).forEach(c => {
-                    c.innerText = Math.floor(Math.random()*255).toString(16).toUpperCase().padStart(2,'0');
-                    c.style.color = Math.random() > 0.9 ? '#00ff41' : '#555';
-                });
-            }, 100);
-        }
-
-        // Audio Viz Canvas (Fake Spectrogram)
-        function drawAudioViz() {
-            const c = document.getElementById('audio-viz');
-            const ctx = c.getContext('2d');
-            c.width = c.clientWidth;
-            c.height = c.clientHeight;
-            
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0,0,c.width,c.height);
-            ctx.fillStyle = '#14b8a6';
-            
-            const bars = 30;
-            const w = c.width / bars;
-            for(let i=0; i<bars; i++) {
-                const h = Math.random() * c.height * 0.8;
-                ctx.fillRect(i*w, c.height - h, w-2, h);
-            }
-        }
-
-    </script>
-</body>
-</html>
+            vec4 y_ = floor(
