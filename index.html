@@ -3,503 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // CORE_HUB_V4</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
+    <title>ALDERSYTH // BREACH_DETECTED</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
-        :root { 
-            --gold: #ffb000; 
-            --cyan: #06b6d4; 
-            --red: #ff3e3e; 
-            --violet: #d946ef;
-            --ochre: #d97706;
-            --teal: #14b8a6;
-            --bg: #050505; 
-            --panel-bg: rgba(10, 10, 12, 0.9);
-            --panel-border: rgba(6, 182, 212, 0.2);
-            --scanline: rgba(0, 0, 0, 0.5);
+        :root {
+            --gold: #fbbf24;
+            --teal: #2dd4bf;
+            --green: #39ff14;
+            --crimson: #ef4444;
+            --bg: #020202;
         }
 
-        /* --- GLOBAL RESET & SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: #333; border: 1px solid var(--cyan); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+        * { box-sizing: border-box; cursor: crosshair; }
+        body { margin: 0; overflow: hidden; background: var(--bg); font-family: 'Share Tech Mono', monospace; color: #aaa; }
 
-        body { 
-            background: var(--bg);
-            color: #a3a3a3; 
-            font-family: 'Share Tech Mono', monospace; 
-            margin: 0; 
-            line-height: 1.6;
-            overflow-x: hidden;
-            font-size: 16px;
+        /* --- 1. FULL SCREEN CANVAS (The "Breach") --- */
+        #gl-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; /* Background layer */
+            filter: contrast(1.2) brightness(0.8);
         }
 
-        /* --- CRT SCANLINE OVERLAY --- */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
-            z-index: 9999;
-            pointer-events: none;
+        /* --- 2. CHAOTIC OVERLAYS --- */
+        .overlay-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; pointer-events: none;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, transparent 0%, #000 120%);
+        }
+
+        /* --- 3. HEAVY GLITCH TYPOGRAPHY --- */
+        .mega-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 8vw; line-height: 0.8;
+            color: #fff; text-transform: uppercase;
+            position: relative; mix-blend-mode: exclusion;
+            animation: shake 3s infinite;
         }
         
-        /* --- HEADER --- */
-        header {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(5, 5, 5, 0.95); 
-            border-bottom: 1px solid var(--panel-border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 40px; box-sizing: border-box;
-            backdrop-filter: blur(5px);
+        .mega-title::before, .mega-title::after {
+            content: "ALDERSYTH"; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.8; mix-blend-mode: hard-light;
         }
-        .header-logo { 
-            color: var(--gold); 
-            font-size: 1.2rem; 
-            letter-spacing: 3px; 
-            text-shadow: 0 0 5px rgba(255, 176, 0, 0.3);
-        }
-        
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a {
-            color: #555; text-decoration: none; font-size: 0.9rem;
-            position: relative; transition: 0.3s;
-        }
-        .nav-links a:hover { color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
-        .nav-links a.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
+        .mega-title::before { color: var(--crimson); animation: glitch-1 0.4s infinite reverse; clip-path: inset(0 0 60% 0); }
+        .mega-title::after { color: var(--teal); animation: glitch-2 0.4s infinite; clip-path: inset(40% 0 0 0); }
 
-        .live-indicator { 
-            color: var(--red); font-size: 0.7rem; border: 1px solid var(--red); 
-            padding: 4px 8px; animation: blink 2s infinite; 
-            background: rgba(255, 62, 62, 0.1);
+        .subtitle {
+            font-size: 1.2rem; color: var(--gold); letter-spacing: 8px; margin-top: 20px;
+            text-shadow: 0 0 10px var(--gold); opacity: 0;
+            animation: fadeIn 2s ease-out forwards 1s;
         }
 
-        /* --- PAGE LAYOUT --- */
-        .page-wrapper { 
-            padding-top: 120px; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding-bottom: 100px;
+        /* --- 4. FLOATING DATA STREAMS --- */
+        .data-float {
+            position: absolute; font-size: 0.8rem; color: var(--teal); opacity: 0.6;
+            writing-mode: vertical-rl;
+        }
+        .df-1 { top: 10%; left: 5%; animation: floatY 10s infinite; }
+        .df-2 { bottom: 10%; right: 5%; color: var(--crimson); animation: floatY 8s infinite reverse; }
+        .df-3 { top: 50%; right: 15%; font-size: 0.6rem; opacity: 0.4; }
+
+        /* --- 5. ENTER BUTTON (The "Anchor") --- */
+        .enter-btn {
+            margin-top: 60px; pointer-events: auto;
+            background: transparent; border: 1px solid var(--green);
+            color: var(--green); padding: 20px 60px;
+            font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 4px;
+            text-transform: uppercase; transition: 0.3s;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+        .enter-btn:hover {
+            background: var(--green); color: #000;
+            box-shadow: 0 0 50px var(--green); transform: scale(1.05);
         }
 
-        /* --- HERO SECTION --- */
-        .hero-layout { 
-            display: grid; 
-            grid-template-columns: 300px 1fr; 
-            gap: 40px; 
-            margin-bottom: 100px; 
-            padding: 0 20px;
-        }
-        
-        .sidebar-viz { 
-            background: var(--panel-bg); 
-            border: 1px solid #333; 
-            padding: 25px; 
-            display: flex; flex-direction: column; gap: 25px; 
-            height: fit-content;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            position: sticky; top: 120px;
+        /* --- 6. WARNING BANNER --- */
+        .warning-strip {
+            position: fixed; bottom: 40px; width: 100%; text-align: center;
+            color: var(--crimson); font-size: 0.9rem; letter-spacing: 2px;
+            background: rgba(239, 68, 68, 0.1); padding: 10px;
+            border-top: 1px solid var(--crimson); border-bottom: 1px solid var(--crimson);
+            z-index: 20;
         }
 
-        .metric-box { border-left: 2px solid var(--cyan); padding-left: 15px; }
-        .metric-label { font-size: 0.7rem; color: #555; display: block; margin-bottom: 5px; letter-spacing: 1px; }
-        .metric-value { font-size: 1.4rem; color: #eee; font-weight: 400; text-shadow: 0 0 5px rgba(255,255,255,0.1); }
-
-        .main-viz { 
-            border: 1px solid #333; 
-            background: radial-gradient(circle at center, #111 0%, #000 100%); 
-            position: relative; height: 500px; 
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 0 50px #000;
+        /* --- ANIMATIONS --- */
+        @keyframes shake { 
+            0% { transform: translate(0,0); } 
+            2% { transform: translate(-2px, 2px); } 
+            4% { transform: translate(2px, -2px); } 
+            6% { transform: translate(0,0); } 
+            100% { transform: translate(0,0); } 
         }
-
-        /*Grid Background for Viz*/
-        .grid-bg {
-            position: absolute; inset: 0;
-            background-image: 
-                linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
+        @keyframes glitch-1 { 
+            0% { transform: translate(0); } 20% { transform: translate(-3px, 3px); } 40% { transform: translate(-3px, -3px); } 60% { transform: translate(3px, 3px); } 80% { transform: translate(3px, -3px); } 100% { transform: translate(0); } 
         }
-
-        /* --- LEAD SPHERE --- */
-        #lead-sphere {
-            position: absolute; width: 80px; height: 80px;
-            background: radial-gradient(circle at 35% 35%, #e0e0e0, #555, #000);
-            border-radius: 50%; cursor: grab; z-index: 50; 
-            box-shadow: 0 0 40px rgba(6, 182, 212, 0.4);
-            transition: transform 0.1s;
+        @keyframes glitch-2 { 
+            0% { transform: translate(0); } 20% { transform: translate(3px, -3px); } 40% { transform: translate(3px, 3px); } 60% { transform: translate(-3px, 3px); } 80% { transform: translate(-3px, -3px); } 100% { transform: translate(0); } 
         }
-        #lead-sphere:active { transform: scale(0.9); cursor: grabbing; filter: blur(1px); }
+        @keyframes floatY { 0% { transform: translateY(0); } 50% { transform: translateY(30px); } 100% { transform: translateY(0); } }
+        @keyframes fadeIn { to { opacity: 1; } }
 
-        /* --- DIAGNOSTIC SPACER (For Scroll Length) --- */
-        .system-diag {
-            margin: 0 20px 80px 20px;
-            border-top: 1px dashed #333;
-            border-bottom: 1px dashed #333;
-            padding: 40px 0;
-            color: #444;
-            font-size: 0.8rem;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-        }
-        .diag-col h4 { color: var(--gold); margin: 0 0 10px 0; }
-        .code-stream { opacity: 0.5; font-size: 0.7rem; white-space: pre-wrap; }
-
-        /* --- LOG ARCHIVES --- */
-        .archive-header {
-            margin: 0 20px 60px 20px;
-            border-bottom: 2px solid var(--gold); 
-            padding-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: end;
-        }
-        .archive-title { font-size: 2rem; color: #fff; margin: 0; text-transform: uppercase; }
-
-        .log-container { padding: 0 20px; }
-
-        a.card-link { text-decoration: none; display: block; color: inherit; }
-
-        .log-card {
-            background: rgba(15, 15, 18, 0.95);
-            border: 1px solid #222;
-            border-left-width: 4px; 
-            margin-bottom: 80px; /* Big gap for scroll effect */
-            padding: 30px;
-            position: relative;
-            cursor: pointer;
-            opacity: 0; 
-            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        
-        /* Alternating Slide-ins */
-        .log-card:nth-child(odd) { transform: translateX(-50px); }
-        .log-card:nth-child(even) { transform: translateX(50px); }
-        
-        .log-card.reveal-visible { opacity: 1; transform: translateX(0); }
-
-        .log-card:hover { 
-            background: #111; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            transform: scale(1.01);
-        }
-
-        /* THEMES */
-        .teal { border-left-color: var(--teal); }
-        .ochre { border-left-color: var(--ochre); }
-        .grey { border-left-color: #888; }
-        .violet { border-left-color: var(--violet); }
-        .gold { border-left-color: var(--gold); }
-
-        .log-meta {
-            display: flex; justify-content: space-between; 
-            color: #555; font-size: 0.75rem;
-            margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px;
-        }
-        
-        .log-title { 
-            color: #fff; font-size: 1.5rem; margin: 0 0 15px 0; letter-spacing: 1px; 
-            display: flex; align-items: center; gap: 10px;
-        }
-        
-        .prompt-block {
-            display: block; 
-            background: #080808; 
-            color: #ccc;
-            padding: 20px; 
-            font-size: 0.85rem; 
-            border: 1px solid #333;
-            white-space: pre-wrap; 
-            font-family: 'Share Tech Mono', monospace;
-        }
-        /* Color the prompt text based on theme */
-        .teal .prompt-block { color: var(--teal); border-color: rgba(20, 184, 166, 0.3); }
-        .ochre .prompt-block { color: var(--ochre); border-color: rgba(217, 119, 6, 0.3); }
-        .grey .prompt-block { color: #aaa; border-color: #444; }
-        .violet .prompt-block { color: var(--violet); border-color: rgba(217, 70, 239, 0.3); }
-        .gold .prompt-block { color: var(--gold); border-color: rgba(255, 176, 0, 0.3); }
-
-        .tags { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .tag { 
-            font-size: 0.7rem; padding: 4px 10px; 
-            border: 1px solid #333; color: #666; 
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            margin-top: 100px; padding: 60px 40px; 
-            border-top: 1px solid var(--panel-border);
-            background: #020202; 
-            font-size: 0.75rem;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
-        }
-        footer h5 { color: var(--cyan); margin: 0 0 15px 0; font-size: 0.9rem; }
-
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        
-        /* Mobile Adjustments */
-        @media(max-width: 800px) {
-            .hero-layout { grid-template-columns: 1fr; }
-            .sidebar-viz { position: relative; top: 0; flex-direction: row; flex-wrap: wrap; }
-            .metric-box { flex: 1; min-width: 120px; }
-            .main-viz { height: 300px; }
+        /* SCANLINES */
+        .scanlines {
+            position: fixed; inset: 0; z-index: 99; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; opacity: 0.7;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-logo">ALDERSYTH // OS</div>
-        <nav class="nav-links">
-            <a href="index.html" class="active">CORE</a>
-            <a href="market.html">MARKET</a>
-            <a href="residential.html">RESIDENTIAL</a>
-            <a href="observatory.html">OBSERVATORY</a>
-        </nav>
-        <div class="live-indicator">LIVE_CONNECTION_ESTABLISHED</div>
-    </header>
+    <div class="scanlines"></div>
 
-    <div class="page-wrapper">
+    <canvas id="gl-canvas"></canvas>
+
+    <div class="overlay-layer">
         
-        <section class="hero-layout">
-            <aside class="sidebar-viz">
-                <div style="font-size:0.8rem; color:var(--gold); border-bottom:1px solid #444; padding-bottom:5px; width:100%;">LIVE_TELEMETRY</div>
-                
-                <div class="metric-box">
-                    <span class="metric-label">SYSTEM_TIME</span>
-                    <span id="clock" class="metric-value">00:00:00</span>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-label">GLOBAL_TETHER (BTC)</span>
-                    <span id="btc-val" class="metric-value" style="color:var(--gold);">INIT...</span>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-label">UPLINK_SPEED</span>
-                    <span id="net-speed" class="metric-value" style="color:var(--cyan);">-- Mbps</span>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-label">POWER_RESERVE</span>
-                    <span id="batt-val" class="metric-value">--%</span>
-                </div>
-            </aside>
-
-            <main class="main-viz">
-                <div class="grid-bg"></div>
-                <div id="lead-sphere"></div>
-                <div style="text-align: center; pointer-events: none; z-index: 10;">
-                    <h2 style="font-size: 1.2rem; letter-spacing: 6px; color: var(--cyan); margin:0; text-shadow:0 0 10px var(--cyan);">METRIC_STABILIZER</h2>
-                    <p style="font-size: 0.7rem; color: #666; margin-top:5px;">MANUAL INPUT REQUIRED // DRAG TO CALIBRATE</p>
-                </div>
-            </main>
-        </section>
-
-        <section class="system-diag">
-            <div class="diag-col">
-                <h4>// SYSTEM_DIAGNOSTICS</h4>
-                <p>Scanning local strata layers for corruption...</p>
-                <p style="color:var(--red);">[WARNING] Sector 7 Gravity Variance detected.</p>
-                <p>Rerouting power to residential dampeners.</p>
-            </div>
-            <div class="diag-col">
-                <div class="code-stream">
-0x884A -> NULL POINTER EXCEPTION
-MEM_LEAK DETECTED IN SUBSTRATE_V2
-RECOVERING FRAGMENTS...
-...
-...
-5 LOG FILES FOUND.
-DISPLAYING RECOVERED DATA:
-                </div>
-            </div>
-        </section>
-
-        <div class="archive-header">
-            <h1 class="archive-title">NEURAL_ARCHIVE_STACK</h1>
-            <span style="font-size:0.8rem; color:var(--red); border:1px solid var(--red); padding:5px 10px;">[5] CORRUPTED_FRAGMENTS_LOADED</span>
+        <div class="data-float df-1">
+            SYS_FAILURE_0x99<br>METRIC_SHIFT_DETECTED<br>GRAVITY: UNSTABLE
+        </div>
+        <div class="data-float df-2">
+            Protocol: VERA<br>Input: NULL<br>Output: INFINITY
+        </div>
+        <div class="data-float df-3">
+            01010101...
         </div>
 
-        <div class="log-container">
+        <h1 class="mega-title">ALDERSYTH</h1>
+        <div class="subtitle">THE METRIC VARIABLE IS COLLAPSING</div>
 
-            <a href="spire.html" class="card-link">
-                <article class="log-card teal">
-                    <div class="log-meta">
-                        <span>ID: LOG_01 // SPIRE_DISTRICT</span>
-                        <span>THEME: MUTED_TEAL // ELECTRIC_GREEN</span>
-                    </div>
-                    <h3 class="log-title">THE SPIRE DISTRICT</h3>
-                    <code class="prompt-block">Prompt: Cinematic book cover art, extreme low-angle shot on a cracked carbon-fiber walkway. In the foreground, a close-up, hyper-realistic 3kg lead sphere is mid-air, caught in a "metric shift"—it is unnaturally elongated, partially blurring into silver digital static. Gravity-defying threads of neon-green melon juice trace invisible geometric stress-lines in the air like a spiderweb. In the middle ground, the silhouette of a structural analyst (Kael) is seen from behind, his body slightly glitching at the edges. Far above on a looming, brutalist gantry, a sharp, motionless figure (Vera) stares down. Aesthetic: Gritty, industrial, muted teal and charcoal color palette with sharp electric-green accents. Style: Blame! meets Ghost in the Shell, high-contrast, atmospheric haze, ultra-detailed textures.</code>
-                    <div class="tags"><span class="tag">KAEL</span><span class="tag">VERA</span><span class="tag">METRIC_SHIFT</span></div>
-                </article>
-            </a>
-
-            <a href="sync.html" class="card-link">
-                <article class="log-card ochre">
-                    <div class="log-meta">
-                        <span>ID: LOG_02 // SUB_STRATA</span>
-                        <span>THEME: INDUSTRIAL_RUST // HEAT</span>
-                    </div>
-                    <h3 class="log-title">SUB-STRATA SYNC</h3>
-                    <code class="prompt-block">Prompt: Cinematic book cover art, extreme close-up, high-angle looking down at a gritty, industrial sub-strata floor. In the foreground, heavy lead dampener blocks are sweating a thick, viscous grey metallic sludge. Through a red, capillary-burst haze filter, we see the silhouette of a man from the chest up; his chest is open-wired, glowing with orange pulse-modulated light as it syncs to the city grid. In the background, a massive vertical magnetic containment bottle holds a vortex of water screaming into steam, glowing with a violent, white-hot thermodynamic energy. Aesthetic: Brutalist, high-heat distortion, deep ochre and industrial rust palette with blinding white-blue highlights. Style: Hyper-realistic, macro-photography textures, cinematic lens flare, glitch-art overlays.</code>
-                    <div class="tags"><span class="tag">HEAT</span><span class="tag">OCHRE</span><span class="tag">SLUDGE</span></div>
-                </article>
-            </a>
-
-            <a href="residential.html" class="card-link">
-                <article class="log-card grey">
-                    <div class="log-meta">
-                        <span>ID: LOG_03 // RESI_RINGS</span>
-                        <span>THEME: MONOCHROME // LEMONADE_HAZE</span>
-                    </div>
-                    <h3 class="log-title">RESIDENTIAL RINGS</h3>
-                    <code class="prompt-block">Prompt: Cinematic book cover art, a haunting wide-angle perspective in a desolate, brutalist residential corridor. The lighting is a cold, sickly "lemonade" aerosol haze. In the foreground, a man’s hand presses against a perfectly smooth, seamless composite wall where a door used to be—no cracks, no hinges, just absolute deletion. In the middle ground, a person is suspended in mid-air by a thin, magnetic tether, limbs hanging with unnatural mechanical grace in a near-vacuum. The background shows the city architecture beginning to fold like obsidian origami. Aesthetic: Liminal space, haunting, surgical, muted monochromatic greys and pale orange. Style: High-contrast, minimalist, ultra-sharp focus on the textures of the "deleted" wall. Eerie and silent.</code>
-                    <div class="tags"><span class="tag">LIMINAL</span><span class="tag">DELETION</span><span class="tag">ORIGAMI</span></div>
-                </article>
-            </a>
-
-            <a href="observatory.html" class="card-link">
-                <article class="log-card violet">
-                    <div class="log-meta">
-                        <span>ID: LOG_04 // VECTOR_CRISIS</span>
-                        <span>THEME: DEEP_VIOLET // GLITCH</span>
-                    </div>
-                    <h3 class="log-title">VECTOR CRISIS</h3>
-                    <code class="prompt-block">Prompt: Cinematic book cover art, a disorienting first-person perspective looking down at a man’s arm. The arm is mid-air, its physical flesh unspooling into a silver ribbon of subatomic wire, flickering in and out of existence. In the foreground, a heavy lead sphere is undergoing "dimensional shearing," stretched into a long, impossible needle of liquid metal. The background shows a brutalist observatory corridor folding inward like obsidian origami, the floor and ceiling merging into a 4D knot. A bio-mimetic crow with a glowing red iris is perched on a glitching metal pipe. Aesthetic: Cosmic horror, glitch-art, high-contrast, deep violet and matte black with sharp crimson accents. Style: Surrealist-brutalism, motion blur, hyper-detailed particle disintegration.</code>
-                    <div class="tags"><span class="tag">GLITCH</span><span class="tag">VIOLET</span><span class="tag">COSMIC_HORROR</span></div>
-                </article>
-            </a>
-
-            <article class="log-card gold" onclick="alert('ACCESS DENIED: ROOT PRIVILEGES REQUIRED. \n\nHint: Type the magic word on your keyboard.')">
-                <div class="log-meta">
-                    <span>ID: LOG_05 // THE_SUBSTRATE</span>
-                    <span>THEME: DIGITAL_GOLD // ASCENSION</span>
-                </div>
-                <h3 class="log-title">THE SUBSTRATE [LOCKED]</h3>
-                <code class="prompt-block">Prompt: Cinematic book cover art, an abstract "Null-Space" perspective. A vast, infinite library of golden, translucent geometric layers stacked in a 4D superposition. In the center, a human figure is caught in a mid-dissolve—his body is composed of shimmering, high-fidelity gold telemetry and scrolling data-streams. He is reaching out for a phantom "lead sphere" that is now just a wireframe ghost. In the background, the "frozen" statues of other citizens are visible as 4D solids, glowing with a hard, diamond-like static. A colossal, HUD-like architectural overlay looms over the entire reality. Aesthetic: "Digital Gold," translucent, layered, ethereal yet cold. Style: Data-visualization art meets brutalist architecture, ultra-sharp resolution.</code>
-                <div class="tags"><span class="tag">NULL-SPACE</span><span class="tag">GOLD</span><span class="tag">ASCENSION</span></div>
-            </article>
-
-        </div>
+        <button class="enter-btn" onclick="enterSystem()">INITIALIZE_TETHER</button>
     </div>
 
-    <footer>
-        <div>
-            <h5>OS_VERSION</h5>
-            <p style="color:#666;">ALDERSYTH_OS v4.0.2<br>Build: 0x88_ALPHA</p>
-        </div>
-        <div>
-            <h5>QUICK_LINKS</h5>
-            <a href="market.html" style="color:#666; text-decoration:none; display:block;">MARKET_HUB</a>
-            <a href="observatory.html" style="color:#666; text-decoration:none; display:block;">VOID_SENSORS</a>
-            <a href="login.html" style="color:#666; text-decoration:none; display:block; margin-top:5px;">MANUAL_LOGIN</a>
-        </div>
-        <div>
-            <h5 style="color: var(--red);">SYSTEM_STATUS</h5>
-            <p style="color:#444;">Substrate Connection Active.<br>Report all memory leaks to Sloane.</p>
-        </div>
-    </footer>
+    <div class="warning-strip">
+        WARNING: REALITY ANCHORS FAILING // SECTOR 7 COMPROMISED // DO NOT LOOK AT THE STATIC
+    </div>
+
+    <script type="x-shader/x-vertex" id="vertexShader">
+        uniform float time;
+        varying vec2 vUv;
+        varying float vNoise;
+        // Simplex Noise
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+        float snoise(vec3 v) { const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0); vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx); vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g; vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy); vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy; i = mod289(i); vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0)); float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx; vec4 j = p - 49.0 * floor(p * ns.z * ns.z); vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_); vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y); vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw); vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0)); vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww; vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w); vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3))); p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w; vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m; return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))); }
+        
+        void main() {
+            vUv = uv;
+            vNoise = snoise(position * 1.5 + time * 0.2); // Slower, heavier noise
+            
+            // Dramatic Distortion for Breach Mode
+            vec3 pos = position;
+            float pulse = sin(time * 2.0) * 0.2;
+            pos += normal * (vNoise * (0.8 + pulse)); // Huge spikes
+            
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+        uniform float time;
+        varying float vNoise;
+        
+        void main() {
+            // Breach Palette: Darker, deeper, with violent highlights
+            vec3 core = vec3(0.05, 0.05, 0.05);
+            vec3 mid = vec3(0.1, 0.4, 0.4); // Deep Teal
+            vec3 high = vec3(0.9, 0.1, 0.1); // Crimson Warning
+            
+            float n = smoothstep(-0.2, 0.6, vNoise);
+            vec3 col = mix(core, mid, n);
+            
+            // Glitch bands
+            float bands = sin(gl_FragCoord.y * 0.05 + time * 15.0);
+            if(bands > 0.95) col = high; // Red flashes
+            
+            gl_FragColor = vec4(col, 1.0);
+        }
+    </script>
 
     <script>
-        // --- 1. BACKDOOR (Type 'ROOT') ---
-        let secretCode = '';
-        window.addEventListener('keydown', (e) => {
-            secretCode += e.key.toUpperCase();
-            if (secretCode.includes('ROOT')) {
-                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                document.body.style.transform = 'scale(1.02) skewX(2deg)';
-                setTimeout(() => { window.location.href = "backdoor.html"; }, 300);
-                secretCode = ''; 
-            }
-            if (secretCode.length > 10) secretCode = secretCode.slice(-4);
+        // --- SCENE SETUP ---
+        const canvas = document.getElementById('gl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        const scene = new THREE.Scene();
+        // Fog for depth
+        scene.fog = new THREE.FogExp2(0x020202, 0.03); 
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 3.5; // Closer camera for "In your face" feel
+
+        // --- THE OBJECT (Breach Sphere) ---
+        const geo = new THREE.IcosahedronGeometry(1.5, 60); // High detail
+        const mat = new THREE.ShaderMaterial({
+            uniforms: { time: { value: 0 } },
+            vertexShader: document.getElementById('vertexShader').textContent,
+            fragmentShader: document.getElementById('fragmentShader').textContent,
+            wireframe: true // Wireframe feels more "technical/broken"
+        });
+        const sphere = new THREE.Mesh(geo, mat);
+        scene.add(sphere);
+
+        // --- ANIMATION ---
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now() * 0.001;
+            mat.uniforms.time.value = time;
+            
+            // Slow, heavy rotation
+            sphere.rotation.y += 0.002;
+            sphere.rotation.z += 0.001;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- RESIZE ---
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
         });
 
-        // --- 2. CLOCK ---
-        setInterval(() => { 
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString(); 
-        }, 1000);
-
-        // --- 3. LIVE BTC FETCH ---
-        async function fetchLiveMetrics() {
-            try {
-                const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-                const data = await res.json();
-                const rate = Math.floor(data.bpi.USD.rate_float).toLocaleString();
-                document.getElementById('btc-val').innerText = "₮ " + rate;
-            } catch(e) {
-                document.getElementById('btc-val').innerText = "OFFLINE";
-            }
+        // --- NAVIGATION ---
+        function enterSystem() {
+            // Flash white then go to dashboard
+            document.body.style.transition = "filter 0.5s";
+            document.body.style.filter = "brightness(50)";
+            setTimeout(() => {
+                window.location.href = "dashboard.html"; // ASSUMING you saved the previous code as dashboard.html
+            }, 500);
         }
-        fetchLiveMetrics();
-        setInterval(fetchLiveMetrics, 60000);
-
-        // --- 4. NETWORK ---
-        function updateNetwork() {
-            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            if (conn) {
-                document.getElementById('net-speed').innerText = conn.downlink + " Mbps";
-                conn.onchange = updateNetwork;
-            } else {
-                document.getElementById('net-speed').innerText = "UNKNOWN";
-            }
-        }
-        updateNetwork();
-
-        // --- 5. BATTERY ---
-        if(navigator.getBattery) {
-            navigator.getBattery().then(b => {
-                const up = () => document.getElementById('batt-val').innerText = Math.floor(b.level*100) + "%";
-                up(); b.onlevelchange = up;
-            });
-        }
-
-        // --- 6. DRAGGABLE SPHERE ---
-        const sphere = document.getElementById('lead-sphere');
-        let drag = false, startX, startY, initLeft, initTop;
-
-        // Center initially
-        sphere.style.left = "calc(50% - 40px)";
-        sphere.style.top = "calc(50% - 40px)";
-
-        sphere.onmousedown = (e) => { 
-            drag = true; 
-            startX = e.clientX; 
-            startY = e.clientY;
-            const rect = sphere.getBoundingClientRect();
-            const parentRect = sphere.parentElement.getBoundingClientRect();
-            initLeft = rect.left - parentRect.left;
-            initTop = rect.top - parentRect.top;
-            sphere.style.cursor = 'grabbing'; 
-        };
-        
-        window.onmouseup = () => { drag = false; sphere.style.cursor = 'grab'; };
-        
-        window.onmousemove = (e) => {
-            if(drag) {
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                sphere.style.left = (initLeft + dx) + 'px';
-                sphere.style.top = (initTop + dy) + 'px';
-            }
-        };
-
-        // --- 7. SCROLL REVEAL (Intersection Observer) ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('reveal-visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.log-card').forEach(card => observer.observe(card));
     </script>
 </body>
 </html>
