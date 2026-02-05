@@ -14,6 +14,7 @@
             --teal: #14b8a6;
             --crimson: #d90d32;
             --panel: #111;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -23,17 +24,46 @@
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            /* Cool Cyberpunk Grid Background */
+            background-image: 
+                linear-gradient(rgba(20, 184, 166, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(20, 184, 166, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            height: 60px;
+            background: rgba(5, 5, 5, 0.95);
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; z-index: 100;
+        }
+        .logo { color: var(--teal); font-size: 1.2rem; letter-spacing: 2px; text-shadow: 0 0 10px rgba(20, 184, 166, 0.4); }
+        .nav a { color: #666; text-decoration: none; margin-left: 20px; transition: 0.3s; font-size: 0.9rem; }
+        .nav a:hover { color: #fff; text-shadow: 0 0 5px #fff; }
+        
+        /* --- MAIN CONTENT (CENTERED) --- */
+        .desktop-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         /* --- APP GRID --- */
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 40px;
-            padding: 60px;
-            max-width: 900px;
-            margin: 0 auto;
+            grid-template-columns: repeat(6, 1fr); /* 6 Columns for layout */
+            gap: 50px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(2px);
+            border-radius: 4px;
         }
 
         .app-icon {
@@ -43,8 +73,8 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .app-icon:hover { transform: scale(1.1); }
-        .app-icon:hover .icon-box { box-shadow: 0 0 15px currentColor; border-color: #fff; }
+        .app-icon:hover { transform: translateY(-5px); }
+        .app-icon:hover .icon-box { box-shadow: 0 0 20px currentColor; border-color: #fff; color: #fff !important; }
 
         .icon-box {
             width: 70px; height: 70px;
@@ -52,10 +82,10 @@
             background: #0a0a0a;
             display: flex; align-items: center; justify-content: center;
             margin-bottom: 10px;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             transition: 0.2s;
         }
-        .icon-label { font-size: 0.7rem; color: #666; letter-spacing: 1px; margin-top: 5px; }
+        .icon-label { font-size: 0.7rem; color: #888; letter-spacing: 2px; margin-top: 5px; }
 
         /* --- WINDOW OVERLAYS --- */
         .window-overlay {
@@ -64,17 +94,16 @@
             width: 800px; height: 500px;
             background: rgba(10, 10, 10, 0.98);
             border: 1px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            box-shadow: 0 0 80px rgba(0,0,0,1);
             display: none; 
             flex-direction: column;
-            z-index: 100;
+            z-index: 200;
             opacity: 0; transition: 0.3s;
-            backdrop-filter: blur(10px);
         }
         .window-overlay.active { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .win-header {
-            padding: 8px 15px; font-weight: bold;
+            padding: 10px 15px; font-weight: bold;
             display: flex; justify-content: space-between; align-items: center;
             font-size: 0.8rem; border-bottom: 1px solid #333;
         }
@@ -83,220 +112,188 @@
         
         .win-content { padding: 30px; overflow-y: auto; flex: 1; }
 
-        /* --- MANUAL (TRAINING) STYLES --- */
+        /* --- APP SPECIFIC STYLES --- */
+        /* Manual */
         #manual-overlay { border-color: var(--gold); }
         #manual-overlay .win-header { background: var(--gold); color: #000; }
-        
         h2 { color: var(--gold); border-bottom: 1px dashed #333; padding-bottom: 10px; margin-top: 0; }
-        h3 { color: var(--teal); margin-top: 30px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        h3 { color: var(--teal); margin-top: 30px; font-size: 0.9rem; text-transform: uppercase; }
         p { font-size: 0.85rem; line-height: 1.6; color: #999; margin-bottom: 15px; }
-        .note { border-left: 2px solid var(--crimson); padding-left: 15px; color: #777; font-style: italic; }
-        .highlight { color: #fff; background: rgba(20, 184, 166, 0.1); padding: 2px 5px; }
-
-        /* --- IDENTITY FABRICATOR STYLES --- */
+        
+        /* ID Fabricator */
         #id-overlay { border-color: var(--crimson); width: 450px; height: 400px; }
         #id-overlay .win-header { background: var(--crimson); color: #fff; }
-        
-        .id-card {
-            background: #000; border: 1px solid #333; padding: 20px;
-            margin: 20px 0; text-align: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
+        .id-card { background: #000; border: 1px solid #333; padding: 20px; margin: 20px 0; text-align: center; }
         .glitch-btn {
             background: transparent; border: 1px solid var(--crimson); color: var(--crimson);
-            padding: 10px 20px; font-family: inherit; cursor: pointer; width: 100%;
-            transition: 0.2s; font-weight: bold;
+            padding: 10px 20px; font-family: inherit; cursor: pointer; width: 100%; font-weight: bold;
         }
         .glitch-btn:hover { background: var(--crimson); color: #fff; box-shadow: 0 0 15px var(--crimson); }
 
-        /* --- SQL CENSUS STYLES (NEW) --- */
+        /* SQL Census */
         #sql-overlay { border-color: var(--teal); }
         #sql-overlay .win-header { background: var(--teal); color: #000; }
-        
-        .sql-console {
-            background: #080808; border: 1px solid #333; padding: 15px;
-            font-family: 'Courier New', monospace; font-size: 0.85rem; color: #ccc;
-            margin-bottom: 15px;
-        }
-        .keyword { color: var(--gold); }
-        .func { color: var(--teal); }
-        
-        .sql-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 20px; font-family: 'Share Tech Mono'; }
+        .sql-console { background: #080808; border: 1px solid #333; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #ccc; margin-bottom: 15px; }
+        .sql-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 20px; }
         .sql-table th { text-align: left; border-bottom: 1px solid var(--teal); color: var(--teal); padding: 5px; }
         .sql-table td { padding: 5px; border-bottom: 1px solid #222; color: #888; }
-        .run-btn {
-            background: var(--teal); color: #000; border: none; padding: 8px 20px;
-            font-weight: bold; cursor: pointer; font-family: inherit;
-        }
-        .run-btn:hover { background: #fff; }
+        .run-btn { background: var(--teal); color: #000; border: none; padding: 8px 20px; font-weight: bold; cursor: pointer; font-family: inherit; }
 
-        /* --- TASKBAR --- */
-        .taskbar {
-            position: absolute; bottom: 0; width: 100%; height: 40px;
-            background: #111; border-top: 1px solid #333;
-            display: flex; align-items: center; padding: 0 20px;
-            color: #555; font-size: 0.7rem;
+        /* --- FOOTER --- */
+        footer {
+            height: 40px;
+            background: #080808; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; color: #555; font-size: 0.7rem; z-index: 100;
         }
 
     </style>
 </head>
 <body>
 
-    <div class="app-grid">
-        <div class="app-icon" onclick="location.href='spire.html'">
-            <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">▲</div>
-            <span class="icon-label">SPIRE_OS</span>
-        </div>
+    <header>
+        <div class="logo">ALDERSYTH // DECK</div>
+        <nav class="nav">
+            <a href="spire.html">CORE</a>
+            <a href="market.html">MARKET</a>
+            <a href="residential.html">RESIDENTIAL</a>
+            <a href="observatory.html">OBSERVATORY</a>
+            <a href="sync.html">SYNC</a>
+            <a href="backdoor.html" style="opacity:0.3;">_ROOT</a>
+        </nav>
+        <div style="color:var(--teal)">OS_VER: 4.9.2</div>
+    </header>
 
-        <div class="app-icon" onclick="location.href='market.html'">
-            <div class="icon-box" style="color:var(--gold); border-color:var(--gold)">$</div>
-            <span class="icon-label">MARKET</span>
-        </div>
-
-        <div class="app-icon" onclick="location.href='observatory.html'">
-            <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">◎</div>
-            <span class="icon-label">LENS</span>
-        </div>
-
-        <div class="app-icon" onclick="openWindow('manual-overlay')">
-            <div class="icon-box" style="color:#fff; border-color:#fff;">?</div>
-            <span class="icon-label">MANUAL</span>
-        </div>
-
-        <div class="app-icon" onclick="openWindow('id-overlay'); generateID();">
-            <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">ID</div>
-            <span class="icon-label">SPOOFER</span>
-        </div>
-
-        <div class="app-icon" onclick="openWindow('sql-overlay')">
-            <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">DB</div>
-            <span class="icon-label">CENSUS</span>
-        </div>
+    <div class="desktop-container">
         
-        <div class="app-icon" onclick="location.href='index.html'">
-            <div class="icon-box" style="color:#555; border-color:#555">X</div>
-            <span class="icon-label">LOGOUT</span>
-        </div>
-    </div>
-
-    <div id="manual-overlay" class="window-overlay">
-        <div class="win-header">
-            <span>DOC_REF: 001 // ENTROPY_PROTOCOL</span>
-            <span class="close-btn" onclick="closeWindow('manual-overlay')">[X]</span>
-        </div>
-        <div class="win-content">
-            <h2>ANALYST FIELD GUIDE: VOL. 1</h2>
-            <p><strong>AUTHOR:</strong> Lead Theorist Sloane<br><strong>CLEARANCE:</strong> Sector 4 Only</p>
-            <p>The City is not static. It is a dataset trying to render itself in real-time. As an Analyst, your job is to identify when the math fails.</p>
-
-            <h3>1. SECTOR ISOLATION (Network Segmentation)</h3>
-            <p>We keep the <strong>Spire</strong> (Core Control) physically and digitally separated from the <strong>Market</strong> (Public Traffic). Why? Because the Market is full of "noise"—wild data, fluctuating prices, and emotional resonance. If the Market's chaos leaked into the Spire's logic core, the gravity dampeners would fail. We use <span class="highlight">Air-Gaps</span> to prevent the infection from spreading.</p>
-            <div class="note">"Ren thinks the doors are locked to keep people out. No. They are locked to keep the glitch in."</div>
-
-            <h3>2. METRIC CONSISTENCY (Integrity)</h3>
-            <p>In the Old World, they called this the "CIA Triad." Here, we care about <strong>Integrity</strong> above all. If a file is modified in transit—if a "1" becomes a "0"—a hallway in the Residential Ring might stretch for infinity. We use cryptographic checksums to ensure that a cup of coffee remains a cup of coffee.</p>
-
-            <h3>3. THE SUBSTRATE CONTRACT (Shared Responsibility)</h3>
-            <p>We build the walls, but the <strong>Substrate</strong> provides the physics. We are responsible for the <em>Data</em> (who enters the room), but the Substrate is responsible for the <em>Room</em> existing. Never confuse the two.</p>
-        </div>
-    </div>
-
-    <div id="id-overlay" class="window-overlay">
-        <div class="win-header">
-            <span>APP_ID // IDENTITY_SPOOFER_V4</span>
-            <span class="close-btn" onclick="closeWindow('id-overlay')">[X]</span>
-        </div>
-        <div class="win-content" style="display:flex; flex-direction:column; justify-content:center;">
-            <div style="text-align:center; color:var(--crimson); font-weight:bold;">GENERATING FAKE CREDENTIALS...</div>
-            <div class="id-card">
-                <div id="id-name" style="font-size:1.5rem; color:#fff; font-weight:bold; letter-spacing:2px; margin-bottom:5px;">---</div>
-                <div id="id-role" style="color:var(--teal); font-size:0.8rem; letter-spacing:1px;">---</div>
-                <div id="id-hash" style="color:#444; font-size:0.6rem; font-family:monospace; margin-top:15px;">HASH: ---</div>
+        <div class="app-grid">
+            <div class="app-icon" onclick="location.href='spire.html'">
+                <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">▲</div>
+                <span class="icon-label">SPIRE</span>
             </div>
-            <button class="glitch-btn" onclick="generateID()">GENERATE_NEW_PERSONA</button>
-        </div>
-    </div>
 
-    <div id="sql-overlay" class="window-overlay">
-        <div class="win-header">
-            <span>SYS_ADMIN // VITALITY_QUERY_TOOL</span>
-            <span class="close-btn" onclick="closeWindow('sql-overlay')">[X]</span>
-        </div>
-        <div class="win-content">
-            <h2>POPULATION HEALTH ANALYSIS</h2>
-            <p>Execute SQL query to retrieve life expectancy metrics by district.</p>
-            
-            <div class="sql-console">
-                <span class="keyword">SELECT</span> district, <span class="func">AVG</span>(lifespan_cycles) <span class="keyword">AS</span> avg_life, status
-                <br><span class="keyword">FROM</span> citizens_db
-                <br><span class="keyword">WHERE</span> status != 'DELETED'
-                <br><span class="keyword">GROUP BY</span> district;
+            <div class="app-icon" onclick="location.href='market.html'">
+                <div class="icon-box" style="color:var(--gold); border-color:var(--gold)">$</div>
+                <span class="icon-label">MARKET</span>
             </div>
-            
-            <button class="run-btn" onclick="runQuery()">EXECUTE_QUERY</button>
-            
-            <div id="sql-results">
+
+            <div class="app-icon" onclick="location.href='observatory.html'">
+                <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">◎</div>
+                <span class="icon-label">LENS</span>
+            </div>
+
+            <div class="app-icon" onclick="openWindow('manual-overlay')">
+                <div class="icon-box" style="color:#fff; border-color:#fff;">?</div>
+                <span class="icon-label">MANUAL</span>
+            </div>
+
+            <div class="app-icon" onclick="openWindow('id-overlay'); generateID();">
+                <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">ID</div>
+                <span class="icon-label">SPOOFER</span>
+            </div>
+
+            <div class="app-icon" onclick="openWindow('sql-overlay')">
+                <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">DB</div>
+                <span class="icon-label">CENSUS</span>
+            </div>
+        </div>
+
+        <div id="manual-overlay" class="window-overlay">
+            <div class="win-header">
+                <span>DOC_REF: 001 // ENTROPY_PROTOCOL</span>
+                <span class="close-btn" onclick="closeWindow('manual-overlay')">[X]</span>
+            </div>
+            <div class="win-content">
+                <h2>ANALYST FIELD GUIDE</h2>
+                <p><strong>AUTHOR:</strong> Lead Theorist Sloane<br><strong>CLEARANCE:</strong> Sector 4 Only</p>
+                <h3>1. SECTOR ISOLATION (Network Segmentation)</h3>
+                <p>We keep the <strong>Spire</strong> separated from the <strong>Market</strong>. The Market is full of "noise." If the chaos leaked into the Spire's logic core, gravity would fail.</p>
+                <h3>2. METRIC CONSISTENCY (Integrity)</h3>
+                <p>If a file is modified in transit—if a "1" becomes a "0"—a hallway in the Residential Ring might stretch for infinity. We use checksums to ensure reality stays stable.</p>
+                <h3>3. SIGNAL MASKING (Encryption)</h3>
+                <p>The Strangers are watching. We use <strong>Asymmetric Keys</strong>. We publish a Public Key to the stars, but keep the Private Key buried.</p>
+            </div>
+        </div>
+
+        <div id="id-overlay" class="window-overlay">
+            <div class="win-header">
+                <span>APP_ID // IDENTITY_SPOOFER_V4</span>
+                <span class="close-btn" onclick="closeWindow('id-overlay')">[X]</span>
+            </div>
+            <div class="win-content" style="display:flex; flex-direction:column; justify-content:center;">
+                <div style="text-align:center; color:var(--crimson); font-weight:bold;">GENERATING FAKE CREDENTIALS...</div>
+                <div class="id-card">
+                    <div id="id-name" style="font-size:1.5rem; color:#fff; font-weight:bold; letter-spacing:2px; margin-bottom:5px;">---</div>
+                    <div id="id-role" style="color:var(--teal); font-size:0.8rem; letter-spacing:1px;">---</div>
+                    <div id="id-hash" style="color:#444; font-size:0.6rem; font-family:monospace; margin-top:15px;">HASH: ---</div>
                 </div>
+                <button class="glitch-btn" onclick="generateID()">GENERATE_NEW_PERSONA</button>
+            </div>
         </div>
+
+        <div id="sql-overlay" class="window-overlay">
+            <div class="win-header">
+                <span>SYS_ADMIN // VITALITY_QUERY_TOOL</span>
+                <span class="close-btn" onclick="closeWindow('sql-overlay')">[X]</span>
+            </div>
+            <div class="win-content">
+                <h2>POPULATION HEALTH ANALYSIS</h2>
+                <div class="sql-console">
+                    <span style="color:var(--gold)">SELECT</span> district, <span style="color:var(--teal)">AVG</span>(lifespan) <span style="color:var(--gold)">AS</span> avg_life, status
+                    <br><span style="color:var(--gold)">FROM</span> citizens_db <span style="color:var(--gold)">WHERE</span> status != 'DELETED'
+                </div>
+                <button class="run-btn" onclick="runQuery()">EXECUTE_QUERY</button>
+                <div id="sql-results"></div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="taskbar">
-        <span>SYSTEM_READY</span>
-        <span style="margin-left:auto">USER: ANALYST_KAEL</span>
-    </div>
+    <footer>
+        <span>SYSTEM_STATUS: <span style="color:var(--teal)">ONLINE</span></span>
+        <span>MEMORY_USAGE: 14%</span>
+        <span>USER: ANALYST_KAEL</span>
+        <span onclick="location.href='index.html'" style="cursor:pointer; color:var(--crimson)">[LOGOUT]</span>
+    </footer>
 
     <script>
-        // --- WINDOW MANAGER ---
         function openWindow(id) {
             document.querySelectorAll('.window-overlay').forEach(el => el.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
+        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
 
-        function closeWindow(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // --- IDENTITY FABRICATOR LOGIC ---
-        const prefixes = ["NEON", "NULL", "VOID", "CYBER", "ECHO", "GHOST", "DATA", "FLUX", "ZERO", "IRON"];
-        const suffixes = ["VIPER", "SHADOW", "DRIFTER", "RUNNER", "SYNTH", "PROTOCOL", "WRAITH", "GLITCH", "CORE"];
-        const roles = ["DATA_ARCHITECT", "SLUDGE_DIVER", "ENTROPY_MERCHANT", "SPIRE_WATCHER", "MEMORY_BROKER"];
+        // ID Generator
+        const prefixes = ["NEON", "NULL", "VOID", "CYBER", "ECHO", "GHOST", "DATA", "FLUX", "ZERO"];
+        const suffixes = ["VIPER", "SHADOW", "DRIFTER", "RUNNER", "SYNTH", "PROTOCOL", "WRAITH"];
+        const roles = ["DATA_ARCHITECT", "SLUDGE_DIVER", "ENTROPY_MERCHANT", "SPIRE_WATCHER"];
 
         function generateID() {
             const pre = prefixes[Math.floor(Math.random() * prefixes.length)];
             const suf = suffixes[Math.floor(Math.random() * suffixes.length)];
             const role = roles[Math.floor(Math.random() * roles.length)];
             const hash = Math.random().toString(36).substring(2, 15).toUpperCase();
-
             document.getElementById('id-name').innerText = `${pre}_${suf}`;
             document.getElementById('id-role').innerText = role;
             document.getElementById('id-hash').innerText = `HASH: 0x${hash}`;
         }
 
-        // --- SQL CENSUS LOGIC ---
+        // SQL Logic
         function runQuery() {
             const container = document.getElementById('sql-results');
             container.innerHTML = `<div style="margin-top:20px; color:var(--teal)">QUERYING SUBSTRATE NODES...</div>`;
-            
             setTimeout(() => {
-                // Procedural generation of stats
                 const spireLife = 85 + Math.floor(Math.random() * 20);
-                const marketLife = 45 + Math.floor(Math.random() * 10);
                 const resLife = 28 + Math.floor(Math.random() * 5);
-                
                 container.innerHTML = `
                     <table class="sql-table">
-                        <thead>
-                            <tr><th>DISTRICT</th><th>AVG_LIFE</th><th>STATUS</th></tr>
-                        </thead>
+                        <thead><tr><th>DISTRICT</th><th>AVG_LIFE</th><th>STATUS</th></tr></thead>
                         <tbody>
                             <tr><td>SPIRE_CORE</td><td>${spireLife}.4 YRS</td><td style="color:var(--teal)">OPTIMAL</td></tr>
-                            <tr><td>MARKET_RINGS</td><td>${marketLife}.2 YRS</td><td style="color:var(--gold)">STRESSED</td></tr>
+                            <tr><td>MARKET_RINGS</td><td>45.2 YRS</td><td style="color:var(--gold)">STRESSED</td></tr>
                             <tr><td>RESIDENTIAL</td><td>${resLife}.8 YRS</td><td style="color:var(--crimson)">CRITICAL</td></tr>
-                            <tr><td>SUB_STRATA</td><td>NULL</td><td style="color:#666">UNKNOWN_ENTITY</td></tr>
                         </tbody>
-                    </table>
-                    <div style="margin-top:10px; font-size:0.7rem; color:#666;">4 ROWS AFFECTED. QUERY TOOK 0.04s</div>
-                `;
+                    </table>`;
             }, 800);
         }
     </script>
