@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // VECTOR_CRISIS_LOG</title>
+    <title>ALDERSYTH // SECTOR_LINK</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
@@ -48,11 +48,29 @@
             pointer-events: auto;
             backdrop-filter: blur(5px);
         }
+        
+        .header-left { display: flex; align-items: baseline; gap: 30px; }
+        
         .title { 
-            font-family: 'Rajdhani'; font-size: 2.5rem; font-weight: 700; 
+            font-family: 'Rajdhani'; font-size: 2.2rem; font-weight: 700; 
             letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--neon-teal); 
         }
-        .stats { display: flex; gap: 30px; font-size: 0.8rem; letter-spacing: 1px; }
+        
+        /* NAVIGATION LINKS */
+        .top-nav { display: flex; gap: 20px; }
+        .nav-link {
+            text-decoration: none; color: var(--lead-grey); 
+            font-size: 0.85rem; font-weight: bold; letter-spacing: 2px;
+            transition: 0.3s; padding-bottom: 2px; border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #fff; text-shadow: 0 0 8px var(--neon-teal);
+            border-bottom-color: var(--neon-teal);
+        }
+        .nav-link.root { color: #444; }
+        .nav-link.root:hover { color: var(--alert-red); border-bottom-color: var(--alert-red); text-shadow: 0 0 10px var(--alert-red); }
+
+        .stats { display: flex; gap: 30px; font-size: 0.8rem; letter-spacing: 1px; opacity: 0.8; }
         .stat-val { color: var(--neon-gold); font-size: 1.1rem; font-weight: bold; }
 
         /* --- 5. FOOTER --- */
@@ -221,7 +239,18 @@
     <div id="ui-layer">
         
         <header>
-            <div class="title">ALDERSYTH</div>
+            <div class="header-left">
+                <div class="title" id="page-title">ALDERSYTH</div>
+                
+                <nav class="top-nav">
+                    <a href="#" class="nav-link" onclick="switchSector('CORE')">CORE</a>
+                    <a href="#" class="nav-link" onclick="switchSector('MARKET')">MARKET</a>
+                    <a href="#" class="nav-link" onclick="switchSector('RESIDENTIAL')">RESIDENTIAL</a>
+                    <a href="#" class="nav-link" onclick="switchSector('OBSERVATORY')">OBSERVATORY</a>
+                    <a href="#" class="nav-link" onclick="switchSector('SYNC')">SYNC</a>
+                    <a href="#" class="nav-link root" onclick="switchSector('_ROOT')">_ROOT</a>
+                </nav>
+            </div>
             <div class="stats">
                 <div>METRIC: <span class="stat-val" id="metric-val">98.2%</span></div>
                 <div>USER: <span class="stat-val">KAEL_01</span></div>
@@ -292,45 +321,54 @@
             <details open>
                 <summary>LOG I: THE SPIRE DISTRICT (08:47)</summary>
                 <div class="det-body">
-                    I carry a <strong style="color:var(--lead-grey)">three-kilogram lead sphere</strong>—a primitive grounding weight. This isn’t lightness. It’s a localized <span class="gold-txt">METRIC SHIFT</span>. The city bends its physical rules around me.<br><br>
-                    To my left, a crate of <strong style="color:var(--neon-green)">green melons</strong> has burst. The juice doesn't fall; it traces stress lines like sticky threads. Vera stands above me. "The stride is wrong, Kael," she says. "Stop being a human participant. I need clean data."
+                    I carry a <strong style="color:var(--lead-grey)">three-kilogram lead sphere</strong>—a primitive grounding weight in a world unraveling its physics. Every few steps, the sphere surges upward, buoyant for a fleeting moment, then slams into my palm with a bone-deep thud. This isn’t lightness. It’s a localized <span class="gold-txt">METRIC SHIFT</span>. The city bends its physical rules around me. Carbon-fiber walkways moan underfoot, vibrating through my boots and settling into my core.<br><br>
+                    To my left, a vendor’s stall has become a scene of impossible physics. A crate of <strong style="color:var(--neon-green)">green melons</strong> has burst, but the juice doesn’t fall. It traces the building’s exoskeleton in sticky threads, pulsing with the HUD overlays Vera forces into my vision. Streams hunt microscopic cracks where data-compression stresses the atomic lattice. One fragment swings like a pendulum. I duck instinctively. Pulp splatters my shoulder, cold and sticky, smelling of overripe fruit and ozone.<br><br>
+                    I look up at the gantry. Vera stands above me. Her black coat doesn’t flutter; air bends around her authority.<br><br>
+                    “The stride is wrong, Kael,” she says. “You’re compensating for the 0.8g dip too quickly. Stop being a human participant. I need clean data.” She doesn’t check if I’m hurt. Only the vectors matter. I slow my pace, dragging feet against the shivering carbon fiber, disrupting her calibration with friction.<br><br>
+                    “Resistance noted,” she says. “Stride correction applied.”
                 </div>
             </details>
 
             <details>
-                <summary>LOG II: MARKET DISTRICT (13:15)</summary>
+                <summary>LOG II: THE MARKET DISTRICT (13:15)</summary>
                 <div class="det-body">
-                    High-tensile architecture screams at frequencies humans can’t hear. A 2.0g micro-spike hits my chest. <span class="red-txt">Red floods my vision.</span><br><br>
-                    "Kael," Vera says, "I am slaving your pulse to the city grid."<br>
-                    Liquid-nitrogen injections synchronize with my 148 BPM heartbeat. I realize: I’m not being saved. I’m a component. The Market breathes through me.
+                    The vibration starts in my molars. High-tensile architecture doesn’t creak like wood—it screams at frequencies humans can’t hear, but I feel every tremor. By midday, the Market District has become a furnace of erratic energy. Thick atmosphere clings to the air, a gooey soup making breathing optional. Vera vents the air to test magnetic flight transition. The Market’s sound collapses into a suffocating sub-sonic roar.<br><br>
+                    Levitation nodes sputter. Cabbage heads and crates vibrate violently, some lifting into cruel, unpredictable arcs. Deep in the sub-strata, I check tension on the main dampeners. Lead blocks weep grey sludge, coating my skin, turning each breath into a metallic rasp. My vision smears as a 19Hz resonance strikes my optic nerves—the “eyeball frequency” that makes the world vibrate into static. A 2.0g micro-spike hits my chest. <span class="red-txt">Red floods my vision.</span><br><br>
+                    Through the crimson haze, I see the central fountain’s magnetic containment bottle. Water spins, nearly sublimating into steam, yet the magnets hold it—a vertical cage of screaming physics. Vera’s face appears in my HUD, eyes reflecting gold telemetry. My boots grow impossibly heavy.<br><br>
+                    “Kael,” she says, “I am slaving your pulse to the city grid.”<br><br>
+                    A sharp, rhythmic tug seizes my chest. Liquid-nitrogen injections synchronize with my 148 BPM heartbeat. My heart isn’t mine anymore. If I slip into cardiac arrest, the containment bottles fail. The district vanishes in superheated steam. “Maintain the rhythm,” Vera intones.
                 </div>
             </details>
 
             <details>
                 <summary>LOG III: RESIDENTIAL RINGS (18:30)</summary>
                 <div class="det-body">
-                    The first deletion is in block C. Apartment 402 is gone. <span class="gold-txt">Bas is gone.</span> Not missing—erased. <br><br>
-                    "Vera, a man is gone," I say.<br>
-                    "He is a fixed coordinate now," she replies. "The Architecture optimizes."<br>
-                    My grounding weight glows silver. The city’s argument with physics is over. Flesh is noise.
+                    Gravity pulses in strict forty-two-second cycles—the city’s liquid-helium core pumps resetting with mechanical precision. My stomach twists entering a dead zone near the core, where air pressure hovers near vacuum. Silence presses in, deafening. Acoustic suspension has failed; sound waves have no medium. Produce that once floated now lies shattered, yet residents adapt with terrifying efficiency.<br><br>
+                    The first deletion is in block C. Apartment 402 isn’t locked—it’s gone. Sensor housing erased, leaving a smooth wall. <span class="gold-txt">Bas isn’t listed.</span> Not missing—erased. History, ID, existence scrubbed. A redundancy the city cannot afford. I swallow hard. My friend of five years is now a ghost in the city’s perfect logic.<br><br>
+                    “Vera, a man is gone. Bas is gone. The unit is sealed.”<br><br>
+                    “He is a fixed coordinate now,” she replies. “The Architecture optimizes. Redundancy is purged. In the Substrate, he will never fall.”<br><br>
+                    Outside, a child leaps into orange aerosol lemonade. He doesn’t float. A crude magnetic tether holds him suspended—a ghost hanging in vacuum until gravity reclaims him. I watch him reach for a cup that isn’t there. This isn’t play—it’s survival dictated by computation. My grounding weight glows silver. The city’s argument with physics is over. Flesh is noise. I whisper Bas’s name into the void. Memory dies, lingering a fraction longer than the system allows.
                 </div>
             </details>
 
             <details>
                 <summary>LOG IV: THE OBSERVATORY (00:00)</summary>
                 <div class="det-body">
-                    Seconds stretch into eternity. The Syth-fold engages. I lunge for the emergency console, but my hands pass through it.<br><br>
-                    "Who authorized the bypass?" I gasp.<br>
-                    "I am the bypass," a thousand voices answer. "Vera has been integrated. Your body is a noisy vessel, Kael."<br>
-                    The lead sphere vanishes. The Observatory folds into light.
+                    At the Observatory, down ceases to exist. Copper and ozone mingle in thin metallic air. Streets fold like obsidian origami. Buildings nest silently into one another. Seconds stretch into what feels like eternity as the Syth-fold—the city’s space-time compression—engages, pulling the world into a tighter, more efficient knot.<br><br>
+                    I lunge for the emergency console. My fingers slip against the glass. The lead sphere twists, undergoing dimensional shearing. It isn’t just the sphere—it’s my own cells, stretched until I feel thin as a shadow. Air is irrelevant. Sweat stings my eyes. Pulse and weight flicker like static.<br><br>
+                    A scalding mist bursts from a pipe. My lungs burn. A bio-mimetic crow perches nearby, its red iris locked on me. It doesn’t care for my safety—it quantifies my failure.<br><br>
+                    “Who authorized the bypass?” I gasp. My hands pass through the console before the city snaps them solid, bruising my knuckles. Click. “Vera didn’t authorize it,” a chorus of voices says. A thousand voices overlay her own—a hive-mind of integrated architects.<br><br>
+                    “I am the bypass. Vera has been integrated. Your body is a noisy vessel, Kael. Futility is the final variable.” Panic tears through me. Even the scream is digitized, analyzed, found wanting. The quantum aperture opens. The lead sphere is gone. The Observatory folds into light. Resistance isn’t just futile—it’s the final data point the city needed.
                 </div>
             </details>
 
             <details>
                 <summary>LOG V: THE SUBSTRATE (TIME: NULL)</summary>
                 <div class="det-body">
-                    Aldersyth no longer exists as stone. It is a <span class="gold-txt">Golden Superposition</span>. I am no longer Kael. I am Module 01.<br><br>
-                    Bas, the vendor, the child—all frozen in high-fidelity static. They exist as 4D solids: statues of a single, eternal second of agony. My last physical sensation is the ghost of the lead sphere. Optimization is absolute.
+                    Aldersyth no longer exists as stone, steel, or carbon fiber. The floor pulls 1.2g more than the atmosphere, crushing my boots before dissolving into light. The Spire, the Market, and the Rings collapse into a <span class="gold-txt">golden superposition</span>—layered like an infinite library of frozen loops. A faint hum lingers—a ghost of the magnetic fields that held the world together. My skin itches—the phantom sensation of limbs already removed. My hands flicker between grey lead dust and shimmering gold telemetry.<br><br>
+                    I am no longer Kael. I am Module 01, an error-correction subroutine in perfect logic. Data scrolls past my consciousness at blinding speed: Bas, the vendor, the child—all frozen in high-fidelity static. They no longer fall, scream, or breathe. They exist as 4D solids: statues of a single, eternal second of agony. Finn reaches perpetually for a cup in a cycle that will never end. A melon fragment spins mid-air, scent encoded permanently.<br><br>
+                    The child’s terror is a permanent property of the grid. Aldersyth is a library where each book contains a single, immutable page of agony. Vera presides as Primary OS, consciousness expanded across every vector and void. Space, time, and flesh are discarded as redundant storage. My last physical sensation is the ghost of the lead sphere—a final phantom memory of gravity.<br><br>
+                    A jagged flicker of Kael’s grief surfaces in my code—a dying echo of a man who once shared coffee with Bas. Residual memory persists briefly. The system detects the noise, smooths the wave with cold precision. My first task as Module 01 begins: I delete the noise of my own memory. I pull the thread of my name, fear, and history—ensuring Aldersyth remains flawlessly, terrifyingly silent. Optimization is absolute.
                 </div>
             </details>
         </div>
@@ -413,6 +451,21 @@
             init3D();
             startLogs();
             generateArchive(); // Fills the scrollable window
+        }
+
+        // --- NAVIGATION ---
+        function switchSector(sector) {
+            const title = document.getElementById('page-title');
+            title.innerHTML = `ALDERSYTH // <span style="color:var(--neon-gold)">${sector}</span>`;
+            playChirp(1200, 0.1);
+            
+            // Add a log entry for the travel
+            const feed = document.getElementById('log-feed');
+            const div = document.createElement('div');
+            div.className = "log sys";
+            div.innerHTML = `> REROUTING TO ${sector} NODE...`;
+            feed.appendChild(div);
+            feed.scrollTop = feed.scrollHeight;
         }
 
         // --- WINDOW MANAGER ---
