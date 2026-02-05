@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // SECTOR_LINK</title>
+    <title>ALDERSYTH // ROOT_ACCESS</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
@@ -38,7 +38,7 @@
             grid-template-columns: 380px 1fr 320px; /* Sidebar Widths */
         }
 
-        /* --- 4. HEADER --- */
+        /* --- 4. HEADER (REAL LINKS FIXED) --- */
         header {
             grid-column: 1 / 4;
             display: flex; justify-content: space-between; align-items: center;
@@ -52,7 +52,7 @@
         .header-left { display: flex; align-items: baseline; gap: 30px; }
         
         .title { 
-            font-family: 'Rajdhani'; font-size: 2.2rem; font-weight: 700; 
+            font-family: 'Rajdhani'; font-size: 2.5rem; font-weight: 700; 
             letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--neon-teal); 
         }
         
@@ -240,15 +240,14 @@
         
         <header>
             <div class="header-left">
-                <div class="title" id="page-title">ALDERSYTH</div>
-                
+                <div class="title">ALDERSYTH</div>
                 <nav class="top-nav">
-                    <a href="#" class="nav-link" onclick="switchSector('CORE')">CORE</a>
-                    <a href="#" class="nav-link" onclick="switchSector('MARKET')">MARKET</a>
-                    <a href="#" class="nav-link" onclick="switchSector('RESIDENTIAL')">RESIDENTIAL</a>
-                    <a href="#" class="nav-link" onclick="switchSector('OBSERVATORY')">OBSERVATORY</a>
-                    <a href="#" class="nav-link" onclick="switchSector('SYNC')">SYNC</a>
-                    <a href="#" class="nav-link root" onclick="switchSector('_ROOT')">_ROOT</a>
+                    <a href="spire.html" class="nav-link">CORE</a>
+                    <a href="market.html" class="nav-link">MARKET</a>
+                    <a href="residential.html" class="nav-link">RESIDENTIAL</a>
+                    <a href="observatory.html" class="nav-link">OBSERVATORY</a>
+                    <a href="sync.html" class="nav-link">SYNC</a>
+                    <a href="index.html" class="nav-link root">_ROOT</a>
                 </nav>
             </div>
             <div class="stats">
@@ -451,21 +450,6 @@
             init3D();
             startLogs();
             generateArchive(); // Fills the scrollable window
-        }
-
-        // --- NAVIGATION ---
-        function switchSector(sector) {
-            const title = document.getElementById('page-title');
-            title.innerHTML = `ALDERSYTH // <span style="color:var(--neon-gold)">${sector}</span>`;
-            playChirp(1200, 0.1);
-            
-            // Add a log entry for the travel
-            const feed = document.getElementById('log-feed');
-            const div = document.createElement('div');
-            div.className = "log sys";
-            div.innerHTML = `> REROUTING TO ${sector} NODE...`;
-            feed.appendChild(div);
-            feed.scrollTop = feed.scrollHeight;
         }
 
         // --- WINDOW MANAGER ---
