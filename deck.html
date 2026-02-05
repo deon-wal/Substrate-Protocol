@@ -13,8 +13,8 @@
             --gold: #d4af37;
             --teal: #14b8a6;
             --crimson: #d90d32;
-            --panel: #111;
-            --border: rgba(255, 255, 255, 0.1);
+            --panel: rgba(20, 20, 20, 0.6);
+            --border: rgba(255, 255, 255, 0.15);
         }
 
         body {
@@ -26,11 +26,20 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            /* Cool Cyberpunk Grid Background */
             background-image: 
-                linear-gradient(rgba(20, 184, 166, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(20, 184, 166, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(20, 184, 166, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* --- CRT SCANLINE EFFECT --- */
+        body::after {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
         }
 
         /* --- HEADER --- */
@@ -45,7 +54,7 @@
         .nav a { color: #666; text-decoration: none; margin-left: 20px; transition: 0.3s; font-size: 0.9rem; }
         .nav a:hover { color: #fff; text-shadow: 0 0 5px #fff; }
         
-        /* --- MAIN CONTENT (CENTERED) --- */
+        /* --- MAIN CONTENT --- */
         .desktop-container {
             flex: 1;
             display: flex;
@@ -54,16 +63,23 @@
             position: relative;
         }
 
-        /* --- APP GRID --- */
+        /* --- THE APP PANEL (The Anchor) --- */
+        .app-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            /* Subtle float animation */
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr); /* 6 Columns for layout */
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns x 2 Rows */
             gap: 50px;
-            padding: 40px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(2px);
-            border-radius: 4px;
         }
 
         .app-icon {
@@ -74,25 +90,30 @@
             transition: 0.2s;
         }
         .app-icon:hover { transform: translateY(-5px); }
-        .app-icon:hover .icon-box { box-shadow: 0 0 20px currentColor; border-color: #fff; color: #fff !important; }
+        .app-icon:hover .icon-box { 
+            box-shadow: 0 0 15px currentColor; 
+            border-color: #fff; 
+            color: #fff !important; 
+            background: rgba(255,255,255,0.05);
+        }
 
         .icon-box {
-            width: 70px; height: 70px;
-            border: 2px solid #333;
+            width: 80px; height: 80px;
+            border: 1px solid #444;
             background: #0a0a0a;
             display: flex; align-items: center; justify-content: center;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
+            margin-bottom: 12px;
+            font-size: 2rem;
             transition: 0.2s;
         }
-        .icon-label { font-size: 0.7rem; color: #888; letter-spacing: 2px; margin-top: 5px; }
+        .icon-label { font-size: 0.7rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
 
         /* --- WINDOW OVERLAYS --- */
         .window-overlay {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.95);
             width: 800px; height: 500px;
-            background: rgba(10, 10, 10, 0.98);
+            background: rgba(12, 12, 12, 0.98);
             border: 1px solid #333;
             box-shadow: 0 0 80px rgba(0,0,0,1);
             display: none; 
@@ -109,7 +130,6 @@
         }
         .close-btn { cursor: pointer; font-weight: bold; transition:0.2s; }
         .close-btn:hover { color: #fff; }
-        
         .win-content { padding: 30px; overflow-y: auto; flex: 1; }
 
         /* --- APP SPECIFIC STYLES --- */
@@ -166,35 +186,37 @@
 
     <div class="desktop-container">
         
-        <div class="app-grid">
-            <div class="app-icon" onclick="location.href='spire.html'">
-                <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">▲</div>
-                <span class="icon-label">SPIRE</span>
-            </div>
+        <div class="app-panel">
+            <div class="app-grid">
+                <div class="app-icon" onclick="location.href='spire.html'">
+                    <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">▲</div>
+                    <span class="icon-label">SPIRE</span>
+                </div>
 
-            <div class="app-icon" onclick="location.href='market.html'">
-                <div class="icon-box" style="color:var(--gold); border-color:var(--gold)">$</div>
-                <span class="icon-label">MARKET</span>
-            </div>
+                <div class="app-icon" onclick="location.href='market.html'">
+                    <div class="icon-box" style="color:var(--gold); border-color:var(--gold)">$</div>
+                    <span class="icon-label">MARKET</span>
+                </div>
 
-            <div class="app-icon" onclick="location.href='observatory.html'">
-                <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">◎</div>
-                <span class="icon-label">LENS</span>
-            </div>
+                <div class="app-icon" onclick="location.href='observatory.html'">
+                    <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">◎</div>
+                    <span class="icon-label">LENS</span>
+                </div>
 
-            <div class="app-icon" onclick="openWindow('manual-overlay')">
-                <div class="icon-box" style="color:#fff; border-color:#fff;">?</div>
-                <span class="icon-label">MANUAL</span>
-            </div>
+                <div class="app-icon" onclick="openWindow('manual-overlay')">
+                    <div class="icon-box" style="color:#fff; border-color:#fff;">?</div>
+                    <span class="icon-label">MANUAL</span>
+                </div>
 
-            <div class="app-icon" onclick="openWindow('id-overlay'); generateID();">
-                <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">ID</div>
-                <span class="icon-label">SPOOFER</span>
-            </div>
+                <div class="app-icon" onclick="openWindow('id-overlay'); generateID();">
+                    <div class="icon-box" style="color:var(--crimson); border-color:var(--crimson)">ID</div>
+                    <span class="icon-label">SPOOFER</span>
+                </div>
 
-            <div class="app-icon" onclick="openWindow('sql-overlay')">
-                <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">DB</div>
-                <span class="icon-label">CENSUS</span>
+                <div class="app-icon" onclick="openWindow('sql-overlay')">
+                    <div class="icon-box" style="color:var(--teal); border-color:var(--teal)">DB</div>
+                    <span class="icon-label">CENSUS</span>
+                </div>
             </div>
         </div>
 
@@ -263,9 +285,8 @@
         }
         function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
 
-        // ID Generator
         const prefixes = ["NEON", "NULL", "VOID", "CYBER", "ECHO", "GHOST", "DATA", "FLUX", "ZERO"];
-        const suffixes = ["VIPER", "SHADOW", "DRIFTER", "RUNNER", "SYNTH", "PROTOCOL", "WRAITH"];
+        const suffixes = ["VIPER", "SHADOW", "DRIFTER", "RUNNER", "SYNTH", "PROTOCOL", "WRAITH", "GLITCH"];
         const roles = ["DATA_ARCHITECT", "SLUDGE_DIVER", "ENTROPY_MERCHANT", "SPIRE_WATCHER"];
 
         function generateID() {
@@ -278,7 +299,6 @@
             document.getElementById('id-hash').innerText = `HASH: 0x${hash}`;
         }
 
-        // SQL Logic
         function runQuery() {
             const container = document.getElementById('sql-results');
             container.innerHTML = `<div style="margin-top:20px; color:var(--teal)">QUERYING SUBSTRATE NODES...</div>`;
