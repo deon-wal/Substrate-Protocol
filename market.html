@@ -80,7 +80,7 @@
         }
         .ticker-content {
             display: inline-block;
-            animation: scroll-left 160s linear infinite; 
+            animation: scroll-left 160s linear infinite; /* Slowed down for readability */
             font-size: 1.2rem; color: var(--heat); font-weight: bold; letter-spacing: 2px;
             padding-left: 100%; text-shadow: 0 0 5px var(--rust);
         }
@@ -93,6 +93,7 @@
             gap: 20px;
             padding: 20px;
             overflow: hidden;
+            height: 100%; /* Ensure it fills the grid row */
         }
 
         /* PANELS */
@@ -110,7 +111,7 @@
         /* --- LEFT: ORDER BOOK --- */
         .order-book { flex: 1; overflow-y: auto; font-family: 'Share Tech Mono'; font-size: 0.85rem; }
         .order-row { 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 4px 10px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 6px 10px; 
             border-bottom: 1px solid rgba(234, 88, 12, 0.2); 
         }
         .order-row:nth-child(even) { background: rgba(255,255,255,0.02); }
@@ -307,11 +308,11 @@
                 
                 let row = document.createElement('div');
                 row.className = "order-row";
-                row.innerHTML = `<span>${sym}</span><span class="${type}">${arrow} ${price}</span><span class="vol">${size}</span>`;
+                row.innerHTML = `<span>${sym}</span><span class="${type} col-right">${arrow} ${price}</span><span class="vol">${size}</span>`;
                 container.appendChild(row);
             }
         }
-        setInterval(updateOrderBook, 1000); // 1 second updates
+        setInterval(updateOrderBook, 3000); // 3 second updates for readability
 
         // --- 3. THE GUTTER (REDDIT SCRAPER) ---
         const forumUsers = ["Rat_King", "Echo_Loco", "Sloane_Eye", "Market_Rat", "Null_Set", "Vera_Fan", "Lead_Head", "Steam_Junkie", "Void_Walker", "Glitch_Bitch"];
@@ -351,7 +352,7 @@
             feed.prepend(item);
             if(feed.children.length > 50) feed.lastChild.remove();
         }
-        setInterval(addPost, 2500); 
+        setInterval(addPost, 4000); 
         for(let i=0; i<10; i++) addPost(); // Init
 
         // --- 4. 3D VORTEX (AR OVERLAY) ---
