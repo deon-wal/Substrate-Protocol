@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // OBSERVATORY_BRUTAL_MASTER</title>
+    <title>ALDERSYTH // OBSERVATORY_BRUTAL_V100</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050505;
-            --lead: #1a1a1a;
-            --violet: #8b5cf6;
-            --crimson: #ef4444;
-            --green: #39ff14; 
-            --gold: #d4af37;
+            --bg: #050505; --lead: #1a1a1a; --violet: #8b5cf6;
+            --crimson: #ef4444; --green: #39ff14; --gold: #d4af37;
         }
 
-        /* BRUTAL CUSTOM SCROLLBAR */
+        /* BRUTAL SCROLLBAR */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--lead); border: 1px solid #333; }
@@ -26,11 +22,10 @@
             font-family: 'Share Tech Mono', monospace; margin: 0;
             height: 100vh; overflow: hidden; display: flex; flex-direction: column;
             background-image: url('wallpaper.jpg.png'); background-size: cover;
-            background-blend-mode: overlay;
-            perspective: 1000px;
+            background-blend-mode: overlay; perspective: 1000px;
         }
 
-        /* DYNAMIC CRT SCANLINES */
+        /* CRT FX LAYER */
         body::after {
             content: ""; position: fixed; inset: 0; z-index: 9999;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
@@ -39,29 +34,22 @@
 
         header {
             height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid #222;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 100;
         }
-        .nav a { color: #444; text-decoration: none; margin-left: 20px; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; }
-        .nav a:hover, .nav a.active { color: var(--violet); text-shadow: 0 0 8px var(--violet); }
+        .nav a { color: #444; text-decoration: none; margin-left: 20px; font-size: 0.8rem; letter-spacing: 2px; }
+        .nav a.active { color: var(--violet); border-bottom: 2px solid var(--violet); }
 
-        /* HUD GRID */
+        /* HUD LAYOUT */
         .viewport {
             flex: 1; display: grid; grid-template-columns: 320px 1fr 340px;
-            background: #111; gap: 2px; transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            background: #111; gap: 2px; transition: transform 0.1s ease-out;
         }
+        .panel { background: var(--bg); padding: 25px; display: flex; flex-direction: column; border: 1px solid #111; }
 
-        .panel { background: var(--bg); padding: 25px; display: flex; flex-direction: column; border: 1px solid #111; backdrop-filter: blur(5px); }
-
-        /* THE LENS (CENTER) */
-        .scope-container {
-            position: relative; background: #000;
-            overflow: hidden; cursor: crosshair;
-        }
+        /* CENTER: THE LENS */
+        .scope-container { position: relative; background: #000; overflow: hidden; cursor: crosshair; }
         #signal-canvas { width: 100%; height: 100%; filter: contrast(1.5) brightness(1.2); }
 
-        /* ASSET: THE ENTITY (The Green Blob) */
         #entity-layer {
             position: absolute; inset: 0;
             background: url('image_3c0f45.jpg') no-repeat center;
@@ -69,48 +57,49 @@
             transition: opacity 0.5s, filter 0.8s; pointer-events: none;
         }
 
-        .scope-hud { position: absolute; top: 30px; left: 30px; pointer-events: none; }
-        .status-header { font-size: 3.5rem; font-weight: 900; color: var(--crimson); line-height: 1; letter-spacing: -2px; }
-
-        /* ASSET: SEISMIC READOUT (pin3.jpg.png) */
-        #seismic-stress-view {
+        /* LEFT: SEISMIC READOUT (Uses pin3.jpg.png) */
+        #seismic-stress {
             flex: 1; margin-top: 15px; border: 1px solid #222;
             background: url('pin3.jpg.png') repeat-x; background-size: cover;
-            opacity: 0.2; filter: hue-rotate(280deg) contrast(1.5);
+            opacity: 0.2; filter: hue-rotate(280deg);
         }
 
-        /* ASSET: DECRYPTED MEMORY (log4.jpg) */
+        /* RIGHT: MEMORY CORE (Uses log4.jpg) */
         #memory-visual {
-            width: 100%; height: 220px; border: 1px solid #333;
-            background: url('log4.jpg') no-repeat center; background-size: cover;
+            width: 100%; height: 200px; background: url('log4.jpg') no-repeat center;
+            background-size: cover; border: 1px solid #333;
             filter: brightness(0) blur(20px); transition: 2s ease; margin-bottom: 20px;
         }
-        #memory-visual.decrypted { filter: brightness(0.8) blur(0px); box-shadow: 0 0 30px var(--violet); }
+        #memory-visual.resolved { filter: brightness(0.8) blur(0px); box-shadow: 0 0 30px var(--violet); }
 
         /* CONTROLS */
         .control-deck {
             background: #000; border-top: 2px solid #222; padding: 30px 40px;
-            display: flex; gap: 40px; justify-content: center; z-index: 100;
+            display: flex; gap: 40px; justify-content: center;
         }
-        .slider-group { flex: 1; max-width: 280px; }
+        .slider-group { flex: 1; max-width: 250px; }
         .label { font-size: 0.65rem; color: var(--gold); display: block; margin-bottom: 10px; letter-spacing: 2px; }
-        input[type=range] { width: 100%; accent-color: var(--violet); background: #111; height: 3px; outline: none; }
+        input[type=range] { width: 100%; accent-color: var(--violet); outline: none; }
 
-        /* VIOLENT SHAKE ANIMATION */
         .violent-shake { animation: shake 0.1s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-2px, -2px); }
-            100% { transform: translate(1px, 1px); }
-        }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(1px, 1px); } }
+
+        #boot-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .boot-btn { border: 1px solid var(--violet); color: var(--violet); background: transparent; padding: 15px 40px; font-family: inherit; font-size: 1.2rem; cursor: pointer; letter-spacing: 5px; }
+        .boot-btn:hover { background: var(--violet); color: #000; box-shadow: 0 0 40px var(--violet); }
     </style>
 </head>
-<body id="master-os">
+<body id="os-body">
+
+    <div id="boot-overlay">
+        <div style="margin-bottom: 20px; letter-spacing: 5px; color: var(--gold);">ALDERSYTH // OBSERVATORY_V100</div>
+        <button class="boot-btn" onclick="initSystem()">BOOT_TRUTH_ENGINE</button>
+    </div>
 
     <header>
         <div style="font-weight:bold; letter-spacing:5px;">ALDERSYTH // OBSERVATORY</div>
         <nav class="nav">
-            <a href="index.html">HUB</a>
+            <a href="index.html">CORE</a>
             <a href="market.html">MARKET</a>
             <a href="spire.html">SPIRE</a>
             <a href="observatory.html" class="active">OBSERVATORY</a>
@@ -120,46 +109,33 @@
 
     <div class="viewport" id="hud">
         <aside class="panel">
-            <div style="color:var(--gold); font-size: 0.75rem; border-bottom:1px solid #222; padding-bottom:10px; margin-bottom: 20px;">[ SPECTRAL_TELEMETRY ]</div>
-            
+            <div style="color:var(--gold); font-size: 0.75rem; border-bottom:1px solid #222; padding-bottom:10px; margin-bottom: 20px;">[ TELEMETRY ]</div>
             <span class="label">PULSE_STRENGTH</span>
-            <div style="height:3px; background:#111; margin-bottom:20px;">
-                <div id="amp-bar" style="height:100%; width:0%; background:var(--violet); box-shadow: 0 0 10px var(--violet);"></div>
-            </div>
-
-            <span class="label">THERMODYNAMIC_STRESS</span>
-            <div id="seismic-stress-view"></div>
-            
+            <div style="height:3px; background:#111; margin-bottom:20px;"><div id="amp-bar" style="height:100%; width:0%; background:var(--violet);"></div></div>
+            <span class="label">THERMODYNAMIC_STRESS_MAP</span>
+            <div id="seismic-stress"></div>
             <div style="font-size:0.65rem; color:#444; margin-top:15px; line-height: 1.8;">
                 > SCANNING: SECTOR_7<br>
                 > FREQ_SHIFT: <span id="val-f">000.00</span><br>
-                > SYNC_STATUS: <span id="sync-stat" style="color:var(--crimson)">SEARCHING...</span>
+                > SYNC: <span id="sync-stat" style="color:var(--crimson)">AWAITING_LOCK</span>
             </div>
         </aside>
 
         <main class="scope-container">
             <div id="entity-layer"></div>
             <canvas id="signal-canvas"></canvas>
-            <div class="scope-hud">
-                <div id="status-txt" class="status-header">SEARCHING...</div>
-                <div style="color:#222; font-size:0.65rem; letter-spacing:5px; margin-top:10px;">ALIGN VECTORS TO RESOLVE ENTITY</div>
+            <div style="position:absolute; top:30px; left:30px; pointer-events:none;">
+                <div id="status-txt" style="font-size:3rem; font-weight:900; color:var(--crimson);">SEARCHING...</div>
             </div>
         </main>
 
         <aside class="panel">
-            <div style="color:var(--gold); font-size: 0.75rem; border-bottom:1px solid #222; padding-bottom:10px; margin-bottom: 20px;">[ DECRYPTED_LOG ]</div>
-            
+            <div style="color:var(--gold); font-size: 0.75rem; border-bottom:1px solid #222; padding-bottom:10px; margin-bottom: 20px;">[ MEMORY_DECODE ]</div>
             <div id="memory-visual"></div>
-            
             <div id="log-screen" style="font-size: 0.75rem; color: #333; line-height: 1.6;">
                 [ENCRYPTED_SIGNAL]
                 ---
-                MATCH VECTORS:
-                1. FREQ_RESONANCE
-                2. THERMODYNAMIC_AMP
-                3. PHASE_DRIFT
-                ---
-                STATUS: AWAITING_LOCK
+                ALIGN VECTORS TO RESOLVE MEMORY.
             </div>
         </aside>
     </div>
@@ -184,17 +160,18 @@
         const ctx = canvas.getContext('2d');
         const hud = document.getElementById('hud');
         const entity = document.getElementById('entity-layer');
-        let time = 0, lockTimer = 0;
-        
-        // Narrative Lock Coordinates
-        let target = { f: 42, a: 60, p: 25 };
+        let time = 0, lockTimer = 0, audioCtx;
 
-        // HUD PARALLAX
         document.addEventListener('mousemove', (e) => {
             const x = (window.innerWidth / 2 - e.pageX) / 50;
             const y = (window.innerHeight / 2 - e.pageY) / 50;
             hud.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
         });
+
+        function initSystem() {
+            document.getElementById('boot-overlay').style.display = 'none';
+            loop();
+        }
 
         function loop() {
             requestAnimationFrame(loop);
@@ -205,21 +182,16 @@
             const a = parseInt(document.getElementById('amp').value);
             const p = parseInt(document.getElementById('phase').value);
 
-            // Brutal Shake Feedback
-            if(a > 50) document.body.classList.add('violent-shake');
-            else document.body.classList.remove('violent-shake');
+            if(a > 50) document.body.classList.add('violent-shake'); else document.body.classList.remove('violent-shake');
 
-            // Telemetry Update
             document.getElementById('amp-bar').style.width = a + "%";
             document.getElementById('val-f').innerText = (f * 12.5).toFixed(2);
-            document.getElementById('seismic-stress-view').style.backgroundPositionX = (time * 10) + "px";
+            document.getElementById('seismic-stress').style.backgroundPositionX = (time * 10) + "px";
 
-            // Draw Waves
-            drawWave(target.f, target.a, target.p, "rgba(255, 0, 0, 0.1)", 1); // Ghost
+            drawWave(42, 60, 25, "rgba(255, 0, 0, 0.1)", 1); // Ghost
             drawWave(f, a, p, "#8b5cf6", 3); // User Signal
 
-            // Sync Verification
-            const match = Math.abs(f - target.f) < 4 && Math.abs(a - target.a) < 8 && Math.abs(p - target.p) < 8;
+            const match = Math.abs(f - 42) < 4 && Math.abs(a - 60) < 8 && Math.abs(p - 25) < 8;
             const log = document.getElementById('log-screen');
             const status = document.getElementById('status-txt');
             const visual = document.getElementById('memory-visual');
@@ -230,17 +202,14 @@
                     status.innerText = "VECTOR_SYNCED"; status.style.color = "var(--green)";
                     entity.style.opacity = (a / 120);
                     entity.style.filter = `blur(${15 - (a/8)}px) hue-rotate(0deg) contrast(2)`;
-                    visual.classList.add('decrypted');
+                    visual.classList.add('resolved');
                     log.style.color = "var(--green)";
                     log.innerHTML = `[ ORIGIN_RECOVERED ]<br>---<br>"They are mining MEMORIES. Building a bridge out of our discarded lives."`;
                 }
             } else {
-                lockTimer = 0;
-                status.innerText = "SEARCHING..."; status.style.color = "var(--crimson)";
-                entity.style.opacity = "0";
-                visual.classList.remove('decrypted');
-                log.style.color = "#333";
-                log.innerText = "[ENCRYPTED_SIGNAL] --- ALIGN VECTORS TO RESOLVE MEMORY.";
+                lockTimer = 0; status.innerText = "SEARCHING..."; status.style.color = "var(--crimson)";
+                entity.style.opacity = "0"; visual.classList.remove('resolved');
+                log.style.color = "#333"; log.innerText = "[ENCRYPTED_SIGNAL] --- ALIGN VECTORS TO RESOLVE MEMORY.";
             }
         }
 
@@ -254,13 +223,8 @@
             ctx.stroke();
         }
 
-        window.addEventListener('resize', () => {
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = canvas.parentElement.offsetHeight;
-        });
-        canvas.width = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
-        loop();
+        function resize() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; }
+        window.addEventListener('resize', resize); resize();
     </script>
 </body>
 </html>
