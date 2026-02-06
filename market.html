@@ -11,12 +11,13 @@
         /* --- SUBSTRATE THEME: RUST / OCHRE / HEAT --- */
         :root {
             --bg: #050200;
-            --panel: rgba(20, 8, 0, 0.95);
+            --panel: rgba(15, 5, 0, 0.95);
             --rust: #ea580c;       
             --ochre: #d97706;
             --heat: #ffedd5;       
             --alert: #ef4444;      
             --green: #22c55e;
+            --grid-line: rgba(234, 88, 12, 0.2);
         }
 
         * { box-sizing: border-box; user-select: none; }
@@ -24,147 +25,175 @@
         body { 
             margin: 0; background: var(--bg); color: var(--ochre);
             font-family: 'Share Tech Mono', monospace; overflow: hidden;
-            font-size: 14px;
-            /* Asset: Market Thumbnail */
+            height: 100vh; width: 100vw;
             background-image: url('images/market_thumbnail.jpg'); 
             background-size: cover; background-attachment: fixed;
             background-blend-mode: multiply;
         }
 
+        /* --- HEAT HAZE FX --- */
+        #heat-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5;
+            backdrop-filter: blur(1px); opacity: 0; transition: opacity 0.5s;
+        }
+        @keyframes haze {
+            0% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(-2px, -2px) scale(1.01); filter: hue-rotate(-5deg); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        body.critical #heat-overlay { opacity: 1; animation: haze 0.1s infinite; }
+
         /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #110; }
-        ::-webkit-scrollbar-thumb { background: var(--rust); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a0500; border-left: 1px solid #333; }
+        ::-webkit-scrollbar-thumb { background: var(--rust); border: 1px solid #555; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--heat); }
 
-        /* --- LAYOUT GRID --- */
-        /* Increased sidebars for better readability */
-        .interface {
-            display: grid; grid-template-columns: 320px 1fr 350px;
-            grid-template-rows: 100px 1fr; /* Header space reserved */
-            height: 100vh; width: 100vw;
-            position: relative; z-index: 20;
-            padding: 0; /* Removing padding to force full fit */
+        /* --- LAYOUT ARCHITECTURE --- */
+        .layout-grid {
+            display: grid;
+            grid-template-rows: 60px 40px 1fr; /* Nav, Ticker, Main Content */
+            height: 100vh;
+            width: 100vw;
         }
 
-        /* --- HEADER & TICKER --- */
-        header {
-            grid-column: 1 / -1; /* Spans full width */
-            background: linear-gradient(180deg, #000 90%, transparent 100%);
-            border-bottom: 2px solid var(--rust);
-            display: flex; flex-direction: column;
-            justify-content: center;
-            padding-top: 10px;
-            z-index: 100;
-        }
-        
+        /* --- 1. NAV BAR --- */
         .nav-bar {
+            background: linear-gradient(180deg, #000 90%, transparent 100%);
+            border-bottom: 1px solid var(--rust);
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 40px; height: 50px;
+            padding: 0 30px; z-index: 100;
         }
-        .logo { font-family: 'Rajdhani'; font-size: 2rem; letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--rust); }
-        
+        .logo { font-family: 'Rajdhani'; font-size: 1.8rem; letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--rust); }
+        .nav { display: flex; gap: 20px; }
         .nav a { 
-            color: #888; text-decoration: none; margin-left: 20px; font-size: 0.9rem; letter-spacing: 2px; transition: 0.3s; font-weight: bold;
+            color: #888; text-decoration: none; font-size: 0.9rem; letter-spacing: 2px; transition: 0.3s; font-weight: bold;
         }
         .nav a:hover { color: var(--heat); text-shadow: 0 0 10px var(--rust); }
         .nav a.active { color: var(--rust); border-bottom: 2px solid var(--rust); }
         .nav a.root { color: var(--alert); }
 
-        /* TICKER TAPE (SLOWED & LARGER) */
-        .ticker-wrap {
-            width: 100%; height: 40px; background: rgba(234, 88, 12, 0.15);
-            overflow: hidden; display: flex; align-items: center; border-top: 1px solid #333;
+        /* --- 2. TICKER TAPE --- */
+        .ticker-bar {
+            background: rgba(40, 10, 0, 0.9); border-bottom: 1px solid var(--rust);
+            overflow: hidden; display: flex; align-items: center; white-space: nowrap;
         }
-        .ticker {
-            display: inline-block; white-space: nowrap; padding-left: 100%;
-            /* Slowed down to 160s for readability */
-            animation: scroll 160s linear infinite; 
-            color: var(--heat); font-size: 1.2rem; letter-spacing: 2px; font-weight: bold;
-            text-shadow: 0 0 5px var(--rust);
+        .ticker-content {
+            display: inline-block;
+            animation: scroll-left 160s linear infinite; 
+            font-size: 1.2rem; color: var(--heat); font-weight: bold; letter-spacing: 2px;
+            padding-left: 100%; text-shadow: 0 0 5px var(--rust);
         }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* --- COLUMNS --- */
-        .col-left, .col-right {
-            display: flex; flex-direction: column; gap: 15px; 
-            padding: 20px; overflow-y: hidden; height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
-        }
-        .col-center {
-            position: relative; border-left: 1px solid var(--rust); border-right: 1px solid var(--rust);
-            display: flex; flex-direction: column;
+        /* --- 3. MAIN DASHBOARD --- */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
         }
 
+        /* PANELS */
         .panel {
-            border: 1px solid var(--rust); background: var(--panel); 
-            box-shadow: 0 0 20px rgba(0,0,0,0.8); position: relative;
-            display: flex; flex-direction: column;
+            background: rgba(10, 5, 0, 0.85); border: 1px solid var(--rust);
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
         }
-        /* Make Order Book & Feed fill remaining space */
-        .panel.fill { flex: 1; min-height: 0; } 
-
-        .p-head { 
-            font-size: 0.9rem; color: #fff; background: rgba(234, 88, 12, 0.2);
-            padding: 8px 12px; display: flex; justify-content: space-between; font-weight: bold;
-            border-bottom: 1px solid var(--rust);
+        .p-header {
+            background: rgba(234, 88, 12, 0.1); border-bottom: 1px solid var(--rust);
+            padding: 10px 15px; font-size: 0.8rem; color: #fff; font-weight: bold;
+            display: flex; justify-content: space-between;
         }
 
-        /* --- THERMAL GAUGE --- */
-        .metric-box { padding: 15px; text-align: center; }
-        .big-val { font-family: 'Rajdhani'; font-size: 4rem; font-weight: bold; color: #fff; line-height: 1; text-shadow: 0 0 20px var(--alert); }
-        .heat-bar { width: 100%; height: 10px; background: #311; margin-top: 10px; border: 1px solid #500; }
-        .heat-fill { height: 100%; width: 40%; background: linear-gradient(90deg, var(--rust), #fff); transition: width 0.2s; box-shadow: 0 0 15px var(--rust); }
-
-        /* --- CENTER VORTEX --- */
-        #three-canvas { width: 100%; height: 100%; filter: contrast(1.4) brightness(1.1); }
-        .overlay-ui {
-            position: absolute; bottom: 30px; left: 30px; pointer-events: none;
-            color: var(--heat); font-size: 1rem; font-weight: bold; text-shadow: 0 0 5px #000;
-            background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid var(--rust);
-        }
-
-        /* --- REDDIT FEED ("THE GUTTER") --- */
-        .feed-container {
-            flex: 1; overflow-y: auto; padding: 0; display: flex; flex-direction: column;
-        }
-        .post {
-            padding: 12px; border-bottom: 1px solid #333;
-            font-size: 0.85rem; transition: 0.2s; cursor: default;
-            color: #ddd;
-        }
-        .post:hover { background: rgba(234, 88, 12, 0.15); color: #fff; }
-        .post-meta { display: flex; justify-content: space-between; color: var(--rust); font-size: 0.75rem; margin-bottom: 4px; font-weight: bold;}
-        
-        /* --- ORDER BOOK --- */
-        .order-book-container {
-            font-family: 'Share Tech Mono'; font-size: 0.9rem;
-            flex: 1; overflow-y: auto;
-        }
+        /* --- LEFT: ORDER BOOK --- */
+        .order-book { flex: 1; overflow-y: auto; font-family: 'Share Tech Mono'; font-size: 0.85rem; }
         .order-row { 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 8px 10px; border-bottom: 1px solid #222; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 4px 10px; 
+            border-bottom: 1px solid rgba(234, 88, 12, 0.2); 
         }
         .order-row:nth-child(even) { background: rgba(255,255,255,0.02); }
-        .order-row:hover { background: #221; color: #fff; }
+        .order-row:hover { background: rgba(234, 88, 12, 0.2); color: #fff; }
         .price-up { color: var(--green); }
         .price-down { color: var(--alert); }
-        .col-right { text-align: right; }
+        .vol { text-align: right; color: #666; }
+
+        /* --- CENTER: HACKED LIVE FEED --- */
+        .vortex-container { 
+            position: relative; width: 100%; height: 100%; 
+            background: #000; border: 1px solid #333; overflow: hidden;
+        }
+        
+        /* The Hacked Camera Feed */
+        .live-feed-bg {
+            position: absolute; inset: 0;
+            background-image: url('images/log2.jpg');
+            background-size: cover; background-position: center;
+            opacity: 0.6; filter: grayscale(0.5) contrast(1.2);
+            z-index: 0;
+            animation: signal-noise 4s infinite;
+        }
+        
+        /* Scanline Overlay on Camera */
+        .feed-overlay {
+            position: absolute; inset: 0; 
+            background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.25) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 1;
+        }
+
+        #three-canvas { position: absolute; inset: 0; width: 100%; height: 100%; filter: contrast(1.2); z-index: 2; mix-blend-mode: screen; }
+
+        .overlay-ui {
+            position: absolute; top: 20px; left: 20px; pointer-events: none; z-index: 10;
+            color: var(--alert); font-size: 0.9rem; font-weight: bold; text-shadow: 0 0 5px #000;
+            background: rgba(0,0,0,0.8); padding: 5px 10px; border: 1px solid var(--alert);
+            animation: blink 2s infinite;
+        }
+
+        .cam-label {
+            position: absolute; bottom: 20px; right: 20px; z-index: 10;
+            color: #fff; background: rgba(0,0,0,0.8); padding: 5px; font-size: 0.7rem;
+        }
+
+        @keyframes signal-noise {
+            0% { opacity: 0.6; transform: translateX(0); }
+            5% { opacity: 0.5; transform: translateX(2px); }
+            10% { opacity: 0.6; transform: translateX(0); }
+            95% { opacity: 0.6; }
+            96% { opacity: 0.4; filter: invert(1); }
+            100% { opacity: 0.6; filter: invert(0); }
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* --- RIGHT: THE GUTTER --- */
+        .feed-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+        .feed-item {
+            padding: 12px; border-bottom: 1px dashed #333; background: rgba(0,0,0,0.4);
+            font-size: 0.85rem; line-height: 1.4; color: #ccc;
+        }
+        .feed-item:hover { background: rgba(234, 88, 12, 0.15); color: #fff; }
+        .user { color: var(--ochre); font-weight: bold; font-size: 0.7rem; margin-right: 5px; }
+        .time { float: right; color: #555; font-size: 0.7rem; }
 
         /* --- CONTROLS --- */
+        .control-box { padding: 15px; border-top: 1px solid var(--rust); background: rgba(0,0,0,0.8); }
+        .big-temp { font-family: 'Rajdhani'; font-size: 3rem; color: #fff; line-height: 1; text-align: center; margin-bottom: 10px; }
+        
         .btn-vent {
             width: 100%; background: #2a0a00; border: 1px solid var(--rust); color: var(--rust);
-            padding: 15px; font-family: inherit; font-size: 1.2rem; font-weight: bold; cursor: pointer;
-            transition: 0.2s; text-transform: uppercase; margin-top: 0;
+            padding: 12px; font-family: inherit; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            transition: 0.2s; text-transform: uppercase;
         }
         .btn-vent:hover { background: var(--rust); color: #000; box-shadow: 0 0 30px var(--rust); }
 
         /* HEAT FX */
         #heat-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 5;
+            position: fixed; inset: 0; pointer-events: none; z-index: 50;
             backdrop-filter: blur(2px) hue-rotate(-10deg); opacity: 0; transition: opacity 1s;
         }
         body.critical #heat-overlay { opacity: 1; animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 0.2; } 100% { opacity: 0.6; } }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 0.2; } 100% { opacity: 0.5; } }
 
     </style>
 </head>
@@ -172,7 +201,9 @@
 
     <div id="heat-overlay"></div>
 
-    <header>
+    <div class="layout-grid">
+        
+        <!-- ROW 1: NAV -->
         <div class="nav-bar">
             <div class="logo">ALDERSYTH // MARKET</div>
             <nav class="nav">
@@ -185,140 +216,109 @@
                 <a href="login.html" class="root">_ROOT</a>
             </nav>
         </div>
-        <div class="ticker-wrap">
-            <div class="ticker" id="ticker-tape">CONNECTING TO GLOBAL EXCHANGE...</div>
-        </div>
-    </header>
 
-    <div class="interface">
-        
-        <!-- LEFT: ORDER BOOK (WALL STREET STYLE) -->
-        <div class="col-left">
-            <div class="panel fill">
-                <div class="p-head"><span>COMMODITY_PRICES</span><span>LIVE_L2</span></div>
-                <div class="order-book-container" id="order-book">
-                    <!-- JS Fills this -->
-                </div>
-            </div>
+        <!-- ROW 2: TICKER -->
+        <div class="ticker-bar">
+            <div class="ticker-content" id="ticker-tape">LOADING GLOBAL EXCHANGE DATA...</div>
+        </div>
+
+        <!-- ROW 3: MAIN CONTENT -->
+        <div class="dashboard">
             
+            <!-- COL 1: ORDER BOOK -->
             <div class="panel">
-                 <div class="p-head"><span>MARKET_VOLATILITY</span></div>
-                 <div style="height:100px; background:url('images/image_73eda1.png'); background-size:cover; filter: hue-rotate(-15deg);"></div>
-            </div>
-        </div>
-
-        <!-- CENTER: VORTEX -->
-        <div class="col-center">
-            <canvas id="three-canvas"></canvas>
-            <div class="overlay-ui">
-                MAGNETIC_CONTAINMENT_FIELD<br>
-                <span style="font-size:2rem; color:var(--heat)">⚠ UNSTABLE</span>
-            </div>
-        </div>
-
-        <!-- RIGHT: THE GUTTER & CONTROLS -->
-        <div class="col-right">
-            <div class="panel">
-                <div class="p-head"><span>THERMAL_LOAD</span><span>SEC_02</span></div>
-                <div class="metric-box">
-                    <div class="big-val" id="temp-val">482°K</div>
-                    <div class="heat-bar"><div class="heat-fill" id="temp-bar"></div></div>
+                <div class="p-header"><span>COMMODITY_L2</span><span>LIVE_FEED</span></div>
+                <div class="order-book" id="order-book">
+                    <!-- JS fills this -->
                 </div>
-                <div style="padding:15px; border-top:1px solid #333;">
+            </div>
+
+            <!-- COL 2: HACKED LIVE FEED -->
+            <div class="panel" style="border:none; background:none; box-shadow:none;">
+                <div class="vortex-container">
+                    <div class="live-feed-bg"></div>
+                    <div class="feed-overlay"></div>
+                    <canvas id="three-canvas"></canvas>
+                    
+                    <div class="overlay-ui">
+                        ● LIVE FEED // CAM_04<br>
+                        SOURCE: VERA_GHOST_PROTOCOL<br>
+                        LOCATION: SUB-STRATA
+                    </div>
+
+                    <div class="cam-label">
+                        [REC] 00:04:12 // THERMAL_CAM
+                    </div>
+                </div>
+            </div>
+
+            <!-- COL 3: THE GUTTER -->
+            <div class="panel">
+                <div class="p-header"><span>CITIZEN_NET // THE_GUTTER</span><span style="color:var(--green)">● ONLINE</span></div>
+                <div class="feed-list" id="feed-list">
+                    <!-- JS fills this -->
+                </div>
+                
+                <!-- CONTROLS AT BOTTOM OF FEED -->
+                <div class="control-box">
+                    <div class="big-temp" id="temp-val">482°K</div>
                     <input type="range" min="0" max="100" value="30" style="width:100%; accent-color:var(--rust); margin-bottom:10px;" id="pressure-slider">
                     <button class="btn-vent" onclick="ventSteam()">EMERGENCY VENT</button>
                 </div>
             </div>
 
-            <div class="panel fill">
-                <div class="p-head"><span>CITIZEN_NET // THE_GUTTER</span><span style="color:var(--heat)">● LIVE</span></div>
-                <div class="feed-container" id="reddit-feed">
-                    <!-- Posts go here -->
-                </div>
-            </div>
         </div>
-
     </div>
 
     <script>
-        // --- 1. EXTENDED DATA STREAMS ---
-        const commodities = [
-            { sym: "O2_CAN", name: "Oxygen", price: 450 },
-            { sym: "H2O_FLT", name: "Water Filter", price: 1200 },
-            { sym: "LEAD_KG", name: "Raw Lead", price: 85 },
-            { sym: "GRAV_D", name: "Grav Dampener", price: 5400 },
-            { sym: "DATA_S", name: "Clean Data", price: 300 },
-            { sym: "MELON", name: "Synth-Melon", price: 45 },
-            { sym: "COFFEE", name: "Real Coffee", price: 890 },
-            { sym: "HEAT_S", name: "Heat Sink", price: 210 },
-            { sym: "V_COIN", name: "Vera Coin", price: 1.05 },
-            { sym: "OLD_OS", name: "Legacy Drive", price: 5000 },
-            { sym: "BIO_MS", name: "Bio-Mesh", price: 670 },
-            { sym: "SLUDGE", name: "Ind. Sludge", price: 12 },
-            { sym: "N2_LIQ", name: "Liq Nitrogen", price: 340 },
-            { sym: "MEM_FR", name: "Memory Frag", price: 9999 },
-            { sym: "VOID_K", name: "Void Key", price: 0 },
-            { sym: "PORK_S", name: "Synth Pork", price: 22 },
-            { sym: "TUNGST", name: "Tungsten", price: 1500 },
-            { sym: "GRAPHN", name: "Graphene", price: 2100 },
-            { sym: "RE_H2O", name: "Recycled H2O", price: 15 },
-            { sym: "ID_TAG", name: "Blank ID", price: 8000 },
-            { sym: "NEURO", name: "Neuro-Link", price: 350 },
-            { sym: "COPPER", name: "Copper Wire", price: 65 },
-            { sym: "RAD_MD", name: "Anti-Rad", price: 150 },
-            { sym: "SILICA", name: "Silicon", price: 90 },
-            { sym: "ENERGY", name: "kWh Cell", price: 400 }
+        // --- 1. MEGA TICKER DATA ---
+        const tickerItems = [
+            "BTC: $42,109 ▲", "ETH: $3,105 ▼", "O2_CAN: ₮450 ▲", "WATER: ₮1,200 ▲", 
+            "LEAD: ₮85 ▼", "GRAV_D: ₮5,400 ▲", "DATA_S: ₮300 ▲", "MELON: ₮45 ▼", 
+            "COFFEE: ₮890 ▲", "HEAT_S: ₮210 ▼", "VERA_COIN: ₮1.05 ▲", "OLD_OS: ₮5,000 ▲",
+            "BIO_MESH: ₮670 ▼", "SLUDGE: ₮12 ▲", "N2_LIQ: ₮340 ▼", "MEM_FRAG: ₮9,999 ▲",
+            "VOID_KEY: ₮0.00 --", "PORK_SYNTH: ₮22 ▼", "TUNGSTEN: ₮1,500 ▲", "GRAPHENE: ₮2,100 ▲"
         ];
-
-        // --- 2. TICKER LOGIC (SLOWED DOWN) ---
-        async function initTicker() {
-            let tickerText = "";
-            const cryptos = ['bitcoin', 'ethereum', 'solana', 'cardano', 'ripple'];
-            try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptos.join(',')}&vs_currencies=usd`);
-                const data = await res.json();
-                tickerText += `BTC: $${data.bitcoin.usd} // ETH: $${data.ethereum.usd} // SOL: $${data.solana.usd} // `;
-            } catch (e) {
-                tickerText += "BTC: $42,050 // ETH: $3,100 // SOL: $105 // "; 
-            }
-            // Add fictional commodities
-            commodities.forEach(c => {
-                let p = (c.price + (Math.random() - 0.5) * 10).toFixed(2);
-                tickerText += `${c.sym}: ₮${p} // `;
-            });
-            // Repeat for smooth loop
-            document.getElementById('ticker-tape').innerText = tickerText.repeat(5);
+        
+        function initTicker() {
+            // Repeat the string multiple times to ensure it fills the width before scrolling
+            const text = tickerItems.join(" /// ") + " /// " + tickerItems.join(" /// ") + " /// " + tickerItems.join(" /// ");
+            document.getElementById('ticker-tape').innerText = text;
         }
         initTicker();
 
-        // --- 3. ORDER BOOK (DENSE & CHAOTIC) ---
+        // --- 2. ORDER BOOK SIMULATION ---
+        const commodities = [
+            "O2_CAN", "H2O_FLT", "LEAD_KG", "GRAV_D", "DATA_S", "MELON", 
+            "COFFEE", "HEAT_S", "V_COIN", "OLD_OS", "BIO_MS", "SLUDGE", "N2_LIQ"
+        ];
+
         function updateOrderBook() {
             const container = document.getElementById('order-book');
-            container.innerHTML = "";
-            // Shuffle and show top 15
-            const shuffled = commodities.sort(() => 0.5 - Math.random());
+            container.innerHTML = ""; // Refresh
             
-            shuffled.forEach(c => {
-                let p = (c.price + (Math.random() - 0.5) * 5).toFixed(2);
-                let up = Math.random() > 0.5;
-                let color = up ? "price-up" : "price-down";
-                let arrow = up ? "▲" : "▼";
-                let vol = Math.floor(Math.random() * 5000);
+            // Generate 30 rows
+            for(let i=0; i<30; i++) {
+                let sym = commodities[Math.floor(Math.random() * commodities.length)];
+                let price = (Math.random() * 1000).toFixed(2);
+                let size = Math.floor(Math.random() * 500);
+                let type = Math.random() > 0.5 ? 'price-up' : 'price-down';
+                let arrow = type === 'price-up' ? '▲' : '▼';
                 
                 let row = document.createElement('div');
                 row.className = "order-row";
-                row.innerHTML = `<span>${c.sym}</span><span class="${color} col-right">${p}</span><span class="col-right" style="color:#666">${vol}</span>`;
+                row.innerHTML = `<span>${sym}</span><span class="${type}">${arrow} ${price}</span><span class="vol">${size}</span>`;
                 container.appendChild(row);
-            });
+            }
         }
-        setInterval(updateOrderBook, 800); // Fast updates
+        setInterval(updateOrderBook, 1000); // 1 second updates
 
-        // --- 4. REDDIT SCRAPER (THE GUTTER) ---
+        // --- 3. THE GUTTER (REDDIT SCRAPER) ---
         const forumUsers = ["Rat_King", "Echo_Loco", "Sloane_Eye", "Market_Rat", "Null_Set", "Vera_Fan", "Lead_Head", "Steam_Junkie", "Void_Walker", "Glitch_Bitch"];
         const forumPosts = [
-            "The heat in Sector 4 is unbearable today.",
+            "The heat in Sector 4 is unbearable today. Even the rats are leaving.",
             "Buying O2 canisters, will trade for clean data.",
-            "Did anyone else see the gravity glitch?",
+            "Did anyone else see the gravity glitch by the fountain?",
             "My neighbor's door disappeared. Smooth wall now.",
             "Selling 5kg of Lead. No questions asked.",
             "The steam vents are screaming.",
@@ -339,24 +339,22 @@
         ];
 
         function addPost() {
-            const feed = document.getElementById('reddit-feed');
+            const feed = document.getElementById('feed-list');
             const u = forumUsers[Math.floor(Math.random() * forumUsers.length)];
             const p = forumPosts[Math.floor(Math.random() * forumPosts.length)];
             const upvotes = Math.floor(Math.random() * 500);
             
             const item = document.createElement('div');
-            item.className = "post";
-            item.innerHTML = `
-                <div class="post-meta"><span>u/${u}</span><span>[↑${upvotes}]</span></div>
-                <div class="post-body">${p}</div>
-            `;
+            item.className = "feed-item";
+            item.innerHTML = `<div class="post-meta"><span class="user">@${u}</span> <span class="time">NOW</span></div><div class="post-body">${p}</div>`;
+            
             feed.prepend(item);
             if(feed.children.length > 50) feed.lastChild.remove();
         }
-        setInterval(addPost, 2000); // New post every 2s
-        for(let i=0; i<8; i++) addPost(); 
+        setInterval(addPost, 2500); 
+        for(let i=0; i<10; i++) addPost(); // Init
 
-        // --- 5. 3D VORTEX ---
+        // --- 4. 3D VORTEX (AR OVERLAY) ---
         let pressure = 30;
         const canvas = document.getElementById('three-canvas');
         const renderer = new THREE.WebGLRenderer({canvas, alpha:true});
@@ -364,15 +362,17 @@
         const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
         camera.position.z = 5;
 
-        const geo = new THREE.CylinderGeometry(1.8, 1.8, 8, 32, 1, true);
+        // Vortex Cylinder
+        const geo = new THREE.CylinderGeometry(1.5, 1.5, 6, 32, 1, true);
         const mat = new THREE.MeshBasicMaterial({ 
-            color: 0xea580c, wireframe: true, transparent: true, opacity: 0.4, side: THREE.DoubleSide 
+            color: 0xffffff, wireframe: true, transparent: true, opacity: 0.15, side: THREE.DoubleSide 
         });
         const vortex = new THREE.Mesh(geo, mat);
         vortex.rotation.x = Math.PI/2;
         scene.add(vortex);
 
-        const core = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 16, 100), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        // Core Ring
+        const core = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.1, 16, 100), new THREE.MeshBasicMaterial({ color: 0xea580c }));
         scene.add(core);
 
         function resize() {
@@ -389,9 +389,6 @@
             vortex.rotation.y += 0.001 * pressure;
             core.rotation.x += 0.002 * pressure;
             
-            let hue = (pressure / 100) * 0.1; 
-            mat.color.setHSL(0.05 + hue, 1, 0.5);
-
             if(pressure > 85) {
                 camera.position.x = (Math.random()-0.5) * 0.1;
                 document.body.classList.add('critical');
@@ -402,11 +399,10 @@
             renderer.render(scene, camera);
             
             document.getElementById('temp-val').innerText = Math.floor(400 + (pressure*4)) + "°K";
-            document.getElementById('temp-bar').style.width = pressure + "%";
         }
         animate();
 
-        // --- 6. CONTROLS ---
+        // --- CONTROLS ---
         const slider = document.getElementById('pressure-slider');
         slider.oninput = (e) => { pressure = parseInt(e.target.value); };
 
@@ -414,7 +410,6 @@
             pressure = Math.max(10, pressure - 20);
             slider.value = pressure;
         }
-
     </script>
 </body>
 </html>
