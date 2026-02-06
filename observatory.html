@@ -3,26 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // OBSERVATORY_V3</title>
+    <title>ALDERSYTH // OBS_V4_PROTOTYPE</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050507;
-            --panel: #0a0a0c;
-            --border: #1a1a22;
+            --bg: #030305;
+            --panel: rgba(10, 10, 15, 0.9);
+            --border: #2a2a35;
             --violet: #8b5cf6;
-            --crimson: #ef4444;
-            --cyan: #06b6d4;
-            --gold: #d4af37;
-            --text-dim: #444;
+            --crimson: #ff3333;
+            --cyan: #00f2ff;
+            --gold: #ffcc00;
         }
 
-        * { box-sizing: border-box; }
-
-        /* CUSTOM SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        * { box-sizing: border-box; cursor: crosshair; }
 
         body {
             background-color: var(--bg);
@@ -31,317 +25,274 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
             text-transform: uppercase;
         }
 
-        /* FIXED HEADER & FOOTER */
-        header, footer {
-            height: 60px;
+        /* CRT EFFECT OVERLAY */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 1000;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* HEADER */
+        header {
+            height: 50px;
             background: #000;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid var(--violet);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 40px;
-            position: fixed;
-            width: 100%;
+            padding: 0 30px;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
             z-index: 100;
-            letter-spacing: 2px;
         }
 
-        footer {
-            bottom: 0;
-            border-bottom: none;
-            border-top: 2px solid var(--border);
-            font-size: 0.7rem;
-        }
+        .nav a { color: #555; text-decoration: none; margin-left: 20px; font-size: 0.75rem; transition: 0.2s; }
+        .nav a:hover, .nav a.active { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
 
-        .nav a {
-            color: var(--text-dim);
-            text-decoration: none;
-            margin-left: 20px;
-            font-size: 0.8rem;
-            transition: 0.3s;
-        }
-
-        .nav a:hover, .nav a.active { color: var(--violet); text-shadow: 0 0 8px var(--violet); }
-
-        /* SCROLLABLE VIEWPORT */
-        .main-scroll-area {
-            margin-top: 80px;
-            margin-bottom: 160px; /* Space for the floating control deck */
+        /* SCROLLABLE KINETIC VIEWPORT */
+        .viewport {
             flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .content-grid {
             display: grid;
-            grid-template-columns: 280px 1fr 300px;
-            gap: 20px;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 2px;
+            background: var(--border);
+            overflow-y: auto;
+            padding-bottom: 120px; /* Room for fixed sliders */
         }
 
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 20px;
-            position: relative;
+        .panel { 
+            background: var(--panel); 
+            padding: 25px; 
+            border: 1px solid transparent; 
+            transition: 0.1s;
         }
 
-        /* THE THREE VISUAL LENSES */
-        .lens-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+        /* LENS SYSTEM */
         .lens-cell {
             background: #000;
-            border: 1px solid var(--border);
-            height: 220px;
+            height: 280px;
+            margin-bottom: 2px;
             position: relative;
-            overflow: hidden;
+            border-bottom: 1px solid var(--border);
         }
-
-        canvas { width: 100%; height: 100%; display: block; }
-
+        canvas { width: 100%; height: 100%; }
+        
         .lens-label {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            z-index: 10;
-            background: rgba(0,0,0,0.8);
-            padding: 2px 8px;
-            border: 1px solid #222;
+            position: absolute; top: 10px; left: 15px; font-size: 0.6rem; 
+            color: var(--cyan); letter-spacing: 2px; background: #000; padding: 2px 6px;
         }
 
-        /* DATA UI ELEMENTS */
-        .label { font-size: 0.6rem; color: var(--gold); margin-bottom: 8px; display: block; opacity: 0.8; }
-        .data-readout { font-size: 1.3rem; color: #fff; margin-bottom: 25px; border-left: 3px solid var(--violet); padding-left: 12px; }
+        /* DATA READOUTS */
+        .big-data { font-size: 2rem; color: #fff; font-weight: bold; margin-bottom: 10px; }
+        .label { font-size: 0.6rem; color: var(--gold); letter-spacing: 1px; }
 
-        /* LONG SCROLL CONTENT */
-        .system-logs {
-            margin-top: 10px;
-            padding: 20px;
-            background: #08080a;
-            border: 1px solid var(--border);
-            font-size: 0.75rem;
-            color: #555;
-            line-height: 1.8;
-            font-family: monospace;
-        }
-
-        /* FLOATING CONTROL DECK */
-        .control-deck {
+        /* FIXED FOOTER CONTROLS */
+        .footer-deck {
             position: fixed;
-            bottom: 60px;
+            bottom: 0;
             width: 100%;
-            background: rgba(5, 5, 7, 0.9);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--border);
-            padding: 25px 50px;
-            display: flex;
-            gap: 50px;
-            justify-content: center;
-            z-index: 90;
+            height: 110px;
+            background: #000;
+            border-top: 2px solid var(--violet);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 10px 40px;
+            z-index: 110;
         }
 
-        .slider-group { flex: 1; max-width: 280px; }
+        .slider-wrap { padding: 0 20px; }
         input[type=range] {
             width: 100%;
-            accent-color: var(--violet);
-            background: #1a1a1f;
-            height: 2px;
             appearance: none;
+            background: #111;
+            height: 4px;
             outline: none;
-            margin-top: 12px;
+            accent-color: var(--cyan);
         }
 
-        .decrypted-msg { color: var(--cyan); font-weight: bold; }
+        /* SCREEN GLITCH ANIMATION */
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0,0); }
+        }
+        .glitch-active { animation: shake 0.1s infinite; filter: hue-rotate(90deg); }
+
     </style>
 </head>
-<body>
+<body id="main-body">
 
     <header>
-        <div style="font-weight:bold; letter-spacing:3px;">ALDERSYTH_OS // OBSERVATORY</div>
+        <div style="letter-spacing:4px; font-weight: 900;">ALDERSYTH // <span style="color:var(--cyan)">OBSERVATORY</span></div>
         <nav class="nav">
-            <a href="#">HUB</a>
-            <a href="#">MARKET</a>
-            <a href="#">SPIRE</a>
-            <a href="#" class="active">OBSERVATORY</a>
-            <a href="#" style="color:var(--crimson)">ROOT_BYPASS</a>
+            <a href="#">SYSTEM</a>
+            <a href="#">ARCHIVE</a>
+            <a href="#" class="active">SCANNER</a>
+            <a href="#" style="color:var(--crimson)">BYPASS_ROOT</a>
         </nav>
     </header>
 
-    <div class="main-scroll-area">
-        <div class="content-grid">
-            <aside>
-                <div class="panel">
-                    <span class="label">SIGNAL_STRENGTH</span>
-                    <div class="data-readout" id="read-amp">0.00%</div>
-                    
-                    <span class="label">PITCH_RESONANCE</span>
-                    <div class="data-readout" id="read-freq">000.0 Hz</div>
+    <div class="viewport" id="vport">
+        <aside class="panel">
+            <div class="label">PITCH_RESONANCE</div>
+            <div class="big-data" id="val-freq">0.0</div>
+            
+            <div class="label">SIGNAL_STRENGTH</div>
+            <div class="big-data" id="val-amp" style="color:var(--cyan)">0%</div>
 
-                    <span class="label">PHASE_DRIFT</span>
-                    <div class="data-readout" id="read-phase">0.00 rad</div>
+            <div style="margin-top:40px; border: 1px solid var(--border); padding: 10px;">
+                <div class="label">NEURAL_LOAD</div>
+                <div id="load-bar" style="height:4px; background:var(--violet); width: 40%; transition: 0.3s;"></div>
+            </div>
+            
+            <div style="margin-top:100px; opacity:0.3; font-size:0.5rem;">
+                [!] WARNING: Prolonged exposure to sub-harmonic frequencies may cause temporary temporal displacement.
+            </div>
+        </aside>
 
-                    <span class="label">HARDWARE_THERMALS</span>
-                    <div style="height: 60px; background: linear-gradient(90deg, var(--violet) 30%, #111 30%); border: 1px solid #222; margin-bottom: 20px;"></div>
-                </div>
-            </aside>
+        <main style="background: var(--border);">
+            <div class="lens-cell">
+                <span class="lens-label">LENS_01 // SPECTRAL_ANALYSIS</span>
+                <canvas id="c1"></canvas>
+            </div>
+            <div class="lens-cell">
+                <span class="lens-label">LENS_02 // KINETIC_ENVELOPE</span>
+                <canvas id="c2"></canvas>
+            </div>
+            <div class="lens-cell">
+                <span class="lens-label">LENS_03 // BIT_FRAGMENTATION</span>
+                <canvas id="c3"></canvas>
+            </div>
+            
+            <div class="panel" style="min-height: 400px; color:#444; font-size:0.8rem; line-height:2;">
+                <span style="color:var(--gold)">// SYSTEM_LOG_EXTENDED</span><br>
+                [14:02] INITIALIZING SCAN...<br>
+                [14:02] TARGET VECTOR: 42.0.60.25<br>
+                [14:03] DECODING MEMORY FRAGMENT FROM DEON_WAL_REPRO...<br>
+                <br>
+                Searching for the ghost in the machine. You must align the purple wave with the red shadow. 
+                When the harmonics match, the observatory will stabilize. 
+                Scroll down to see the real-time buffer status below.
+                <br><br>
+                [BUFFER_STATUS: 92%]<br>
+                [INTERFERENCE: HIGH]<br>
+                [RESONANCE: PENDING]
+            </div>
+        </main>
 
-            <main class="lens-container">
-                <div class="lens-cell">
-                    <span class="lens-label">LENS_01 // FREQUENCY_DOMAIN</span>
-                    <canvas id="cvs-1"></canvas>
-                </div>
-                <div class="lens-cell">
-                    <span class="lens-label">LENS_02 // AMPLITUDE_ENVELOPE</span>
-                    <canvas id="cvs-2"></canvas>
-                </div>
-                <div class="lens-cell">
-                    <span class="lens-label">LENS_03 // PHASE_CONGRUENCE</span>
-                    <canvas id="cvs-3"></canvas>
-                </div>
-
-                <div class="system-logs">
-                    <span class="label" style="color:var(--cyan)">INTERNAL_KERNEL_LOG</span>
-                    [0.0001] Initializing Observatory Subsystems...<br>
-                    [0.0042] Loading Neural-Link interface... OK.<br>
-                    [0.1092] WARNING: Atmospheric interference at 14%.<br>
-                    [0.5521] Scanning for deep-space memory fragments...<br>
-                    [1.2209] Ghost signal detected in Lens_01. Awaiting alignment.<br>
-                    [2.4410] Signal origin: [DATA_EXPUNGED].<br>
-                    [3.8821] Note: Align the violet wave to the faint red ghost wave to trigger decryption.<br>
-                    [4.9921] System stability at 98.4%. Cooling required.<br>
-                    [5.0021] User identified: DEON_WAL. Permissions granted.<br>
-                    [END OF LOG]
-                </div>
-            </main>
-
-            <aside>
-                <div class="panel">
-                    <span class="label">DECRYPTED_DATA</span>
-                    <div id="log-txt" style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;">
-                        [LOCKED]<br>---<br>MATCH WAVE HARMONICS TO VIEW FRAGMENTS.
-                    </div>
-                    <hr style="border:0; border-top:1px solid var(--border); margin:25px 0;">
-                    <span class="label">FRAGMENT_PREVIEW</span>
-                    <div id="memory-visual" style="width: 100%; height: 180px; background: #000; border: 1px solid #111; display:flex; align-items:center; justify-content:center; color:#222; font-size:0.6rem;">NO_SIGNAL</div>
-                </div>
-            </aside>
-        </div>
+        <aside class="panel">
+            <div class="label">DECRYPTED_OUTPUT</div>
+            <div id="output-text" style="color:#555; margin-top:20px; font-size:0.9rem;">
+                [SIGNAL_LOST]<br>---<br>AWAITING INPUT...
+            </div>
+            
+            <div id="visual-glitch" style="margin-top:50px; width:100%; height:150px; background:#050505; border:1px solid #1a1a1a; display:flex; align-items:center; justify-content:center; color:#111;">
+                NO_VISUAL
+            </div>
+        </aside>
     </div>
 
-    <div class="control-deck">
-        <div class="slider-group">
-            <span class="label">FREQ_ADJUST</span>
-            <input type="range" id="freq" min="10" max="100" value="20">
+    <div class="footer-deck">
+        <div class="slider-wrap">
+            <div class="label">FREQUENCY</div>
+            <input type="range" id="f_in" min="10" max="100" value="20">
         </div>
-        <div class="slider-group">
-            <span class="label">AMP_ADJUST</span>
-            <input type="range" id="amp" min="1" max="100" value="10">
+        <div class="slider-wrap">
+            <div class="label">AMPLITUDE</div>
+            <input type="range" id="a_in" min="1" max="100" value="10">
         </div>
-        <div class="slider-group">
-            <span class="label">PHASE_SYNC</span>
-            <input type="range" id="phase" min="1" max="100" value="50">
+        <div class="slider-wrap">
+            <div class="label">PHASE_SHIFT</div>
+            <input type="range" id="p_in" min="1" max="100" value="50">
         </div>
     </div>
-
-    <footer>
-        <div id="status-light" style="color: var(--cyan);">● SYSTEM_ONLINE</div>
-        <div id="coord-display">LOC: 52.3676° N, 4.9041° E</div>
-        <div>STABILITY: <span id="stab-val">100%</span></div>
-    </footer>
 
     <script>
-        const canals = [
-            {cvs: document.getElementById('cvs-1'), ctx: document.getElementById('cvs-1').getContext('2d')},
-            {cvs: document.getElementById('cvs-2'), ctx: document.getElementById('cvs-2').getContext('2d')},
-            {cvs: document.getElementById('cvs-3'), ctx: document.getElementById('cvs-3').getContext('2d')}
+        const ctxs = [
+            document.getElementById('c1').getContext('2d'),
+            document.getElementById('c2').getContext('2d'),
+            document.getElementById('c3').getContext('2d')
         ];
         
-        let time = 0;
+        let t = 0;
         const target = { f: 42, a: 60, p: 25 };
 
-        function resize() {
-            canals.forEach(c => {
-                c.cvs.width = c.cvs.parentElement.offsetWidth;
-                c.cvs.height = c.cvs.parentElement.offsetHeight;
+        function res() {
+            ctxs.forEach(ctx => {
+                ctx.canvas.width = ctx.canvas.parentElement.offsetWidth;
+                ctx.canvas.height = ctx.canvas.parentElement.offsetHeight;
             });
         }
-        window.addEventListener('resize', resize);
-        resize();
+        window.onresize = res;
+        res();
 
-        function loop() {
-            requestAnimationFrame(loop);
-            time += 0.08;
-            
-            const f = parseInt(document.getElementById('freq').value);
-            const a = parseInt(document.getElementById('amp').value);
-            const p = parseInt(document.getElementById('phase').value);
+        function draw() {
+            t += 0.1;
+            const f = parseInt(document.getElementById('f_in').value);
+            const a = parseInt(document.getElementById('a_in').value);
+            const p = parseInt(document.getElementById('p_in').value);
 
-            // Update UI
-            document.getElementById('read-amp').innerText = a + ".00%";
-            document.getElementById('read-freq').innerText = (f * 8.2).toFixed(1) + " Hz";
-            document.getElementById('read-phase').innerText = (p / 15.5).toFixed(2) + " rad";
-            document.getElementById('stab-val').innerText = (90 + Math.random() * 10).toFixed(1) + "%";
+            // Update Text
+            document.getElementById('val-freq').innerText = (f * 12.5).toFixed(1) + "Hz";
+            document.getElementById('val-amp').innerText = a + "%";
+            document.getElementById('load-bar').style.width = f + "%";
 
-            canals.forEach((c, idx) => {
-                c.ctx.clearRect(0,0,c.cvs.width, c.cvs.height);
-                
-                // Draw Subtle Grid
-                c.ctx.strokeStyle = "#0d0d12";
-                c.ctx.lineWidth = 1;
-                for(let i=0; i<c.cvs.width; i+=50) { 
-                    c.ctx.beginPath(); c.ctx.moveTo(i,0); c.ctx.lineTo(i,c.cvs.height); c.ctx.stroke(); 
-                }
-                
-                // Draw Ghost Target Wave (Red)
-                drawWave(c.ctx, c.cvs, target.f, target.a, target.p, "rgba(239, 68, 68, 0.08)", 1);
-                
-                // Draw Active User Wave (Violet)
-                drawWave(c.ctx, c.cvs, f, a, p, "#8b5cf6", 2);
-            });
+            // Match Logic & Effects
+            const isClose = Math.abs(f - target.f) < 8 && Math.abs(a - target.a) < 10;
+            const isPerfect = Math.abs(f - target.f) < 3 && Math.abs(a - target.a) < 4;
 
-            // Match Logic
-            const match = Math.abs(f - target.f) < 5 && Math.abs(a - target.a) < 7;
-            const log = document.getElementById('log-txt');
-            const visual = document.getElementById('memory-visual');
-
-            if(match) {
-                log.innerHTML = `<span class="decrypted-msg">[DECRYPTION_COMPLETE]</span><br>FRAGMENT_ID: 88x-9<br>DATA: "The bridge is forming. We are nearly there."`;
-                visual.style.background = "var(--cyan)";
-                visual.innerText = "FRAGMENT_READY";
-                visual.style.color = "#000";
+            if(isClose) {
+                document.getElementById('vport').classList.add('glitch-active');
+                document.getElementById('output-text').innerText = "[SIGNAL_FOUND] // STABILIZING...";
+                document.getElementById('output-text').style.color = "var(--cyan)";
             } else {
-                log.innerHTML = `[LOCKED]<br>---<br>MATCH WAVE HARMONICS TO VIEW FRAGMENTS.`;
-                visual.style.background = "#000";
-                visual.innerText = "NO_SIGNAL";
-                visual.style.color = "#222";
+                document.getElementById('vport').classList.remove('glitch-active');
+                document.getElementById('output-text').style.color = "#555";
+                document.getElementById('output-text').innerText = "[SIGNAL_LOST]";
             }
+
+            ctxs.forEach((ctx, i) => {
+                const w = ctx.canvas.width;
+                const h = ctx.canvas.height;
+                ctx.clearRect(0,0,w,h);
+                
+                // Grid
+                ctx.strokeStyle = "#0a0a0c";
+                for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+                
+                // Red Ghost
+                renderWave(ctx, w, h, target.f, target.a, target.p, "rgba(255,0,0,0.1)", 1);
+                // User Wave
+                renderWave(ctx, w, h, f, a, p, (isPerfect ? "var(--cyan)" : "var(--violet)"), 2);
+            });
+
+            requestAnimationFrame(draw);
         }
 
-        function drawWave(ctx, cvs, f, a, p, color, width) {
+        function renderWave(ctx, w, h, f, a, p, col, lw) {
             ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            let cy = cvs.height / 2;
-            for(let x=0; x<cvs.width; x++) {
-                let y = cy + Math.sin(x * f * 0.005 + p * 0.1 + time) * (a * 1.4);
+            ctx.strokeStyle = col;
+            ctx.lineWidth = lw;
+            for(let x=0; x<w; x++) {
+                let y = h/2 + Math.sin(x * f * 0.005 + p * 0.1 + t) * (a * 1.5);
                 if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
             }
             ctx.stroke();
         }
 
-        loop();
+        draw();
     </script>
 </body>
 </html>
