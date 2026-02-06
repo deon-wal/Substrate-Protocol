@@ -10,13 +10,13 @@
     <style>
         /* --- SUBSTRATE THEME: RUST / OCHRE / HEAT --- */
         :root {
-            --bg: #0a0500;
-            --panel: rgba(20, 10, 5, 0.92);
-            --rust: #ea580c;       /* Decay/Structure */
-            --ochre: #d97706;      /* Data */
-            --heat: #ffedd5;       /* White Hot */
-            --alert: #ef4444;      /* Containment Fail */
-            --steam: rgba(255, 255, 255, 0.1);
+            --bg: #050200;
+            --panel: rgba(20, 8, 0, 0.95);
+            --rust: #ea580c;       
+            --ochre: #d97706;
+            --heat: #ffedd5;       
+            --alert: #ef4444;      
+            --green: #22c55e;
         }
 
         * { box-sizing: border-box; user-select: none; }
@@ -24,170 +24,153 @@
         body { 
             margin: 0; background: var(--bg); color: var(--ochre);
             font-family: 'Share Tech Mono', monospace; overflow: hidden;
-            font-size: 13px;
+            font-size: 14px;
             /* Asset: Market Thumbnail */
             background-image: url('images/market_thumbnail.jpg'); 
             background-size: cover; background-attachment: fixed;
             background-blend-mode: multiply;
         }
 
-        /* --- HEAT HAZE FX --- */
-        #heat-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 5;
-            backdrop-filter: blur(1px); opacity: 0; transition: opacity 0.5s;
-        }
-        @keyframes haze {
-            0% { transform: translate(0,0) scale(1); }
-            50% { transform: translate(-2px, -2px) scale(1.01); filter: hue-rotate(-5deg); }
-            100% { transform: translate(0,0) scale(1); }
-        }
-        body.critical #heat-overlay { opacity: 1; animation: haze 0.1s infinite; }
-
         /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg); border-left: 1px solid #222; }
-        ::-webkit-scrollbar-thumb { background: var(--rust); border: 1px solid #555; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--heat); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #110; }
+        ::-webkit-scrollbar-thumb { background: var(--rust); }
 
-        /* --- LAYOUT GRID (CHAOTIC) --- */
+        /* --- LAYOUT GRID --- */
+        /* Increased sidebars for better readability */
         .interface {
-            display: grid; grid-template-columns: 350px 1fr 300px;
-            grid-template-rows: 60px 1fr auto;
-            padding: 100px 30px; gap: 20px; height: 100vh;
+            display: grid; grid-template-columns: 320px 1fr 350px;
+            grid-template-rows: 100px 1fr; /* Header space reserved */
+            height: 100vh; width: 100vw;
             position: relative; z-index: 20;
+            padding: 0; /* Removing padding to force full fit */
         }
 
         /* --- HEADER & TICKER --- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 80px; z-index: 100;
-            background: linear-gradient(180deg, #000 80%, transparent 100%);
+            grid-column: 1 / -1; /* Spans full width */
+            background: linear-gradient(180deg, #000 90%, transparent 100%);
             border-bottom: 2px solid var(--rust);
             display: flex; flex-direction: column;
+            justify-content: center;
+            padding-top: 10px;
+            z-index: 100;
         }
         
         .nav-bar {
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 40px; height: 50px;
+            padding: 0 40px; height: 50px;
         }
-        .logo { font-family: 'Rajdhani'; font-size: 1.5rem; letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--rust); }
+        .logo { font-family: 'Rajdhani'; font-size: 2rem; letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px var(--rust); }
         
         .nav a { 
-            color: #666; text-decoration: none; margin-left: 20px; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; 
+            color: #888; text-decoration: none; margin-left: 20px; font-size: 0.9rem; letter-spacing: 2px; transition: 0.3s; font-weight: bold;
         }
         .nav a:hover { color: var(--heat); text-shadow: 0 0 10px var(--rust); }
-        .nav a.active { color: var(--rust); border-bottom: 1px solid var(--rust); }
+        .nav a.active { color: var(--rust); border-bottom: 2px solid var(--rust); }
         .nav a.root { color: var(--alert); }
 
-        /* LIVE TICKER - SLOWED DOWN TO 120s */
+        /* TICKER TAPE (SLOWED & LARGER) */
         .ticker-wrap {
-            width: 100%; height: 30px; background: rgba(234, 88, 12, 0.1);
+            width: 100%; height: 40px; background: rgba(234, 88, 12, 0.15);
             overflow: hidden; display: flex; align-items: center; border-top: 1px solid #333;
         }
         .ticker {
             display: inline-block; white-space: nowrap; padding-left: 100%;
-            animation: scroll 120s linear infinite; /* SLOWED DOWN */
-            color: var(--heat); font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;
+            /* Slowed down to 160s for readability */
+            animation: scroll 160s linear infinite; 
+            color: var(--heat); font-size: 1.2rem; letter-spacing: 2px; font-weight: bold;
+            text-shadow: 0 0 5px var(--rust);
         }
-        @keyframes scroll { 100% { transform: translateX(-100%); } }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* --- SIDEBARS --- */
-        .sidebar { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px; }
-        
-        .widget {
-            border: 1px solid #311; background: var(--panel); padding: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative;
+        /* --- COLUMNS --- */
+        .col-left, .col-right {
+            display: flex; flex-direction: column; gap: 15px; 
+            padding: 20px; overflow-y: hidden; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
         }
-        .w-header { 
-            font-size: 0.7rem; color: #888; border-bottom: 1px dashed var(--rust); 
-            padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;
-        }
-
-        /* THERMAL GAUGE */
-        .temp-display { font-family: 'Rajdhani'; font-size: 3.5rem; font-weight: bold; color: #fff; line-height: 0.9; }
-        .temp-bar-container { width: 100%; height: 8px; background: #200; margin-top: 10px; }
-        .temp-fill { height: 100%; width: 50%; background: linear-gradient(90deg, var(--rust), var(--alert)); transition: width 0.2s; box-shadow: 0 0 10px var(--rust); }
-
-        /* MARKET GRAPH ASSET */
-        .market-vis {
-            height: 120px; width: 100%; 
-            background: url('images/image_73eda1.png'); /* The red graph asset */
-            background-size: cover; background-position: center;
-            opacity: 0.8; filter: hue-rotate(-10deg) contrast(1.5);
-            border: 1px solid var(--rust);
+        .col-center {
+            position: relative; border-left: 1px solid var(--rust); border-right: 1px solid var(--rust);
+            display: flex; flex-direction: column;
         }
 
-        /* --- CENTER: THE VORTEX --- */
-        .viewport {
-            position: relative; border: 1px solid var(--rust);
-            background: radial-gradient(circle, #1a0a05 0%, #000 100%);
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
+        .panel {
+            border: 1px solid var(--rust); background: var(--panel); 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); position: relative;
+            display: flex; flex-direction: column;
         }
-        #three-canvas { width: 100%; height: 100%; filter: contrast(1.2); }
-        
+        /* Make Order Book & Feed fill remaining space */
+        .panel.fill { flex: 1; min-height: 0; } 
+
+        .p-head { 
+            font-size: 0.9rem; color: #fff; background: rgba(234, 88, 12, 0.2);
+            padding: 8px 12px; display: flex; justify-content: space-between; font-weight: bold;
+            border-bottom: 1px solid var(--rust);
+        }
+
+        /* --- THERMAL GAUGE --- */
+        .metric-box { padding: 15px; text-align: center; }
+        .big-val { font-family: 'Rajdhani'; font-size: 4rem; font-weight: bold; color: #fff; line-height: 1; text-shadow: 0 0 20px var(--alert); }
+        .heat-bar { width: 100%; height: 10px; background: #311; margin-top: 10px; border: 1px solid #500; }
+        .heat-fill { height: 100%; width: 40%; background: linear-gradient(90deg, var(--rust), #fff); transition: width 0.2s; box-shadow: 0 0 15px var(--rust); }
+
+        /* --- CENTER VORTEX --- */
+        #three-canvas { width: 100%; height: 100%; filter: contrast(1.4) brightness(1.1); }
         .overlay-ui {
-            position: absolute; bottom: 20px; left: 20px; pointer-events: none;
-            color: var(--heat); font-size: 0.7rem; text-shadow: 0 0 5px var(--rust);
+            position: absolute; bottom: 30px; left: 30px; pointer-events: none;
+            color: var(--heat); font-size: 1rem; font-weight: bold; text-shadow: 0 0 5px #000;
+            background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid var(--rust);
         }
 
-        /* --- LOGS --- */
-        .log-feed { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-        .log-entry {
-            background: rgba(0,0,0,0.8); border-left: 3px solid var(--rust); padding: 15px;
-            font-size: 0.8rem; color: #bbb; transition: 0.3s;
+        /* --- REDDIT FEED ("THE GUTTER") --- */
+        .feed-container {
+            flex: 1; overflow-y: auto; padding: 0; display: flex; flex-direction: column;
         }
-        .log-entry:hover { background: rgba(234, 88, 12, 0.1); border-left-color: var(--heat); }
-        .highlight { color: var(--rust); font-weight: bold; }
-
-        /* BUTTONS */
-        .vent-btn {
-            width: 100%; background: transparent; border: 1px solid var(--rust); color: var(--rust);
-            padding: 15px; font-family: inherit; font-size: 1rem; font-weight: bold; cursor: pointer;
-            transition: 0.2s; text-transform: uppercase; margin-top: 10px;
+        .post {
+            padding: 12px; border-bottom: 1px solid #333;
+            font-size: 0.85rem; transition: 0.2s; cursor: default;
+            color: #ddd;
         }
-        .vent-btn:hover { background: var(--rust); color: #000; box-shadow: 0 0 20px var(--rust); }
-
-        /* --- LIVE NET FEED (REDDIT BLOB) --- */
-        #net-feed {
-            position: fixed; bottom: 20px; right: 20px; width: 320px;
-            background: rgba(10, 5, 0, 0.95); border: 1px solid var(--rust);
-            z-index: 500; font-family: 'Share Tech Mono'; box-shadow: 0 0 40px #000;
-        }
-        .feed-header {
-            background: var(--rust); color: #000; padding: 5px 10px;
-            font-weight: bold; font-size: 0.8rem; display: flex; justify-content: space-between;
-        }
-        .feed-content {
-            height: 150px; overflow: hidden; padding: 10px;
-            display: flex; flex-direction: column-reverse; /* New items at bottom */
-            gap: 8px; font-size: 0.7rem; color: #ccc;
-        }
-        .feed-item {
-            border-bottom: 1px dashed #333; padding-bottom: 5px; opacity: 0; animation: fadeIn 0.3s forwards;
-        }
-        .user-tag { color: var(--ochre); font-weight: bold; }
-        .timestamp { color: #666; float: right; font-size: 0.6rem; }
+        .post:hover { background: rgba(234, 88, 12, 0.15); color: #fff; }
+        .post-meta { display: flex; justify-content: space-between; color: var(--rust); font-size: 0.75rem; margin-bottom: 4px; font-weight: bold;}
         
-        @keyframes fadeIn { to { opacity: 1; } }
+        /* --- ORDER BOOK --- */
+        .order-book-container {
+            font-family: 'Share Tech Mono'; font-size: 0.9rem;
+            flex: 1; overflow-y: auto;
+        }
+        .order-row { 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 8px 10px; border-bottom: 1px solid #222; 
+        }
+        .order-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .order-row:hover { background: #221; color: #fff; }
+        .price-up { color: var(--green); }
+        .price-down { color: var(--alert); }
+        .col-right { text-align: right; }
 
-        /* --- STEAM PARTICLES --- */
-        .steam-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-        .steam-puff {
-            position: absolute; background: radial-gradient(circle, rgba(200,200,200,0.2) 0%, transparent 70%);
-            width: 100px; height: 100px; border-radius: 50%;
-            animation: rise 4s linear forwards;
+        /* --- CONTROLS --- */
+        .btn-vent {
+            width: 100%; background: #2a0a00; border: 1px solid var(--rust); color: var(--rust);
+            padding: 15px; font-family: inherit; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            transition: 0.2s; text-transform: uppercase; margin-top: 0;
         }
-        @keyframes rise { 
-            0% { transform: translateY(0) scale(1); opacity: 0; } 
-            20% { opacity: 0.5; } 
-            100% { transform: translateY(-300px) scale(3); opacity: 0; } 
+        .btn-vent:hover { background: var(--rust); color: #000; box-shadow: 0 0 30px var(--rust); }
+
+        /* HEAT FX */
+        #heat-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5;
+            backdrop-filter: blur(2px) hue-rotate(-10deg); opacity: 0; transition: opacity 1s;
         }
+        body.critical #heat-overlay { opacity: 1; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 0.2; } 100% { opacity: 0.6; } }
 
     </style>
 </head>
 <body>
 
     <div id="heat-overlay"></div>
-    <div class="steam-container" id="steam-layer"></div>
 
     <header>
         <div class="nav-bar">
@@ -202,186 +185,200 @@
                 <a href="login.html" class="root">_ROOT</a>
             </nav>
         </div>
-        <!-- LIVE CRYPTO TICKER -->
         <div class="ticker-wrap">
-            <div class="ticker" id="crypto-ticker">
-                INITIALIZING MARKET STREAM...
-            </div>
+            <div class="ticker" id="ticker-tape">CONNECTING TO GLOBAL EXCHANGE...</div>
         </div>
     </header>
 
     <div class="interface">
         
-        <!-- LEFT: THERMODYNAMICS -->
-        <aside class="sidebar">
-            <div class="widget">
-                <div class="w-header"><span>THERMAL_CORE</span><span>SEC_02</span></div>
-                <div class="temp-readout" id="temp-val">482°K</div>
-                <div class="temp-bar-container"><div class="temp-fill" id="temp-bar"></div></div>
-                <div style="margin-top:10px; color:var(--alert); font-size:0.7rem; display:none;" id="warn-msg">
-                    ⚠ CRITICAL: CONTAINMENT FAILURE IMMINENT
+        <!-- LEFT: ORDER BOOK (WALL STREET STYLE) -->
+        <div class="col-left">
+            <div class="panel fill">
+                <div class="p-head"><span>COMMODITY_PRICES</span><span>LIVE_L2</span></div>
+                <div class="order-book-container" id="order-book">
+                    <!-- JS Fills this -->
                 </div>
             </div>
-
-            <div class="widget">
-                <div class="w-header"><span>PRESSURE_VALVE</span><span>MANUAL</span></div>
-                <input type="range" min="0" max="100" value="20" style="width:100%; accent-color:var(--rust);" id="pressure-slider">
-                <button class="vent-btn" onclick="ventSteam()">EMERGENCY_VENT</button>
+            
+            <div class="panel">
+                 <div class="p-head"><span>MARKET_VOLATILITY</span></div>
+                 <div style="height:100px; background:url('images/image_73eda1.png'); background-size:cover; filter: hue-rotate(-15deg);"></div>
             </div>
+        </div>
 
-            <div class="widget">
-                <div class="w-header"><span>MARKET_VOLATILITY</span><span>LIVE</span></div>
-                <div class="market-vis"></div>
-            </div>
-        </aside>
-
-        <!-- CENTER: CONTAINMENT VORTEX -->
-        <div class="viewport">
+        <!-- CENTER: VORTEX -->
+        <div class="col-center">
             <canvas id="three-canvas"></canvas>
             <div class="overlay-ui">
-                OBJECT: MAGNETIC_BOTTLE<br>
-                STATUS: SUPERHEATED<br>
-                RPM: <span id="rpm-val">1200</span>
+                MAGNETIC_CONTAINMENT_FIELD<br>
+                <span style="font-size:2rem; color:var(--heat)">⚠ UNSTABLE</span>
             </div>
         </div>
 
-        <!-- RIGHT: NARRATIVE LOGS -->
-        <aside class="sidebar">
-            <div class="widget" style="flex:1;">
-                <div class="w-header"><span>AUDIO_FEED</span><span>REC</span></div>
-                <canvas id="audio-viz" style="width:100%; height:50px; margin-bottom:15px;"></canvas>
-                
-                <div class="log-feed">
-                    <div class="log-entry">
-                        <span style="color:#666">[LOG_II]</span> <span class="highlight">THERMODYNAMIC STRESS</span><br><br>
-                        High-tensile architecture doesn’t creak like wood—it screams. Thick atmosphere clings to the air, a gooey soup making breathing optional.
-                    </div>
-                    <div class="log-entry">
-                        <span style="color:#666">[SYS_ALERT]</span> <span class="highlight">MAGNETIC FLUX</span><br><br>
-                        Levitation nodes sputter. Cabbage heads and crates vibrate violently. Lead blocks weep grey sludge.
-                    </div>
-                    <div class="log-entry">
-                        <span style="color:#666">[VERA]</span><br>
-                        "Kael, I am slaving your pulse to the city grid. Maintain the rhythm."
-                    </div>
+        <!-- RIGHT: THE GUTTER & CONTROLS -->
+        <div class="col-right">
+            <div class="panel">
+                <div class="p-head"><span>THERMAL_LOAD</span><span>SEC_02</span></div>
+                <div class="metric-box">
+                    <div class="big-val" id="temp-val">482°K</div>
+                    <div class="heat-bar"><div class="heat-fill" id="temp-bar"></div></div>
+                </div>
+                <div style="padding:15px; border-top:1px solid #333;">
+                    <input type="range" min="0" max="100" value="30" style="width:100%; accent-color:var(--rust); margin-bottom:10px;" id="pressure-slider">
+                    <button class="btn-vent" onclick="ventSteam()">EMERGENCY VENT</button>
                 </div>
             </div>
-        </aside>
 
-    </div>
+            <div class="panel fill">
+                <div class="p-head"><span>CITIZEN_NET // THE_GUTTER</span><span style="color:var(--heat)">● LIVE</span></div>
+                <div class="feed-container" id="reddit-feed">
+                    <!-- Posts go here -->
+                </div>
+            </div>
+        </div>
 
-    <!-- LIVE NET FEED (REDDIT BLOB) -->
-    <div id="net-feed">
-        <div class="feed-header">
-            <span>CITIZEN_NET // CHANNEL_7</span>
-            <span style="animation:blink 1s infinite">● LIVE</span>
-        </div>
-        <div class="feed-content" id="feed-list">
-            <!-- JS injects comments here -->
-        </div>
     </div>
 
     <script>
-        // --- 1. EXTENDED MARKET TICKER ---
-        const stocks = [
-            "BTC", "ETH", "SOL", "ALDR", "H2O", "O2_CAN", "LEAD", "GRAV", 
-            "SLDG", "VERA_SYS", "CORE", "FLUX", "HEAT", "S-NET", "VOID", 
-            "NULL", "DATA", "MEM", "BIO_SYNTH", "N_GAS", "CARB_FIB", 
-            "MAG_CON", "X-RAY", "Z-AXIS", "TIME"
+        // --- 1. EXTENDED DATA STREAMS ---
+        const commodities = [
+            { sym: "O2_CAN", name: "Oxygen", price: 450 },
+            { sym: "H2O_FLT", name: "Water Filter", price: 1200 },
+            { sym: "LEAD_KG", name: "Raw Lead", price: 85 },
+            { sym: "GRAV_D", name: "Grav Dampener", price: 5400 },
+            { sym: "DATA_S", name: "Clean Data", price: 300 },
+            { sym: "MELON", name: "Synth-Melon", price: 45 },
+            { sym: "COFFEE", name: "Real Coffee", price: 890 },
+            { sym: "HEAT_S", name: "Heat Sink", price: 210 },
+            { sym: "V_COIN", name: "Vera Coin", price: 1.05 },
+            { sym: "OLD_OS", name: "Legacy Drive", price: 5000 },
+            { sym: "BIO_MS", name: "Bio-Mesh", price: 670 },
+            { sym: "SLUDGE", name: "Ind. Sludge", price: 12 },
+            { sym: "N2_LIQ", name: "Liq Nitrogen", price: 340 },
+            { sym: "MEM_FR", name: "Memory Frag", price: 9999 },
+            { sym: "VOID_K", name: "Void Key", price: 0 },
+            { sym: "PORK_S", name: "Synth Pork", price: 22 },
+            { sym: "TUNGST", name: "Tungsten", price: 1500 },
+            { sym: "GRAPHN", name: "Graphene", price: 2100 },
+            { sym: "RE_H2O", name: "Recycled H2O", price: 15 },
+            { sym: "ID_TAG", name: "Blank ID", price: 8000 },
+            { sym: "NEURO", name: "Neuro-Link", price: 350 },
+            { sym: "COPPER", name: "Copper Wire", price: 65 },
+            { sym: "RAD_MD", name: "Anti-Rad", price: 150 },
+            { sym: "SILICA", name: "Silicon", price: 90 },
+            { sym: "ENERGY", name: "kWh Cell", price: 400 }
         ];
-        
-        async function updateTicker() {
+
+        // --- 2. TICKER LOGIC (SLOWED DOWN) ---
+        async function initTicker() {
             let tickerText = "";
-            
-            // Try fetch real BTC
-            let btcPrice = "ERROR";
+            const cryptos = ['bitcoin', 'ethereum', 'solana', 'cardano', 'ripple'];
             try {
-                const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptos.join(',')}&vs_currencies=usd`);
                 const data = await res.json();
-                btcPrice = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
-            } catch(e) { btcPrice = "OFFLINE"; }
-
-            // Generate ticker string
-            stocks.forEach(s => {
-                let price = (Math.random() * 5000).toFixed(2);
-                let change = (Math.random() - 0.5) * 10;
-                let arrow = change > 0 ? "▲" : "▼";
-                if(s === "BTC") price = btcPrice;
-                
-                tickerText += `${s}: ${price} ${arrow} ${Math.abs(change).toFixed(2)}% // `;
+                tickerText += `BTC: $${data.bitcoin.usd} // ETH: $${data.ethereum.usd} // SOL: $${data.solana.usd} // `;
+            } catch (e) {
+                tickerText += "BTC: $42,050 // ETH: $3,100 // SOL: $105 // "; 
+            }
+            // Add fictional commodities
+            commodities.forEach(c => {
+                let p = (c.price + (Math.random() - 0.5) * 10).toFixed(2);
+                tickerText += `${c.sym}: ₮${p} // `;
             });
-
-            // Quadruple the string to ensure smooth infinite scroll on wide screens
-            const fullText = tickerText + tickerText + tickerText + tickerText;
-            document.getElementById('crypto-ticker').innerText = fullText;
+            // Repeat for smooth loop
+            document.getElementById('ticker-tape').innerText = tickerText.repeat(5);
         }
-        updateTicker();
-        // Update prices every 60 seconds, but animation continues smoothly
-        setInterval(updateTicker, 60000); 
+        initTicker();
 
-        // --- 2. LIVE NET FEED (REDDIT BLOB) ---
-        const users = ["User_99", "Rat_King", "Echo_Loco", "Null_Set", "Vera_Fan", "Sloane_Eye", "Market_Rat"];
-        const comments = [
-            "Heat scrubbers are failing in Sector 4 again.",
-            "Anyone else see the gravity glitch near the Spire?",
-            "Buying O2 canisters, will trade for Lead.",
-            "My neighbor vanished. Door is gone too.",
-            "The steam vents are screaming louder today.",
+        // --- 3. ORDER BOOK (DENSE & CHAOTIC) ---
+        function updateOrderBook() {
+            const container = document.getElementById('order-book');
+            container.innerHTML = "";
+            // Shuffle and show top 15
+            const shuffled = commodities.sort(() => 0.5 - Math.random());
+            
+            shuffled.forEach(c => {
+                let p = (c.price + (Math.random() - 0.5) * 5).toFixed(2);
+                let up = Math.random() > 0.5;
+                let color = up ? "price-up" : "price-down";
+                let arrow = up ? "▲" : "▼";
+                let vol = Math.floor(Math.random() * 5000);
+                
+                let row = document.createElement('div');
+                row.className = "order-row";
+                row.innerHTML = `<span>${c.sym}</span><span class="${color} col-right">${p}</span><span class="col-right" style="color:#666">${vol}</span>`;
+                container.appendChild(row);
+            });
+        }
+        setInterval(updateOrderBook, 800); // Fast updates
+
+        // --- 4. REDDIT SCRAPER (THE GUTTER) ---
+        const forumUsers = ["Rat_King", "Echo_Loco", "Sloane_Eye", "Market_Rat", "Null_Set", "Vera_Fan", "Lead_Head", "Steam_Junkie", "Void_Walker", "Glitch_Bitch"];
+        const forumPosts = [
+            "The heat in Sector 4 is unbearable today.",
+            "Buying O2 canisters, will trade for clean data.",
+            "Did anyone else see the gravity glitch?",
+            "My neighbor's door disappeared. Smooth wall now.",
+            "Selling 5kg of Lead. No questions asked.",
+            "The steam vents are screaming.",
             "Don't look at the Observatory.",
-            "Data viscosity is up 40%.",
-            "I heard a rumor about the bridge...",
-            "Just saw a melon float away.",
-            "Is it hot in here or just me?"
+            "Price of Water Filters just doubled.",
+            "I found a memory shard in the gutter.",
+            "Vera is watching. Always.",
+            "The sludge is leaking again.",
+            "Has anyone seen Bas? He was here yesterday.",
+            "Need a new heat sink for my rig.",
+            "Just saw a kid floating in zero-g.",
+            "Radiation levels spiking.",
+            "Who is buying all the Tungsten?",
+            "The bridge isn't for us.",
+            "My hands are glitching out.",
+            "THERMAL LIMIT EXCEEDED IN SECTOR 9",
+            "Anyone want to buy some fresh melon juice?"
         ];
 
-        function updateFeed() {
-            const list = document.getElementById('feed-list');
-            const u = users[Math.floor(Math.random() * users.length)];
-            const c = comments[Math.floor(Math.random() * comments.length)];
+        function addPost() {
+            const feed = document.getElementById('reddit-feed');
+            const u = forumUsers[Math.floor(Math.random() * forumUsers.length)];
+            const p = forumPosts[Math.floor(Math.random() * forumPosts.length)];
+            const upvotes = Math.floor(Math.random() * 500);
             
             const item = document.createElement('div');
-            item.className = 'feed-item';
-            item.innerHTML = `<span class="user-tag">@${u}:</span> ${c} <span class="timestamp">[NOW]</span>`;
-            
-            list.prepend(item);
-            if(list.children.length > 5) list.lastChild.remove();
+            item.className = "post";
+            item.innerHTML = `
+                <div class="post-meta"><span>u/${u}</span><span>[↑${upvotes}]</span></div>
+                <div class="post-body">${p}</div>
+            `;
+            feed.prepend(item);
+            if(feed.children.length > 50) feed.lastChild.remove();
         }
-        // Randomly update feed every 2-5 seconds
-        setInterval(updateFeed, 3500);
+        setInterval(addPost, 2000); // New post every 2s
+        for(let i=0; i<8; i++) addPost(); 
 
-
-        // --- 3. 3D VORTEX (The Containment Bottle) ---
+        // --- 5. 3D VORTEX ---
+        let pressure = 30;
         const canvas = document.getElementById('three-canvas');
         const renderer = new THREE.WebGLRenderer({canvas, alpha:true});
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
         camera.position.z = 5;
 
-        // The "Steam/Water" Cylinder
-        const geometry = new THREE.CylinderGeometry(1.5, 1.5, 6, 32, 10, true);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0xea580c, 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0.3,
-            side: THREE.DoubleSide
+        const geo = new THREE.CylinderGeometry(1.8, 1.8, 8, 32, 1, true);
+        const mat = new THREE.MeshBasicMaterial({ 
+            color: 0xea580c, wireframe: true, transparent: true, opacity: 0.4, side: THREE.DoubleSide 
         });
-        const vortex = new THREE.Mesh(geometry, material);
-        vortex.rotation.x = Math.PI / 2; // Face camera
+        const vortex = new THREE.Mesh(geo, mat);
+        vortex.rotation.x = Math.PI/2;
         scene.add(vortex);
 
-        // Inner Core (White Hot)
-        const coreGeo = new THREE.TorusGeometry(1, 0.2, 16, 100);
-        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const core = new THREE.Mesh(coreGeo, coreMat);
+        const core = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 16, 100), new THREE.MeshBasicMaterial({ color: 0xffffff }));
         scene.add(core);
 
-        let pressure = 20;
-        
         function resize() {
-            const cont = canvas.parentElement;
-            renderer.setSize(cont.clientWidth, cont.clientHeight);
-            camera.aspect = cont.clientWidth / cont.clientHeight;
+            const p = canvas.parentElement;
+            renderer.setSize(p.clientWidth, p.clientHeight);
+            camera.aspect = p.clientWidth / p.clientHeight;
             camera.updateProjectionMatrix();
         }
         window.addEventListener('resize', resize);
@@ -389,106 +386,33 @@
 
         function animate() {
             requestAnimationFrame(animate);
+            vortex.rotation.y += 0.001 * pressure;
+            core.rotation.x += 0.002 * pressure;
             
-            // Rotation based on Pressure
-            let speed = pressure * 0.002;
-            vortex.rotation.z -= speed;
-            core.rotation.x += speed;
-            core.rotation.y += speed;
+            let hue = (pressure / 100) * 0.1; 
+            mat.color.setHSL(0.05 + hue, 1, 0.5);
 
-            // Heat Glow
-            let hue = 0.05 + (pressure * 0.001); // Red to Yellow
-            material.color.setHSL(hue, 1, 0.5);
-            
-            // Camera Shake at high pressure
-            if(pressure > 80) {
+            if(pressure > 85) {
                 camera.position.x = (Math.random()-0.5) * 0.1;
-                camera.position.y = (Math.random()-0.5) * 0.1;
                 document.body.classList.add('critical');
-                document.getElementById('warn-msg').style.display = 'block';
             } else {
-                camera.position.x = 0;
-                camera.position.y = 0;
+                camera.position.set(0,0,5);
                 document.body.classList.remove('critical');
-                document.getElementById('warn-msg').style.display = 'none';
             }
-
             renderer.render(scene, camera);
             
-            // Update UI
-            document.getElementById('temp-val').innerText = Math.floor(400 + pressure * 4) + "°K";
+            document.getElementById('temp-val').innerText = Math.floor(400 + (pressure*4)) + "°K";
             document.getElementById('temp-bar').style.width = pressure + "%";
-            document.getElementById('rpm-val').innerText = Math.floor(pressure * 120);
         }
         animate();
 
-        // --- 4. INTERACTION ---
+        // --- 6. CONTROLS ---
         const slider = document.getElementById('pressure-slider');
-        slider.oninput = (e) => {
-            pressure = e.target.value;
-            // Update audio pitch if connected
-            if(osc) osc.frequency.value = 100 + (pressure * 5);
-        };
+        slider.oninput = (e) => { pressure = parseInt(e.target.value); };
 
-        // Venting System
         function ventSteam() {
-            // Audio Hiss
-            if(audioCtx) {
-                const hiss = audioCtx.createOscillator();
-                hiss.type = 'sawtooth'; // Rougher sound
-                hiss.frequency.value = 800; // High pitch steam
-                const g = audioCtx.createGain();
-                g.gain.value = 0.1;
-                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-                hiss.connect(g); g.connect(audioCtx.destination);
-                hiss.start(); hiss.stop(audioCtx.currentTime + 1);
-            }
-
-            // Visual Particles
-            const container = document.getElementById('steam-layer');
-            for(let i=0; i<10; i++) {
-                const puff = document.createElement('div');
-                puff.className = 'steam-puff';
-                puff.style.left = (Math.random() * 100) + "%";
-                puff.style.bottom = "-50px";
-                container.appendChild(puff);
-                setTimeout(() => puff.remove(), 4000);
-            }
-
-            // Lower Pressure
             pressure = Math.max(10, pressure - 20);
             slider.value = pressure;
-        }
-
-        // --- 5. AUDIO ENGINE ---
-        let audioCtx, osc;
-        document.body.addEventListener('click', () => {
-            if(audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'sine'; // Low drone
-            osc.frequency.value = 100;
-            gain.gain.value = 0.05;
-            
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start();
-            drawViz();
-        }, {once:true});
-
-        function drawViz() {
-            const cvs = document.getElementById('audio-viz');
-            const ctx = cvs.getContext('2d');
-            function loopViz() {
-                ctx.clearRect(0,0,300,50);
-                ctx.fillStyle = '#ea580c';
-                for(let i=0; i<30; i++) {
-                    ctx.fillRect(i*10, 50 - (Math.random() * pressure * 0.5), 8, 50);
-                }
-                requestAnimationFrame(loopViz);
-            }
-            loopViz();
         }
 
     </script>
