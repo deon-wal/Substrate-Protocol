@@ -3,156 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // OBSERVATORY_MASTER</title>
+    <title>ALDERSYTH // OBSERVATORY_BRUTAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <style>
         :root {
-            --bg: #020205;
-            --panel: rgba(10, 10, 15, 0.96);
-            --border: rgba(139, 92, 246, 0.3);
+            --bg: #050505;
+            --lead: #1a1a1a;
             --violet: #8b5cf6;
             --crimson: #ef4444;
-            --cyan: #06b6d4;
+            --green: #39ff14; /* Melon Juice Green */
             --gold: #d4af37;
         }
 
-        /* FUTURISTIC SCROLLBAR */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--violet); box-shadow: 0 0 10px var(--violet); }
+        /* --- BRUTAL SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; border-left: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: var(--lead); border: 1px solid #444; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
 
         body {
             background-color: var(--bg); color: var(--violet);
             font-family: 'Share Tech Mono', monospace; margin: 0;
             height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-            background-image: url('wallpaper.jpg.png'); background-size: cover;
-            background-blend-mode: multiply;
+            background-image: url('wallpaper.jpg.png'); background-blend-mode: overlay;
         }
 
-        /* HEADER */
-        header {
-            height: 60px; background: rgba(2, 2, 5, 0.98); border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 100;
+        /* SCREEN NOISE */
+        body::after {
+            content: ""; position: fixed; inset: 0; z-index: 9999;
+            background: url('https://media.giphy.com/media/oEI9uWUicvLH2/giphy.gif');
+            opacity: 0.05; pointer-events: none;
         }
-        .nav a { color: #444; text-decoration: none; margin-left: 20px; font-size: 0.8rem; transition: 0.3s; font-weight: bold;}
-        .nav a:hover, .nav a.active { color: var(--violet); text-shadow: 0 0 8px var(--violet); }
+
+        header {
+            height: 50px; background: #000; border-bottom: 2px solid #222;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .nav a { color: #444; text-decoration: none; margin-left: 15px; font-size: 0.7rem; letter-spacing: 2px; }
+        .nav a.active { color: var(--violet); border-bottom: 2px solid var(--violet); }
 
         /* HUD LAYOUT */
         .viewport {
-            flex: 1; display: grid; grid-template-columns: 320px 1fr 320px; gap: 2px;
-            background: var(--border); overflow: hidden;
+            flex: 1; display: grid; grid-template-columns: 280px 1fr 300px;
+            background: #111; gap: 2px;
         }
-        .panel { background: var(--panel); padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
 
-        /* CENTER SCOPE */
+        .panel { background: var(--bg); padding: 20px; display: flex; flex-direction: column; border: 1px solid #111; }
+
+        /* THE LENS VIEWPORT */
         .scope-container {
-            position: relative; background: radial-gradient(circle at center, #0a051a 0%, #000 100%);
-            display: flex; flex-direction: column; overflow: hidden;
+            position: relative; background: #000;
+            overflow: hidden; cursor: none;
         }
-        #signal-canvas { width: 100%; height: 100%; filter: contrast(1.2) brightness(1.2); }
+        #signal-canvas { width: 100%; height: 100%; filter: contrast(2) brightness(1.2); }
 
-        /* ASSET: SEISMIC READOUT (Uses pin3.jpg.png) */
-        #seismic-display {
-            width: 100%; height: 80px; margin-top: 10px; border: 1px solid #222;
-            background: url('pin3.jpg.png') repeat-x; background-size: contain;
-            opacity: 0.4; filter: hue-rotate(280deg);
+        /* THE ENTITY (Your Green Blob) */
+        #entity-layer {
+            position: absolute; inset: 0;
+            background: url('image_3c0f45.jpg') no-repeat center;
+            background-size: 40%; opacity: 0; filter: blur(20px) hue-rotate(90deg);
+            transition: opacity 0.5s, filter 0.5s; pointer-events: none;
         }
 
-        /* ASSET: MEMORY FRAGMENT (Uses log4.jpg) */
-        #memory-fragment {
-            width: 100%; height: 200px; background: url('log4.jpg') no-repeat center center;
-            background-size: cover; border: 1px solid var(--border);
-            filter: brightness(0.1) blur(15px); transition: 2.5s ease; margin-bottom: 20px;
-        }
-        #memory-fragment.resolved { filter: brightness(0.7) blur(0px); box-shadow: 0 0 25px var(--cyan); }
+        .scope-hud { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        .status-header { font-size: 3rem; font-weight: 900; color: var(--crimson); line-height: 1; }
 
-        /* DATA UI */
-        .label { font-size: 0.65rem; color: var(--gold); display: block; margin-bottom: 8px; letter-spacing: 2px; }
-        .vu-meter { height: 2px; background: #111; overflow: hidden; margin-bottom: 20px; }
-        .vu-fill { height: 100%; width: 0%; background: var(--violet); box-shadow: 0 0 10px var(--violet); transition: width 0.1s; }
-
-        /* CONTROLS */
+        /* CONTROL DECK */
         .control-deck {
-            background: rgba(0,0,0,0.95); border-top: 1px solid var(--border);
-            padding: 25px 40px; display: flex; gap: 40px; justify-content: center;
+            background: #000; border-top: 2px solid #222; padding: 20px;
+            display: flex; gap: 20px; justify-content: center;
         }
-        .slider-group { flex: 1; max-width: 250px; }
-        input[type=range] { width: 100%; accent-color: var(--violet); cursor: crosshair; }
+        .slider-group { flex: 1; max-width: 200px; }
+        .label { font-size: 0.6rem; color: #444; display: block; margin-bottom: 10px; }
+        input[type=range] { width: 100%; accent-color: var(--violet); background: #111; height: 2px; outline: none; }
 
-        #start-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        /* DECRYPTION TERMINAL */
+        #log-screen {
+            font-size: 0.7rem; color: #333; line-height: 1.5; white-space: pre-wrap;
+            transition: 0.3s;
         }
-        .start-btn {
-            border: 1px solid var(--violet); color: var(--violet); background: transparent;
-            padding: 15px 40px; font-family: inherit; font-size: 1.2rem; cursor: pointer;
-            letter-spacing: 5px; transition: 0.3s;
+        .resolved { color: var(--green) !important; text-shadow: 0 0 5px var(--green); }
+
+        /* VIOLENT SHAKE */
+        .violent-shake { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-2px, -1px); }
+            100% { transform: translate(1px, 1px); }
         }
-        .start-btn:hover { background: var(--violet); color: #000; box-shadow: 0 0 40px var(--violet); }
     </style>
 </head>
-<body>
-
-    <div id="start-overlay">
-        <div style="margin-bottom: 20px; letter-spacing: 5px;">ALDERSYTH // OBSERVATORY_LENS</div>
-        <button class="start-btn" onclick="initSystem()">BOOT_SYSTEM</button>
-    </div>
+<body id="main-body">
 
     <header>
-        <div style="letter-spacing:4px; font-weight:bold; font-family: 'Share Tech Mono';">ALDERSYTH // OS</div>
+        <div style="font-weight:bold; letter-spacing:5px;">ALDERSYTH // LENS_OBS</div>
         <nav class="nav">
-            <a href="index.html">CORE</a>
+            <a href="index.html">HUB</a>
             <a href="market.html">MARKET</a>
-            <a href="residential.html">RESIDENTIAL</a>
             <a href="spire.html">SPIRE</a>
             <a href="observatory.html" class="active">OBSERVATORY</a>
-            <a href="login.html" style="color:var(--gold)">_ROOT</a>
+            <a href="login.html" style="color:var(--crimson)">ROOT_BYPASS</a>
         </nav>
     </header>
 
     <div class="viewport">
         <aside class="panel">
-            <div style="color:var(--gold); font-size:0.8rem; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">SIGNAL_TELEMETRY</div>
+            <div style="color:var(--gold); font-size: 0.7rem; margin-bottom: 20px;">[ SENSOR_TELEMETRY ]</div>
             
-            <span class="label">PULSE_AMPLITUDE</span>
-            <div class="vu-meter"><div class="vu-fill" id="vu-sig"></div></div>
-            
-            <span class="label">GRAVITY_STRESS_MAP</span>
-            <div id="seismic-display"></div>
+            <div style="margin-bottom: 20px;">
+                <span class="label">METRIC_INSTABILITY</span>
+                <div style="height:2px; background:#111; position:relative;">
+                    <div id="instability-bar" style="height:100%; width:80%; background:var(--crimson);"></div>
+                </div>
+            </div>
 
-            <div style="margin-top:auto; font-size:0.65rem; color:#444; line-height: 2;">
-                > SCANNING: SECTOR_NULL<br>
-                > MODE: DEEP_INTERCEPT<br>
-                > SYNC_STATUS: <span id="sync-stat" style="color:var(--crimson)">AWAITING_LOCK</span>
+            <div id="seismic-view" style="flex:1; background:url('pin3.jpg.png'); background-size:cover; opacity:0.1; border:1px solid #222;"></div>
+            
+            <div style="font-size:0.6rem; color:#222; margin-top:10px;">
+                COORD_X: <span id="val-x">--</span><br>
+                COORD_Y: <span id="val-y">--</span>
             </div>
         </aside>
 
-        <main class="scope-container">
+        <main class="scope-container" id="scope">
+            <div id="entity-layer"></div>
             <canvas id="signal-canvas"></canvas>
-            <div style="position:absolute; top:30px; left:30px; pointer-events:none;">
-                <div id="lock-status" style="font-size:2rem; font-weight:900; color:var(--crimson);">SEARCHING...</div>
+            <div class="scope-hud">
+                <div id="status-txt" class="status-header">VOID_SEARCHING</div>
+                <div style="color:#222; font-size:0.6rem; letter-spacing:5px;">VECTOR ALIGNMENT REQUIRED</div>
             </div>
         </main>
 
         <aside class="panel">
-            <div style="color:var(--gold); font-size:0.8rem; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">MEMORY_DECRYPTION</div>
-            <div id="memory-fragment"></div>
-            <div id="decode-text" style="font-size: 0.75rem; color: #444; line-height: 1.6;">
-                [ENCRYPTED_SIGNAL]
+            <div style="color:var(--gold); font-size: 0.7rem; margin-bottom: 20px;">[ RECOVERED_LOG ]</div>
+            <div id="log-screen">
+                ERROR: SIGNAL_NOISE_FLOOR_TOO_HIGH
                 ---
-                ALIGN FREQ, AMP, 
-                AND PHASE VECTORS 
-                TO RECONSTRUCT 
-                CORE MEMORIES.
+                SYNC VECTORS TO 
+                DECRYPT MEMORY 
+                FRAGMENT_04.
+            </div>
+            <div style="margin-top:auto; background:rgba(255,0,0,0.05); padding:10px; border:1px solid #300; font-size:0.6rem; color:var(--crimson);">
+                WARNING: EXPOSURE TO VOID SIGNAL MAY CAUSE PERMANENT MEMORY LEAK.
             </div>
         </aside>
     </div>
 
     <div class="control-deck">
         <div class="slider-group">
-            <span class="label">FREQ_RESONANCE</span>
+            <span class="label">PITCH_RESONANCE</span>
             <input type="range" id="freq" min="10" max="100" value="20">
         </div>
         <div class="slider-group">
@@ -166,93 +165,71 @@
     </div>
 
     <script>
-        const cvs = document.getElementById('signal-canvas');
-        const ctx = cvs.getContext('2d');
-        const seismic = document.getElementById('seismic-display');
-        let time = 0, lockTimer = 0, audioStarted = false;
-        let audioCtx, osc, gainNode, panner;
+        const canvas = document.getElementById('signal-canvas');
+        const ctx = canvas.getContext('2d');
+        const body = document.getElementById('main-body');
+        const entity = document.getElementById('entity-layer');
+        let time = 0;
+        let target = { f: 42, a: 60, p: 25 };
 
-        const target = { f: 42, a: 55, p: 15 };
-
-        function initSystem() {
-            document.getElementById('start-overlay').style.display = 'none';
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            osc = audioCtx.createOscillator();
-            gainNode = audioCtx.createGain();
-            panner = audioCtx.createStereoPanner();
-
-            osc.type = 'sawtooth'; osc.frequency.value = 55;
-            gainNode.gain.value = 0.05;
-            osc.connect(panner); panner.connect(gainNode); gainNode.connect(audioCtx.destination);
-            osc.start(); audioStarted = true;
-            loop();
+        function resize() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
 
         function loop() {
             requestAnimationFrame(loop);
-            ctx.clearRect(0,0,cvs.width, cvs.height);
+            ctx.clearRect(0,0,canvas.width, canvas.height);
             time += 0.2;
 
             const f = parseInt(document.getElementById('freq').value);
             const a = parseInt(document.getElementById('amp').value);
             const p = parseInt(document.getElementById('phase').value);
 
-            // Update Audio & Telemetry
-            if(audioStarted) {
-                osc.frequency.setTargetAtTime(40 + (f * 2), audioCtx.currentTime, 0.1);
-                gainNode.gain.setTargetAtTime(a * 0.002, audioCtx.currentTime, 0.1);
-                panner.pan.setTargetAtTime((p - 50) / 50, audioCtx.currentTime, 0.1);
+            // Brutal Physics: Shake the screen based on Amplitude
+            if(a > 40) body.classList.add('violent-shake');
+            else body.classList.remove('violent-shake');
+
+            // Draw Waves
+            drawWave(target.f, target.a, target.p, "rgba(255, 0, 0, 0.1)", 1); // Ghost
+            drawWave(f, a, p, "#8b5cf6", 3); // User
+
+            // Match Logic
+            const match = Math.abs(f - target.f) < 5 && Math.abs(a - target.a) < 10 && Math.abs(p - target.p) < 10;
+            const log = document.getElementById('log-screen');
+            const status = document.getElementById('status-txt');
+
+            if(match) {
+                status.innerText = "ENTITY_FOUND";
+                status.style.color = "var(--green)";
+                entity.style.opacity = (a / 100);
+                entity.style.filter = `blur(${10 - (a/10)}px) hue-rotate(0deg)`;
+                log.classList.add('resolved');
+                log.innerHTML = `[ DECRYPTION_COMPLETE ]\n---\n"The bridge is not made of carbon. It is made of us.\n\nEvery memory they mine from the Spire is a brick.\nEvery stress line in the Market is mortar.\n\nThey are leaving. And they aren't taking us with them."`;
+            } else {
+                status.innerText = "VOID_SEARCHING";
+                status.style.color = "var(--crimson)";
+                entity.style.opacity = "0";
+                log.classList.remove('resolved');
+                log.innerText = "ERROR: SIGNAL_DEGRADED\n---";
             }
-            document.getElementById('vu-sig').style.width = a + "%";
-            seismic.style.backgroundPositionX = (time * 5) + "px";
-
-            // Signal Sync Logic
-            drawWave(target.f, target.a, target.p, "rgba(239, 68, 68, 0.2)", 1);
-            drawWave(f, a, p, "#8b5cf6", 3);
-
-            const match = Math.abs(f - target.f) < 4 && Math.abs(a - target.a) < 8 && Math.abs(p - target.p) < 8;
-            if(match) lockTimer++; else lockTimer = Math.max(0, lockTimer - 2);
-
-            updateUI(lockTimer);
         }
 
         function drawWave(f, a, p, color, width) {
-            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width;
-            let centerY = cvs.height / 2;
-            for(let x=0; x<cvs.width; x++) {
-                let y = centerY + Math.sin(x * f * 0.003 + p * 0.2 + time) * (a * 2.5);
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            let cy = canvas.height / 2;
+            for(let x=0; x<canvas.width; x++) {
+                let y = cy + Math.sin(x * f * 0.003 + p * 0.1 + time) * (a * 2);
                 if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
             }
             ctx.stroke();
         }
 
-        function updateUI(timer) {
-            const status = document.getElementById('lock-status');
-            const sync = document.getElementById('sync-stat');
-            const frag = document.getElementById('memory-fragment');
-            const txt = document.getElementById('decode-text');
-
-            if(timer > 60) {
-                status.innerText = "VECTOR_SYNCED"; status.style.color = "var(--cyan)";
-                sync.innerText = "LOCKED"; sync.style.color = "var(--cyan)";
-                frag.classList.add('resolved');
-                txt.style.color = "var(--cyan)";
-                txt.innerHTML = `[ORIGIN_RECOVERED]<br>---<br>"They aren't mining coins. They are mining MEMORIES. Building a bridge out of our discarded lives."`;
-            } else {
-                status.innerText = "SEARCHING..."; status.style.color = "var(--crimson)";
-                sync.innerText = "AWAITING_LOCK"; sync.style.color = "var(--crimson)";
-                frag.classList.remove('resolved');
-                txt.style.color = "#444";
-                txt.innerText = "[ENCRYPTED_SIGNAL] --- ALIGN WAVEFORMS TO RESOLVE...";
-            }
-        }
-
-        window.addEventListener('resize', () => {
-            cvs.width = cvs.parentElement.offsetWidth;
-            cvs.height = cvs.parentElement.offsetHeight;
-        });
-        cvs.width = cvs.parentElement.offsetWidth;
-        cvs.height = cvs.parentElement.offsetHeight;
+        loop();
     </script>
 </body>
 </html>
