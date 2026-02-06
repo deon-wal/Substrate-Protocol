@@ -3,298 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // MARKET_DISTRICT</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <title>ALDERSYTH // SPIRE_MONITOR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
-        :root { 
-            --bg: #030303; 
-            --panel: #0a0a0e;
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #d4af37;        
-            --gold-dim: #6b5c2b;
-            --crimson: #d90d32;     
-            --teal: #14b8a6;        
+        /* --- CORE PALETTE (Spire Theme) --- */
+        :root {
+            --bg: #030507;
+            --panel: rgba(10, 15, 20, 0.85);
+            --teal: #2dd4bf;       /* Structure */
+            --green: #39ff14;      /* Melon Juice / Biological Contamination */
+            --lead: #64748b;       /* Inertia */
+            --alert: #ef4444;      /* Critical */
         }
 
+        * { box-sizing: border-box; user-select: none; }
         body { 
-            background: var(--bg);
-            color: #888; 
-            font-family: 'Space Mono', monospace; 
-            margin: 0; 
-            height: 100vh;
-            overflow: hidden;
-            display: grid;
-            grid-template-rows: 50px 30px 1fr 25px; 
-            font-size: 12px;
+            margin: 0; background: var(--bg); color: var(--teal);
+            font-family: 'Share Tech Mono', monospace; overflow: hidden;
+            font-size: 13px;
         }
 
-        /* --- BACKGROUND PARTICLES --- */
-        #dust-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.4; pointer-events: none; }
+        /* --- BACKGROUND FX --- */
+        .scanlines {
+            position: fixed; inset: 0; pointer-events: none; z-index: 10;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; opacity: 0.7;
+        }
+        
+        /* The "Melon Juice" Contamination Layer */
+        .bio-layer {
+            position: fixed; inset: 0; z-index: 5; pointer-events: none;
+            background: url('images/image_3c0f45.jpg'); 
+            background-size: cover; mix-blend-mode: color-dodge;
+            opacity: 0; transition: opacity 0.2s; filter: hue-rotate(90deg) contrast(1.5);
+        }
+        .bio-layer.active { opacity: 0.15; animation: pulseBio 0.5s infinite alternate; }
+        @keyframes pulseBio { from { opacity: 0.1; } to { opacity: 0.2; } }
+
+        /* --- LAYOUT GRID --- */
+        .interface {
+            position: absolute; inset: 0; display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 60px 1fr 200px;
+            padding: 20px; gap: 20px; z-index: 20;
+        }
 
         /* --- HEADER --- */
         header {
-            background: rgba(5, 5, 5, 0.95);
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; z-index: 10;
+            grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--teal); background: rgba(2, 5, 8, 0.9);
+            padding: 0 20px;
         }
-        .logo { color: var(--gold); font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
-        .nav a { color: #555; text-decoration: none; margin-left: 20px; transition: 0.2s; }
-        .nav a:hover { color: var(--teal); }
-        .nav a.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
-        .wallet { border: 1px solid #333; padding: 5px 15px; color: #eee; background: #000; }
+        .logo { font-family: 'Rajdhani'; font-size: 1.8rem; font-weight: bold; letter-spacing: 4px; color: #fff; text-shadow: 0 0 10px var(--teal); }
+        .nav { display: flex; gap: 30px; }
+        .nav a { 
+            color: #666; text-decoration: none; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; 
+        }
+        .nav a:hover { color: #fff; text-shadow: 0 0 8px currentColor; }
+        .nav a.active { color: var(--green); border-bottom: 2px solid var(--green); }
+        .nav a.root { color: var(--alert); }
 
-        /* --- TICKER --- */
-        .ticker-wrap { background: #000; border-bottom: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; }
-        .ticker { animation: scroll 40s linear infinite; display: flex; white-space: nowrap; }
-        .tick-item { margin-right: 40px; color: #444; font-size: 0.7rem; }
-        .up { color: var(--teal); } .down { color: var(--crimson); }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        /* --- SIDEBARS --- */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .widget {
+            border: 1px solid #222; background: var(--panel); padding: 15px;
+            display: flex; flex-direction: column; position: relative;
+        }
+        .widget::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--teal); }
+        .w-title { font-size: 0.7rem; color: #888; margin-bottom: 10px; letter-spacing: 1px; }
 
-        /* --- MAIN LAYOUT --- */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 260px 1fr 300px;
+        /* Gravity Meter */
+        .g-readout { font-size: 2.5rem; font-family: 'Rajdhani'; font-weight: bold; color: #fff; }
+        .g-graph { display: flex; align-items: flex-end; height: 40px; gap: 2px; margin-top: 5px; }
+        .bar { width: 100%; background: var(--teal); opacity: 0.3; transition: height 0.1s; }
+        .bar.danger { background: var(--green); opacity: 1; box-shadow: 0 0 8px var(--green); }
+
+        /* --- CENTER STAGE (3D) --- */
+        .viewport {
+            position: relative; border: 1px solid #333;
+            background: radial-gradient(circle, #0a1014 0%, #000 100%);
             overflow: hidden;
         }
-
-        /* LEFT: COMMODITIES */
-        .panel { background: rgba(10,10,14,0.6); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .panel-head { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.7rem; color: var(--gold-dim); background: #08080a; font-weight: bold; }
-        .asset-list { overflow-y: auto; flex: 1; }
-        .asset-row {
-            padding: 12px 15px; border-bottom: 1px solid #151518; cursor: pointer;
-            display: flex; justify-content: space-between; transition: 0.2s;
+        #three-canvas { width: 100%; height: 100%; }
+        
+        .overlay-ui {
+            position: absolute; bottom: 20px; left: 20px; 
+            color: var(--teal); font-size: 0.7rem; pointer-events: none;
         }
-        .asset-row:hover { background: #151520; color: #fff; }
-        .asset-row.active { border-left: 2px solid var(--gold); background: #1a1a22; }
-        .sym { display: block; color: #ddd; font-weight: bold; font-size: 0.8rem; }
 
-        /* CENTER: CHART */
-        .center-stage { display: grid; grid-template-rows: 1fr 150px; position: relative; }
-        .chart-container { position: relative; background: #050505; border-bottom: 1px solid var(--border); }
-        #main-chart { width: 100%; height: 100%; }
-        .chart-overlay { position: absolute; top: 20px; left: 20px; pointer-events: none; }
-        .price-big { font-size: 2.5rem; color: #fff; margin: 0; font-weight: 300; }
+        /* --- BOTTOM CONSOLE (NARRATIVE LOG) --- */
+        .console {
+            grid-column: 1 / 4; border: 1px solid #333; background: #000;
+            padding: 15px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem;
+            color: #aaa; overflow-y: auto; display: flex; flex-direction: column-reverse;
+        }
+        .log-line { margin-bottom: 5px; border-left: 2px solid transparent; padding-left: 10px; }
+        .log-line.sys { color: var(--teal); border-color: var(--teal); }
+        .log-line.warn { color: var(--green); border-color: var(--green); text-shadow: 0 0 5px var(--green); }
+        .log-line.err { color: var(--alert); border-color: var(--alert); }
 
-        /* NEWS FEED (The Narrative Layer) */
-        .news-feed { padding: 15px; background: #000; overflow-y: auto; border-top: 1px solid var(--border); }
-        .news-item { margin-bottom: 10px; font-size: 0.75rem; color: #666; border-left: 2px solid #333; padding-left: 10px; }
-        .news-highlight { color: var(--teal); }
+        /* BUTTONS */
+        .action-btn {
+            background: transparent; border: 1px solid var(--teal); color: var(--teal);
+            padding: 10px; cursor: pointer; margin-top: 5px; font-family: inherit;
+            transition: 0.2s; text-transform: uppercase; font-size: 0.8rem;
+        }
+        .action-btn:hover { background: var(--teal); color: #000; box-shadow: 0 0 15px var(--teal); }
+        
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--teal); }
 
-        /* RIGHT: TRADING */
-        .order-panel { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--panel); }
-        .trade-controls { padding: 20px; background: #08080a; border-top: 1px solid var(--border); margin-top: auto; }
-        .qty-input { background: #111; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 10px; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { border: none; padding: 12px; cursor: pointer; font-weight: bold; color: #000; transition: 0.2s; }
-        .btn-buy { background: var(--teal); } .btn-sell { background: var(--crimson); color: #fff; }
-        .btn:hover { opacity: 0.8; }
-
-        /* FOOTER */
-        footer { background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-between; padding: 0 20px; align-items: center; color: #444; font-size: 0.65rem; }
     </style>
 </head>
 <body>
 
-    <canvas id="dust-canvas"></canvas>
+    <div class="bio-layer" id="bio-fx"></div>
+    <div class="scanlines"></div>
 
-    <header>
-        <div class="logo">ALDERSYTH // MARKET</div>
-        <nav class="nav">
-    <a href="spire.html">CORE</a> 
-    
-    <a href="market.html">MARKET</a>
-    <a href="residential.html">RESIDENTIAL</a>
-    <a href="observatory.html">OBSERVATORY</a>
-    
-    <a href="sync.html">SYNC</a> 
-    
-    <a href="backdoor.html" style="opacity:0.3;">_ROOT</a> 
-</nav>
-        <div class="wallet">BAL: ₮ <span id="wallet-val">42,050.00</span></div>
-    </header>
+    <div class="interface">
+        
+        <!-- HEADER -->
+        <header>
+            <div class="logo">ALDERSYTH // SPIRE</div>
+            <nav class="nav">
+                <a href="index.html">CORE</a>
+                <a href="spire.html" class="active">SPIRE</a>
+                <a href="market.html">MARKET</a>
+                <a href="residential.html">RESIDENTIAL</a>
+                <a href="observatory.html">OBSERVATORY</a>
+                <a href="sync.html">SYNC</a>
+                <a href="login.html" class="root">_ROOT</a>
+            </nav>
+            <div style="font-size:0.8rem; color:var(--green);">SYS_STATUS: UNSTABLE</div>
+        </header>
 
-    <div class="ticker-wrap"><div class="ticker" id="ticker-feed"></div></div>
-
-    <main class="dashboard">
-        <aside class="panel">
-            <div class="panel-head">COMMODITIES</div>
-            <div class="asset-list" id="asset-list"></div>
-        </aside>
-
-        <section class="center-stage">
-            <div class="chart-container">
-                <div class="chart-overlay">
-                    <h1 class="price-big" id="main-price">---</h1>
-                    <div style="color:#666;" id="main-name">SELECT ASSET</div>
-                </div>
-                <canvas id="main-chart"></canvas>
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="widget">
+                <span class="w-title">GRAVITY_WELL_SENSOR</span>
+                <div class="g-readout" id="g-val">1.00g</div>
+                <div class="g-graph" id="g-graph"></div>
             </div>
-            <div class="news-feed" id="news-feed">
-                <div style="color:var(--gold); margin-bottom:8px; font-weight:bold;">// MARKET_NEWS_WIRE</div>
+            
+            <div class="widget">
+                <span class="w-title">STRUCTURAL_TENSION</span>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#fff;">
+                    <span>LOAD</span>
+                    <span>88%</span>
                 </div>
-        </section>
-
-        <aside class="order-panel">
-            <div class="panel-head">ORDER BOOK (L2)</div>
-            <div id="order-book" style="flex:1; overflow:hidden; padding:10px;"></div>
-            <div class="trade-controls">
-                <input type="number" class="qty-input" id="trade-qty" value="1" min="1">
-                <div class="btn-grid">
-                    <button class="btn btn-buy" onclick="trade('BUY')">BUY</button>
-                    <button class="btn btn-sell" onclick="trade('SELL')">SELL</button>
+                <div style="width:100%; height:4px; background:#222;">
+                    <div style="width:88%; height:100%; background:var(--teal);"></div>
                 </div>
             </div>
-        </aside>
-    </main>
 
-    <footer>
-        <span>STATUS: VOLATILE</span>
-        <span>LATENCY: 12ms</span>
-    </footer>
+            <div class="widget">
+                <span class="w-title">MANUAL_OVERRIDE</span>
+                <button class="action-btn" onclick="triggerStabilize()">DAMPEN_VIBRATION</button>
+                <button class="action-btn" onclick="triggerPurge()" style="border-color:var(--green); color:var(--green);">PURGE_ORGANICS</button>
+            </div>
+        </aside>
+
+        <!-- CENTER 3D VIEW -->
+        <div class="viewport">
+            <canvas id="three-canvas"></canvas>
+            <div class="overlay-ui">
+                TARGET: CENTRAL_COLUMN<br>
+                MAT: REINFORCED_CARBON<br>
+                ERR: FLUID_LEAK_DETECTED
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="widget">
+                <span class="w-title">SPECTROGRAM</span>
+                <canvas id="audio-canvas" style="width:100%; height:60px;"></canvas>
+            </div>
+            <div class="widget">
+                <span class="w-title">MEMORY_HEAP</span>
+                <div id="hex-dump" style="font-size:0.7rem; color:#555; display:grid; grid-template-columns:1fr 1fr; gap:5px;"></div>
+            </div>
+        </aside>
+
+        <!-- BOTTOM CONSOLE -->
+        <div class="console" id="console-feed">
+            <!-- Logs appear here -->
+        </div>
+
+    </div>
+
+    <!-- SHADERS (Glitchy Spire Geometry) -->
+    <script type="x-shader/x-vertex" id="vShader">
+        uniform float time;
+        uniform float stress;
+        varying vec2 vUv;
+        varying float vDisp;
+        
+        // Simplex Noise
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+        float snoise(vec3 v) { const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0); vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx); vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g; vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy); vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy; i = mod289(i); vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0)); float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx; vec4 j = p - 49.0 * floor(p * ns.z * ns.z); vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_); vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y); vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw); vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0)); vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww; vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w); vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3))); p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w; vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m; return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))); }
+
+        void main() {
+            vUv = uv;
+            vDisp = snoise(position * 2.0 + time * 0.5);
+            vec3 pos = position + normal * (vDisp * stress);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fShader">
+        uniform float time;
+        uniform float stress;
+        varying float vDisp;
+        
+        void main() {
+            vec3 teal = vec3(0.1, 0.8, 0.7);
+            vec3 green = vec3(0.2, 1.0, 0.2);
+            vec3 black = vec3(0.0, 0.0, 0.0);
+            
+            // Scanlines
+            float scan = sin(gl_FragCoord.y * 0.5 - time * 5.0);
+            
+            vec3 color = mix(black, teal, smoothstep(-0.2, 0.2, vDisp));
+            
+            if (scan > 0.8) color = mix(color, green, 0.5); // Green Scanlines
+            if (vDisp > 0.4 && stress > 0.3) color = green; // Stress Highlights
+            
+            gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
 
     <script>
-        // CONFIG
-        const assets = [
-            { sym: "LDS-03", name: "LEAD SPHERE (3KG)", price: 1420.00, vol: 5.0 },
-            { sym: "V-DRIFT", name: "VECTOR DRIFT RAW", price: 850.50, vol: 8.0 },
-            { sym: "SLUDGE", name: "SUB-STRATA WASTE", price: 42.00, vol: 1.5 },
-            { sym: "O-GAMI", name: "ORIGAMI FRAGMENT", price: 4200.00, vol: 20.0 },
-            { sym: "ESPRESSO", name: "FINN'S BREW (HOT)", price: 15.00, vol: 0.5 }
+        // --- NARRATIVE LOGS ---
+        const logs = [
+            { type: 'sys', text: "Connecting to Substrate Node..." },
+            { type: 'sys', text: "Rendering geometric stress lines..." },
+            { type: 'warn', text: "Metric deviation detected: 0.041%" },
+            { type: 'warn', text: "Warning: Coordinate overflow Z-Axis" },
+            { type: 'sys', text: "Analyst Kael: Bio-signs stable" },
+            { type: 'err', text: "ORGANIC CONTAMINATION DETECTED (MELON_JUICE)" },
+            { type: 'sys', text: "Vera: 'Stride correction applied.'" },
+            { type: 'sys', text: "Lead sphere mass confirmed: 3.00kg" }
         ];
 
-        const newsItems = [
-            "Log 02: Finn's espresso cart reported 88% drift deviation.",
-            "Market volatility spike detected in Sector 04.",
-            "Sloane: 'The data requires a stress test.'",
-            "Thermodynamic stress critical in lower market rings.",
-            "Visual anomaly detected: Steam freezing mid-air."
-        ];
-
-        let selected = assets[0];
-        let wallet = 42050.00;
-        let chartData = [];
-        let canvas, ctx;
-
-        // INIT
+        // --- INIT ---
         function init() {
-            canvas = document.getElementById('main-chart');
-            ctx = canvas.getContext('2d');
-            window.addEventListener('resize', resize);
-            resize();
-            
-            renderAssets();
-            renderNews();
-            changeAsset(assets[0]);
-            
-            // Ticker
-            const t = document.getElementById('ticker-feed');
-            let html = "";
-            [...assets, ...assets].forEach(a => html += `<div class="tick-item">${a.sym} <span class="up">▲ ${(Math.random()*5).toFixed(2)}%</span></div>`);
-            t.innerHTML = html;
-
-            setInterval(gameLoop, 50); // Chart loop
-            setInterval(updateSim, 1000); // Data loop
+            init3D();
+            initAudio();
+            initGraph();
+            runLogs();
+            initHex();
         }
 
-        function resize() {
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = canvas.parentElement.offsetHeight;
-        }
+        // --- 3D ENGINE ---
+        let stressLevel = 0.1;
+        function init3D() {
+            const container = document.querySelector('.viewport');
+            const canvas = document.getElementById('three-canvas');
+            const renderer = new THREE.WebGLRenderer({canvas, alpha:true});
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth/container.clientHeight, 0.1, 1000);
+            camera.position.z = 2.2;
 
-        // VISUALS
-        function gameLoop() {
-            // Shift Chart
-            let last = chartData[chartData.length-1] || selected.price;
-            let next = last + (Math.random()-0.5) * selected.vol;
-            chartData.push(next);
-            if(chartData.length > canvas.width/5) chartData.shift();
-            
-            // Draw
-            ctx.fillStyle = "#050505";
-            ctx.fillRect(0,0,canvas.width, canvas.height);
-            
-            ctx.beginPath();
-            let min = Math.min(...chartData);
-            let max = Math.max(...chartData);
-            let range = max - min || 1;
-            
-            let color = next > chartData[0] ? "#14b8a6" : "#d90d32";
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
+            // Geometry: Distorted Sphere/Cone Hybrid
+            const geo = new THREE.IcosahedronGeometry(1, 30);
+            const mat = new THREE.ShaderMaterial({
+                uniforms: { time: {value:0}, stress: {value:0.1} },
+                vertexShader: document.getElementById('vShader').textContent,
+                fragmentShader: document.getElementById('fShader').textContent,
+                wireframe: true
+            });
+            const core = new THREE.Mesh(geo, mat);
+            scene.add(core);
 
-            for(let i=0; i<chartData.length; i++) {
-                let x = (i/(chartData.length-1)) * canvas.width;
-                let y = canvas.height - ((chartData[i] - min) / range) * (canvas.height - 100) - 50;
-                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            // Outer Cage
+            const cageGeo = new THREE.IcosahedronGeometry(1.4, 1);
+            const cageMat = new THREE.MeshBasicMaterial({ color: 0x2dd4bf, wireframe: true, transparent:true, opacity:0.1 });
+            const cage = new THREE.Mesh(cageGeo, cageMat);
+            scene.add(cage);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                mat.uniforms.time.value += 0.01;
+                mat.uniforms.stress.value = stressLevel;
+
+                core.rotation.y += 0.005;
+                cage.rotation.z -= 0.002;
+                
+                // Shake camera on high stress
+                if(stressLevel > 0.4) {
+                    camera.position.x = (Math.random()-0.5) * 0.05;
+                } else {
+                    camera.position.x = 0;
+                }
+
+                renderer.render(scene, camera);
             }
-            ctx.stroke();
+            animate();
+
+            window.addEventListener('resize', () => {
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth/container.clientHeight;
+                camera.updateProjectionMatrix();
+            });
+        }
+
+        // --- GRAVITY GRAPH ---
+        function initGraph() {
+            const graph = document.getElementById('g-graph');
+            for(let i=0; i<30; i++) {
+                let b = document.createElement('div');
+                b.className = 'bar';
+                graph.appendChild(b);
+            }
             
-            // Update Text
-            document.getElementById('main-price').innerText = "₮ " + next.toFixed(2);
-            document.getElementById('main-price').style.color = color;
-            selected.price = next;
+            setInterval(() => {
+                const bars = document.querySelectorAll('.bar');
+                let spike = Math.random() > 0.8;
+                
+                if(spike) {
+                    stressLevel = 0.5; // High stress on 3D model
+                    document.getElementById('bio-fx').classList.add('active');
+                } else {
+                    stressLevel = 0.1;
+                    document.getElementById('bio-fx').classList.remove('active');
+                }
+
+                // Update text
+                let g = (1.0 + (stressLevel * (Math.random()-0.5))).toFixed(2);
+                document.getElementById('g-val').innerText = g + 'g';
+                document.getElementById('g-val').style.color = spike ? 'var(--green)' : '#fff';
+
+                bars.forEach(b => {
+                    let h = Math.random() * 100;
+                    b.style.height = h + "%";
+                    if(spike && h > 80) b.classList.add('danger'); else b.classList.remove('danger');
+                });
+            }, 150);
         }
 
-        // LOGIC
-        function changeAsset(a) {
-            selected = a;
-            document.getElementById('main-name').innerText = a.name;
-            chartData = [a.price];
-            renderAssets();
-            renderBook();
+        // --- CONSOLE LOGS ---
+        function runLogs() {
+            const consoleEl = document.getElementById('console-feed');
+            let idx = 0;
+            
+            setInterval(() => {
+                const log = logs[Math.floor(Math.random() * logs.length)];
+                const div = document.createElement('div');
+                div.className = `log-line ${log.type}`;
+                div.innerHTML = `> ${log.text} <span style="opacity:0.5">[${Date.now().toString().slice(-4)}]</span>`;
+                consoleEl.prepend(div);
+                if(consoleEl.children.length > 20) consoleEl.lastChild.remove();
+            }, 2000);
         }
 
-        function renderAssets() {
-            const list = document.getElementById('asset-list');
-            list.innerHTML = "";
-            assets.forEach(a => {
-                let div = document.createElement('div');
-                div.className = `asset-row ${a === selected ? 'active' : ''}`;
-                div.innerHTML = `<div><span class="sym">${a.sym}</span></div><div>₮ ${a.price.toFixed(2)}</div>`;
-                div.onclick = () => changeAsset(a);
-                list.appendChild(div);
-            });
+        // --- HEX DUMP ---
+        function initHex() {
+            const hex = document.getElementById('hex-dump');
+            for(let i=0; i<12; i++) {
+                let s = document.createElement('div');
+                hex.appendChild(s);
+            }
+            setInterval(() => {
+                Array.from(hex.children).forEach(c => {
+                    c.innerText = Math.floor(Math.random()*0xffffff).toString(16).toUpperCase().padEnd(6,'0');
+                });
+            }, 100);
         }
 
-        function renderNews() {
-            const feed = document.getElementById('news-feed');
-            newsItems.forEach(n => {
-                let div = document.createElement('div');
-                div.className = "news-item";
-                div.innerText = "> " + n;
-                feed.appendChild(div);
-            });
+        // --- AUDIO ---
+        function initAudio() {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AC();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth'; osc.frequency.value = 50; gain.gain.value = 0.05;
+            osc.connect(gain); gain.connect(ctx.destination); osc.start();
+            
+            // Visualizer
+            const cvs = document.getElementById('audio-canvas');
+            const cCtx = cvs.getContext('2d');
+            function draw() {
+                cCtx.clearRect(0,0,300,60);
+                cCtx.fillStyle = '#2dd4bf';
+                for(let i=0; i<40; i++) {
+                    cCtx.fillRect(i*8, 60 - Math.random()*40, 6, 40);
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
         }
 
-        function renderBook() {
-            const book = document.getElementById('order-book');
-            let html = "";
-            let p = selected.price;
-            for(let i=0; i<5; i++) html += `<div style="display:flex; justify-content:space-between; color:#d90d32; font-size:0.7rem; margin-bottom:2px;"><span>₮ ${(p+i+1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
-            html += `<hr style="border:0; border-top:1px dashed #333; margin:5px 0;">`;
-            for(let i=0; i<5; i++) html += `<div style="display:flex; justify-content:space-between; color:#14b8a6; font-size:0.7rem; margin-bottom:2px;"><span>₮ ${(p-i-1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
-            book.innerHTML = html;
-        }
+        // --- ACTIONS ---
+        function triggerStabilize() { alert("DAMPENERS ENGAGED. GRAVITY STABILIZING..."); }
+        function triggerPurge() { alert("ORGANIC MATTER PURGED."); }
 
-        function updateSim() {
-            assets.forEach(a => { if(a!==selected) a.price += (Math.random()-0.5)*a.vol; });
-            renderAssets();
-            renderBook();
-        }
-
-        function trade(type) {
-            const qty = parseInt(document.getElementById('trade-qty').value);
-            const cost = qty * selected.price;
-            if(type === 'BUY') {
-                if(wallet >= cost) wallet -= cost; else return alert("NO FUNDS");
-            } else wallet += cost;
-            document.getElementById('wallet-val').innerText = wallet.toLocaleString(undefined, {minimumFractionDigits: 2});
-        }
-
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>
