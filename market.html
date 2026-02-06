@@ -3,403 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // ENTROPY_MARKET</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <style>
-        :root { 
-            --bg: #030303; 
-            --panel: #0a0a0e;
-            --border: rgba(255, 255, 255, 0.1);
-            --gold: #d4af37;        
-            --crimson: #d90d32;     
-            --teal: #14b8a6;   
-            --text-dim: #666;
-        }
-
-        body { 
-            background: var(--bg);
-            color: var(--text-dim); 
-            font-family: 'Share Tech Mono', monospace; 
-            margin: 0; 
-            height: 100vh;
-            overflow: hidden;
-            display: grid;
-            grid-template-rows: 60px 30px 1fr 30px; 
-            font-size: 13px;
-        }
-
-        /* --- BACKGROUND FX --- */
-        #dust-canvas {
-            position: fixed; inset: 0; z-index: -1; opacity: 0.3; pointer-events: none;
-        }
-
-        /* --- HEADER --- */
-        header {
-            background: rgba(5, 5, 5, 0.95);
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; z-index: 10;
-        }
-        .logo { 
-            color: var(--gold); font-family: 'Space Mono', monospace; 
-            font-weight: 700; letter-spacing: 2px; 
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); 
-        }
-        .nav a { color: #555; text-decoration: none; margin-left: 20px; transition: 0.2s; font-family: 'Space Mono'; }
-        .nav a:hover { color: var(--gold); }
-        .nav a.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
-
-        /* --- TICKER --- */
-        .ticker-wrap { background: #000; border-bottom: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; }
-        .ticker { animation: scroll 40s linear infinite; display: flex; white-space: nowrap; }
-        .tick-item { margin-right: 40px; color: #555; font-size: 0.75rem; }
-        .up { color: var(--teal); } .down { color: var(--crimson); }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-
-        /* --- MAIN LAYOUT --- */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 280px 1fr 320px;
-            overflow: hidden;
-        }
-
-        /* LEFT: COMMODITIES */
-        .panel { background: rgba(10,10,14,0.6); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .panel-head { padding: 10px; border-bottom: 1px solid var(--border); color: var(--gold); font-weight: bold; background: #08080a; letter-spacing: 1px; }
-        
-        .asset-row {
-            padding: 15px; border-bottom: 1px solid #222; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
-        }
-        .asset-row:hover { background: #151520; color: #fff; padding-left: 18px; }
-        .asset-row.active { border-left: 3px solid var(--gold); background: #1a1a22; }
-        .sym { display: block; font-weight: bold; font-size: 0.9rem; color: #ddd; font-family: 'Space Mono'; }
-        .desc { font-size: 0.65rem; color: #555; }
-
-        /* CENTER: CHART & STORY */
-        .center-stage { display: grid; grid-template-rows: 60% 40%; position: relative; }
-        
-        .chart-box { position: relative; background: radial-gradient(circle at center, #08080a 0%, #000 100%); border-bottom: 1px solid var(--border); }
-        #main-chart { width: 100%; height: 100%; }
-        .price-overlay { position: absolute; top: 20px; left: 20px; pointer-events: none; }
-        .big-price { font-size: 3rem; color: #fff; font-weight: 300; margin: 0; letter-spacing: -1px; }
-
-        /* THE STORY TERMINAL (NARRATIVE + LIVE) */
-        .story-feed { 
-            padding: 0; background: #020202; overflow-y: auto; 
-            font-family: 'Space Mono', monospace; 
-        }
-        .story-entry {
-            padding: 20px; border-bottom: 1px solid #1a1a1a;
-            display: flex; gap: 15px; animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .ts { min-width: 60px; font-size: 0.7rem; color: var(--teal); opacity: 0.8; }
-        .log-content h4 { margin: 0 0 5px 0; color: var(--gold); font-size: 0.8rem; text-transform: uppercase; }
-        .log-content p { margin: 0; color: #999; font-size: 0.8rem; line-height: 1.5; }
-        .highlight { color: #fff; border-bottom: 1px dashed var(--crimson); }
-
-        /* RIGHT: TRADING */
-        .order-panel { border-left: 1px solid var(--border); background: var(--panel); display: flex; flex-direction: column; }
-        .book-row { display: flex; justify-content: space-between; padding: 4px 15px; font-size: 0.75rem; font-family: monospace; }
-        
-        .trade-controls { padding: 20px; background: #08080a; border-top: 1px solid var(--border); margin-top: auto; }
-        .btn-buy { width: 100%; padding: 15px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; font-family: 'Space Mono'; transition: 0.2s; }
-        .btn-buy:hover { background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .input-dark { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 10px; box-sizing: border-box; font-family: monospace; }
-
-        footer { background: #000; border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; color: #444; font-size: 0.7rem; justify-content: space-between; }
-        
-        /* FX */
-        .glitch-anim { animation: glitch 0.2s cubic-bezier(.25, .46, .45, .94) both; }
-        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
-
-    </style>
-</head>
-<body>
-
-    <canvas id="dust-canvas"></canvas>
-
-    <header>
-        <div class="logo">ALDERSYTH // MARKET</div>
-        <nav class="nav">
-            <a href="spire.html">CORE</a>
-            <a href="market.html" class="active">MARKET</a>
-            <a href="residential.html">RESIDENTIAL</a>
-            <a href="observatory.html">OBSERVATORY</a>
-            <a href="sync.html">SYNC</a>
-            <a href="backdoor.html" style="opacity:0.3;">_ROOT</a>
-        </nav>
-        <div style="color:var(--gold); font-family:monospace;">BAL: ₮ <span id="balance">42,050.00</span></div>
-    </header>
-
-    <div class="ticker-wrap">
-        <div class="ticker" id="ticker">
-            </div>
-    </div>
-
-    <main class="dashboard">
-        <aside class="panel">
-            <div class="panel-head">SPOT ASSETS</div>
-            <div id="asset-list"></div>
-        </aside>
-
-        <section class="center-stage">
-            <div class="chart-box">
-                <div class="price-overlay">
-                    <span style="color:#666; font-size:0.8rem;" id="chart-title">BTC / REALITY_INDEX</span>
-                    <h1 class="big-price" id="big-price">---</h1>
-                </div>
-                <canvas id="main-chart"></canvas>
-            </div>
-            
-            <div class="story-feed" id="feed-container">
-                <div style="padding:10px 20px; background:#080808; color:#444; font-size:0.7rem; border-bottom:1px solid #222;">
-                    > DECRYPTING LOCAL SURVEILLANCE FEED...
-                </div>
-                </div>
-        </section>
-
-        <aside class="order-panel">
-            <div class="panel-head">ORDER BOOK (L2)</div>
-            <div id="order-book" style="padding:10px 0; flex:1;"></div>
-            
-            <div class="trade-controls">
-                <div style="color:#fff; margin-bottom:5px; font-size:0.7rem;">QUICK TRADE</div>
-                <input type="number" id="trade-qty" value="1" class="input-dark">
-                <button class="btn-buy" onclick="trade()">EXECUTE ORDER</button>
-            </div>
-        </aside>
-    </main>
-
-    <footer>
-        <span>SECTOR STATUS: <span style="color:var(--crimson)">VOLATILE</span></span>
-        <span>REALITY ANCHOR: CONNECTED (BTC-USD)</span>
-        <span>LATENCY: 14ms</span>
-    </footer>
-
-    <script>
-        // --- 1. ASSETS CONFIG ---
-        const assets = [
-            { sym: "BTC-T", name: "REALITY TETHER", price: 0, vol: 1.5, desc: "Anchor Index (Live)" },
-            { sym: "ESPRESSO", name: "FINN'S BREW", price: 15.50, vol: 15.0, desc: "Thermodynamically Unstable" },
-            { sym: "LDS-03", name: "LEAD SPHERE", price: 1420.00, vol: 4.5, desc: "Metric Dampener Unit" },
-            { sym: "V-DRIFT", name: "VECTOR DRIFT", price: 850.50, vol: 35.0, desc: "Raw Coordinate Data" },
-            { sym: "MELON", name: "NEON MELON", price: 12.00, vol: 2.0, desc: "Synthesized Nutrient" }
-        ];
-
-        let selected = assets[0];
-        let chartData = [];
-        let walletBalance = 42050.00;
-        let canvas = document.getElementById('main-chart');
-        let ctx = canvas.getContext('2d');
-        let dustCanvas = document.getElementById('dust-canvas');
-        let dustCtx = dustCanvas.getContext('2d');
-        let particles = [];
-
-        // --- 2. LIVE DATA FETCH ---
-        async function getData() {
-            try {
-                const r = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-                const d = await r.json();
-                const btcPrice = d.bpi.USD.rate_float;
-                assets[0].price = btcPrice;
-                if(selected === assets[0]) updateDisplay(btcPrice);
-            } catch(e) { console.log("Offline / API Error"); }
-        }
-
-        // --- 3. VISUALS (Chart & Dust) ---
-        function initVisuals() {
-            // Resize Canvases
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = canvas.parentElement.offsetHeight;
-            dustCanvas.width = window.innerWidth;
-            dustCanvas.height = window.innerHeight;
-
-            // Seed Chart
-            let p = 50000;
-            for(let i=0; i<100; i++) {
-                p += (Math.random()-0.5) * 500;
-                chartData.push(p);
-            }
-
-            // Seed Dust
-            for(let i=0; i<50; i++) {
-                particles.push({
-                    x: Math.random() * dustCanvas.width,
-                    y: Math.random() * dustCanvas.height,
-                    v: Math.random() * 0.5 + 0.1,
-                    s: Math.random() * 2
-                });
-            }
-        }
-
-        function drawLoop() {
-            // --- CHART ---
-            let last = chartData[chartData.length-1];
-            let volatility = selected === assets[0] ? 0.05 : selected.vol;
-            let next = last + (Math.random()-0.5) * volatility;
-            
-            // Sync BTC drift
-            if(selected === assets[0] && assets[0].price !== 0) {
-                 let diff = assets[0].price - last;
-                 next += diff * 0.1;
-            }
-
-            chartData.push(next);
-            chartData.shift();
-
-            // Clear
-            ctx.fillStyle = "#020202";
-            ctx.fillRect(0,0,canvas.width, canvas.height);
-
-            // Line
-            let min = Math.min(...chartData);
-            let max = Math.max(...chartData);
-            let range = max - min || 1;
-
-            ctx.beginPath();
-            let color = next > chartData[0] ? "#14b8a6" : "#d90d32";
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-
-            for(let i=0; i<chartData.length; i++) {
-                let x = (i / (chartData.length-1)) * canvas.width;
-                let y = canvas.height - ((chartData[i] - min) / range) * (canvas.height - 80) - 40;
-                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-            }
-            ctx.stroke();
-
-            // Gradient
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
-            let grad = ctx.createLinearGradient(0,0,0,canvas.height);
-            grad.addColorStop(0, color + "22");
-            grad.addColorStop(1, "transparent");
-            ctx.fillStyle = grad;
-            ctx.fill();
-
-            if(selected !== assets[0] || assets[0].price === 0) updateDisplay(next);
-            updateBook(next);
-
-            // --- DUST ---
-            dustCtx.clearRect(0,0,dustCanvas.width, dustCanvas.height);
-            dustCtx.fillStyle = "#333";
-            particles.forEach(p => {
-                p.y -= p.v;
-                if(p.y < 0) p.y = dustCanvas.height;
-                dustCtx.beginPath();
-                dustCtx.arc(p.x, p.y, p.s, 0, Math.PI*2);
-                dustCtx.fill();
-            });
-        }
-
-        function updateDisplay(price) {
-            const el = document.getElementById('big-price');
-            el.innerText = "₮ " + price.toLocaleString(undefined, {minimumFractionDigits: 2});
-            el.style.color = price > chartData[0] ? "#14b8a6" : "#d90d32";
-            selected.price = price;
-        }
-
-        function updateBook(price) {
-            const el = document.getElementById('order-book');
-            let html = "";
-            for(let i=5; i>0; i--) html += `<div class="book-row"><span style="color:var(--crimson)">${(price + i*selected.vol*0.1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
-            html += `<div style="border-bottom:1px dashed #333; margin:5px 0;"></div>`;
-            for(let i=1; i<=5; i++) html += `<div class="book-row"><span style="color:var(--teal)">${(price - i*selected.vol*0.1).toFixed(2)}</span><span>${Math.floor(Math.random()*50)}</span></div>`;
-            el.innerHTML = html;
-        }
-
-        // --- 4. LOGIC (Trade & Lore) ---
-        function renderAssets() {
-            const list = document.getElementById('asset-list');
-            list.innerHTML = "";
-            assets.forEach(a => {
-                let div = document.createElement('div');
-                div.className = `asset-row ${a===selected ? 'active' : ''}`;
-                div.innerHTML = `<div><span class="sym">${a.sym}</span><span class="desc">${a.desc}</span></div><div style="color:#fff">₮ ${a.price.toFixed(2)}</div>`;
-                div.onclick = () => {
-                    selected = a;
-                    document.getElementById('chart-title').innerText = `${a.sym} / INDEX`;
-                    chartData = chartData.map(v => a.price + (Math.random()-0.5)*10);
-                    renderAssets();
-                };
-                list.appendChild(div);
-            });
-        }
-
-        function trade() {
-            const qty = document.getElementById('trade-qty').value;
-            const cost = qty * selected.price;
-            if(walletBalance >= cost) {
-                walletBalance -= cost;
-                document.getElementById('balance').innerText = walletBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                document.body.classList.add('glitch-anim');
-                setTimeout(() => document.body.classList.remove('glitch-anim'), 200);
-            } else {
-                alert("INSUFFICIENT FUNDS IN BRIDGE ACCOUNT");
-            }
-        }
-
-        // STATIC STORY + DYNAMIC LORE
-        const initialLogs = [
-            { h: "ANOMALY DETECTED // SECTOR 2", p: "Visual confirmation: <span class='highlight'>Finn's Espresso Cart</span> experienced a localized gravity failure. The ceramic cup launched itself at a pedestrian. Analyst Kael intercepted the object. Thermal damage to palm confirmed." },
-            { h: "TRANSCRIPT: LEAD THEORIST SLOANE", p: "Subject refused to acknowledge the casualty risk. Quote: 'The data requires a stress test. If the market collapses, we find the leak. If you catch the cup, you’re just noise in the machine.'" },
-            { h: "ALERT // THE BRIDGE DATASET", p: "The 'Strangers' are monitoring the ozone spikes. They are mining the <span class='highlight'>Vector Drift</span> for architectural weaknesses." }
-        ];
-
-        const randomLore = [
-            "Sector 4 reported a gravity leak. Lead Sphere prices spiking.",
-            "Lemonade haze detected in Residential Rings. Wear masks.",
-            "The Crow has been spotted near the Observatory pipeworks.",
-            "Substrate connection intermittent. Data may arrive from the future.",
-            "Metric Shift detected: 4.5 magnitude."
-        ];
-
-        function addLog(header, body, timeOverride) {
-            const feed = document.getElementById('feed-container');
-            const time = timeOverride || new Date().toLocaleTimeString();
-            
-            const div = document.createElement('div');
-            div.className = 'story-entry';
-            div.innerHTML = `
-                <div class="ts">${time}</div>
-                <div class="log-content"><h4>${header}</h4><p>${body}</p></div>
-            `;
-            feed.prepend(div);
-            // Keep specific story logs (bottom) but limit top growth
-            if(feed.children.length > 20) feed.children[15].remove();
-        }
-
-        // --- INIT ---
-        window.onload = () => {
-            initVisuals();
-            renderAssets();
-            getData();
-            
-            // Load Initial Story (Reverse order so they stack correctly)
-            initialLogs.reverse().forEach((l, i) => addLog(l.h, l.p, `12:${45-i}:00`));
-
-            // Ticker Init
-            let tHtml = "";
-            assets.forEach(a => tHtml += `<div class="tick-item">${a.sym} <span class="up">▲ ${(Math.random()*5).toFixed(1)}%</span></div>`);
-            document.getElementById('ticker').innerHTML = tHtml + tHtml;
-
-            // Loops
-            setInterval(drawLoop, 50);      // 20FPS
-            setInterval(getData, 10000);    // 10s API
-            setInterval(renderAssets, 2000); // 2s UI
-            
-            // Random Lore Injection
-            setInterval(() => {
-                if(Math.random() > 0.7) {
-                    const msg = randomLore[Math.floor(Math.random() * ra<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALDERSYTH // MARKET_FLUX</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -424,7 +27,8 @@
             font-size: 13px;
             /* Asset: Market Thumbnail */
             background-image: url('images/market_thumbnail.jpg'); 
-            background-size: cover; background-blend-mode: multiply;
+            background-size: cover; background-attachment: fixed;
+            background-blend-mode: multiply;
         }
 
         /* --- HEAT HAZE FX --- */
@@ -438,6 +42,12 @@
             100% { transform: translate(0,0) scale(1); }
         }
         body.critical #heat-overlay { opacity: 1; animation: haze 0.1s infinite; }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); border-left: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: var(--rust); border: 1px solid #555; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--heat); }
 
         /* --- LAYOUT GRID (CHAOTIC) --- */
         .interface {
@@ -466,15 +76,17 @@
         }
         .nav a:hover { color: var(--heat); text-shadow: 0 0 10px var(--rust); }
         .nav a.active { color: var(--rust); border-bottom: 1px solid var(--rust); }
+        .nav a.root { color: var(--alert); }
 
-        /* LIVE TICKER */
+        /* LIVE TICKER - SLOWED DOWN TO 120s */
         .ticker-wrap {
             width: 100%; height: 30px; background: rgba(234, 88, 12, 0.1);
             overflow: hidden; display: flex; align-items: center; border-top: 1px solid #333;
         }
         .ticker {
             display: inline-block; white-space: nowrap; padding-left: 100%;
-            animation: scroll 30s linear infinite; color: var(--heat); font-size: 0.7rem; letter-spacing: 1px;
+            animation: scroll 120s linear infinite; /* SLOWED DOWN */
+            color: var(--heat); font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;
         }
         @keyframes scroll { 100% { transform: translateX(-100%); } }
 
@@ -533,6 +145,29 @@
             transition: 0.2s; text-transform: uppercase; margin-top: 10px;
         }
         .vent-btn:hover { background: var(--rust); color: #000; box-shadow: 0 0 20px var(--rust); }
+
+        /* --- LIVE NET FEED (REDDIT BLOB) --- */
+        #net-feed {
+            position: fixed; bottom: 20px; right: 20px; width: 320px;
+            background: rgba(10, 5, 0, 0.95); border: 1px solid var(--rust);
+            z-index: 500; font-family: 'Share Tech Mono'; box-shadow: 0 0 40px #000;
+        }
+        .feed-header {
+            background: var(--rust); color: #000; padding: 5px 10px;
+            font-weight: bold; font-size: 0.8rem; display: flex; justify-content: space-between;
+        }
+        .feed-content {
+            height: 150px; overflow: hidden; padding: 10px;
+            display: flex; flex-direction: column-reverse; /* New items at bottom */
+            gap: 8px; font-size: 0.7rem; color: #ccc;
+        }
+        .feed-item {
+            border-bottom: 1px dashed #333; padding-bottom: 5px; opacity: 0; animation: fadeIn 0.3s forwards;
+        }
+        .user-tag { color: var(--ochre); font-weight: bold; }
+        .timestamp { color: #666; float: right; font-size: 0.6rem; }
+        
+        @keyframes fadeIn { to { opacity: 1; } }
 
         /* --- STEAM PARTICLES --- */
         .steam-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -635,23 +270,87 @@
 
     </div>
 
+    <!-- LIVE NET FEED (REDDIT BLOB) -->
+    <div id="net-feed">
+        <div class="feed-header">
+            <span>CITIZEN_NET // CHANNEL_7</span>
+            <span style="animation:blink 1s infinite">● LIVE</span>
+        </div>
+        <div class="feed-content" id="feed-list">
+            <!-- JS injects comments here -->
+        </div>
+    </div>
+
     <script>
-        // --- 1. REAL MARKET TICKER ---
+        // --- 1. EXTENDED MARKET TICKER ---
+        const stocks = [
+            "BTC", "ETH", "SOL", "ALDR", "H2O", "O2_CAN", "LEAD", "GRAV", 
+            "SLDG", "VERA_SYS", "CORE", "FLUX", "HEAT", "S-NET", "VOID", 
+            "NULL", "DATA", "MEM", "BIO_SYNTH", "N_GAS", "CARB_FIB", 
+            "MAG_CON", "X-RAY", "Z-AXIS", "TIME"
+        ];
+        
         async function updateTicker() {
+            let tickerText = "";
+            
+            // Try fetch real BTC
+            let btcPrice = "ERROR";
             try {
                 const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
                 const data = await res.json();
-                const btc = data.bpi.USD.rate;
-                const txt = `BTC: $${btc} // ETH: $3,204.12 // ALDER_COIN: ERROR // DATA_VISCOSITY: 98% // THERMAL_LIMIT: EXCEEDED // `;
-                document.getElementById('crypto-ticker').innerText = txt + txt + txt; // Repeat for loop
-            } catch(e) {
-                document.getElementById('crypto-ticker').innerText = "CONNECTION LOST... RETRYING...";
-            }
+                btcPrice = "$" + Math.floor(data.bpi.USD.rate_float).toLocaleString();
+            } catch(e) { btcPrice = "OFFLINE"; }
+
+            // Generate ticker string
+            stocks.forEach(s => {
+                let price = (Math.random() * 5000).toFixed(2);
+                let change = (Math.random() - 0.5) * 10;
+                let arrow = change > 0 ? "▲" : "▼";
+                if(s === "BTC") price = btcPrice;
+                
+                tickerText += `${s}: ${price} ${arrow} ${Math.abs(change).toFixed(2)}% // `;
+            });
+
+            // Quadruple the string to ensure smooth infinite scroll on wide screens
+            const fullText = tickerText + tickerText + tickerText + tickerText;
+            document.getElementById('crypto-ticker').innerText = fullText;
         }
         updateTicker();
-        setInterval(updateTicker, 60000);
+        // Update prices every 60 seconds, but animation continues smoothly
+        setInterval(updateTicker, 60000); 
 
-        // --- 2. 3D VORTEX (The Containment Bottle) ---
+        // --- 2. LIVE NET FEED (REDDIT BLOB) ---
+        const users = ["User_99", "Rat_King", "Echo_Loco", "Null_Set", "Vera_Fan", "Sloane_Eye", "Market_Rat"];
+        const comments = [
+            "Heat scrubbers are failing in Sector 4 again.",
+            "Anyone else see the gravity glitch near the Spire?",
+            "Buying O2 canisters, will trade for Lead.",
+            "My neighbor vanished. Door is gone too.",
+            "The steam vents are screaming louder today.",
+            "Don't look at the Observatory.",
+            "Data viscosity is up 40%.",
+            "I heard a rumor about the bridge...",
+            "Just saw a melon float away.",
+            "Is it hot in here or just me?"
+        ];
+
+        function updateFeed() {
+            const list = document.getElementById('feed-list');
+            const u = users[Math.floor(Math.random() * users.length)];
+            const c = comments[Math.floor(Math.random() * comments.length)];
+            
+            const item = document.createElement('div');
+            item.className = 'feed-item';
+            item.innerHTML = `<span class="user-tag">@${u}:</span> ${c} <span class="timestamp">[NOW]</span>`;
+            
+            list.prepend(item);
+            if(list.children.length > 5) list.lastChild.remove();
+        }
+        // Randomly update feed every 2-5 seconds
+        setInterval(updateFeed, 3500);
+
+
+        // --- 3. 3D VORTEX (The Containment Bottle) ---
         const canvas = document.getElementById('three-canvas');
         const renderer = new THREE.WebGLRenderer({canvas, alpha:true});
         const scene = new THREE.Scene();
@@ -723,7 +422,7 @@
         }
         animate();
 
-        // --- 3. INTERACTION ---
+        // --- 4. INTERACTION ---
         const slider = document.getElementById('pressure-slider');
         slider.oninput = (e) => {
             pressure = e.target.value;
@@ -761,7 +460,7 @@
             slider.value = pressure;
         }
 
-        // --- 4. AUDIO ENGINE ---
+        // --- 5. AUDIO ENGINE ---
         let audioCtx, osc;
         document.body.addEventListener('click', () => {
             if(audioCtx) return;
@@ -791,16 +490,6 @@
             }
             loopViz();
         }
-
-    </script>
-</body>
-</html>ndomLore.length)];
-                    addLog("WIRE_SERVICE // UPDATE", msg);
-                }
-            }, 8000);
-        };
-        
-        window.onresize = initVisuals;
 
     </script>
 </body>
