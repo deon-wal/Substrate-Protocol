@@ -3,296 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // OBS_V4_PROTOTYPE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>SUBSTRATE // ARCH_03: ORBITAL_LIVING_SYSTEM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Jura:wght@300;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030305;
-            --panel: rgba(10, 10, 15, 0.9);
-            --border: #2a2a35;
-            --violet: #8b5cf6;
-            --crimson: #ff3333;
-            --cyan: #00f2ff;
-            --gold: #ffcc00;
+            --bg-void: #020204;
+            --panel-bg: rgba(6, 6, 8, 0.96);
+            --neon-blue: #0ea5e9;
+            --neon-violet: #8b5cf6;
+            --neon-orange: #f97316;
+            --threat-red: #ef4444;
+            --text-main: #cbd5e1;
+            --text-dim: #334155;
+            --border: rgba(14, 165, 233, 0.15);
+            --glitch-offset: 0px;
+            --header-h: 110px;
+            --footer-h: 90px;
         }
 
         * { box-sizing: border-box; cursor: crosshair; }
 
         body {
-            background-color: var(--bg);
-            color: var(--violet);
-            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            font-family: 'Jura', sans-serif;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
             overflow: hidden;
-            text-transform: uppercase;
-        }
-
-        /* CRT EFFECT OVERLAY */
-        body::after {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 1000;
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
-        }
-
-        /* HEADER */
-        header {
-            height: 50px;
-            background: #000;
-            border-bottom: 2px solid var(--violet);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-            z-index: 100;
-        }
-
-        .nav a { color: #555; text-decoration: none; margin-left: 20px; font-size: 0.75rem; transition: 0.2s; }
-        .nav a:hover, .nav a.active { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
-
-        /* SCROLLABLE KINETIC VIEWPORT */
-        .viewport {
-            flex: 1;
+            height: 100vh;
             display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            gap: 2px;
-            background: var(--border);
-            overflow-y: auto;
-            padding-bottom: 120px; /* Room for fixed sliders */
+            grid-template-rows: var(--header-h) 1fr var(--footer-h);
+            /* Diegetic Lens Distortion */
+            transform: perspective(1000px) rotateX(0.1deg) scale(1.02);
         }
 
-        .panel { 
-            background: var(--panel); 
-            padding: 25px; 
-            border: 1px solid transparent; 
+        /* --- BACKGROUND LAYERS --- */
+        .hex-background {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            opacity: 0.04; font-size: 10px; line-height: 12px;
+            overflow: hidden; color: var(--neon-blue); white-space: pre;
+            font-family: 'Space Mono', monospace;
+        }
+        .hex-scroll-inner { animation: scroll-up 180s linear infinite; }
+        @keyframes scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+
+        canvas#particle-canvas {
+            position: fixed; inset: 0; pointer-events: none; z-index: 2;
+        }
+
+        /* --- ATMOSPHERICS --- */
+        .atmospherics {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5000;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+        }
+        .scanlines {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5001;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: #000; border-bottom: 2px solid var(--border);
+            display: flex; flex-direction: column; z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,1);
+        }
+        .header-top {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 40px; height: 60px; border-bottom: 1px solid rgba(14, 165, 233, 0.05);
+        }
+        .header-nav {
+            display: flex; align-items: center; padding: 0 40px; height: 50px; gap: 5px;
+            background: rgba(14, 165, 233, 0.02); overflow-x: auto; scrollbar-width: none;
+        }
+        .header-nav::-webkit-scrollbar { display: none; }
+
+        .logo-text { font-family: 'Audiowide', cursive; font-size: 1.5rem; color: #fff; letter-spacing: -1px; }
+        .alert-tag { color: var(--threat-red); font-size: 0.6rem; border: 1px solid var(--threat-red); padding: 2px 8px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.2; } }
+
+        nav a { 
+            color: var(--text-dim); text-decoration: none; font-size: 0.65rem; border: 1px solid transparent; 
+            padding: 6px 14px; transition: 0.2s; white-space: nowrap; text-transform: uppercase; font-weight: bold;
+        }
+        nav a:hover, nav a.active { color: #fff; border-color: var(--neon-blue); background: rgba(14, 165, 233, 0.1); }
+
+        /* --- VIEWPORT --- */
+        .viewport {
+            display: grid; grid-template-columns: 380px 1fr 340px; overflow: hidden; position: relative; z-index: 100;
+        }
+
+        aside {
+            background: var(--panel-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .panel-header {
+            padding: 12px 15px; border-bottom: 1px solid var(--border);
+            font-size: 0.6rem; color: var(--neon-blue); display: flex; justify-content: space-between;
+            text-transform: uppercase; letter-spacing: 3px; background: rgba(14, 165, 233, 0.05);
+        }
+
+        /* --- SUBJECT AUDIT FEED --- */
+        #subject-stream { flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .subject-card {
+            padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            display: flex; gap: 12px; align-items: center; position: relative; transition: 0.3s;
+        }
+        .subject-img { width: 35px; height: 35px; border: 1px solid var(--border); filter: grayscale(1) brightness(0.6); }
+        .subject-bio { flex: 1; overflow: hidden; }
+        .subject-name { font-size: 0.8rem; font-weight: 700; color: #fff; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .heat-map { height: 15px; width: 60px; background: #000; position: relative; }
+        
+        .critical-state { 
+            border-left: 3px solid var(--threat-red); background: rgba(239, 68, 68, 0.1);
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.2);
+            animation: threat-glow 2s infinite;
+        }
+        @keyframes threat-glow { 0%, 100% { border-color: var(--threat-red); } 50% { border-color: #fff; } }
+
+        /* --- ORBITAL FOCUS (CENTER) --- */
+        .orbital-view {
+            position: relative; background: radial-gradient(circle at center, #111827 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .ring-wireframe {
+            position: absolute; width: 85%; height: 85%; stroke: var(--neon-blue); stroke-width: 0.2; fill: none; opacity: 0.2;
+            transform: rotateX(65deg) rotateZ(0deg); animation: ring-rotate 100s linear infinite;
+        }
+        @keyframes ring-rotate { to { transform: rotateX(65deg) rotateZ(360deg); } }
+
+        .decoherence-marker {
+            position: absolute; width: 20px; height: 20px;
+            background: var(--threat-red); border-radius: 50%;
+            filter: blur(8px); left: 35%; top: 75%; /* 7 o'clock */
+            animation: pulse-deco 1.5s infinite alternate;
+        }
+        @keyframes pulse-deco { from { opacity: 0.2; transform: scale(0.8); } to { opacity: 1; transform: scale(1.5); } }
+
+        .stability-display {
+            position: absolute; top: 40px; text-align: center; z-index: 500;
+        }
+        .stability-label { font-size: 0.6rem; color: var(--neon-blue); letter-spacing: 5px; margin-bottom: 5px; }
+        .stability-value {
+            font-family: 'Audiowide', cursive; font-size: 5rem; color: #fff; line-height: 1;
+            text-shadow: calc(var(--glitch-offset) * -1) 0 0 rgba(255,0,0,0.8),
+                         var(--glitch-offset) 0 0 rgba(0,255,255,0.8);
             transition: 0.1s;
         }
 
-        /* LENS SYSTEM */
-        .lens-cell {
-            background: #000;
-            height: 280px;
-            margin-bottom: 2px;
-            position: relative;
-            border-bottom: 1px solid var(--border);
+        .teacup-evidence {
+            position: absolute; bottom: 80px; right: 30px; width: 130px; height: 130px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        canvas { width: 100%; height: 100%; }
+        .teacup-icon { width: 50px; height: 50px; stroke: #fff; fill: none; opacity: 0.5; animation: cup-physics 6s infinite; }
+        @keyframes cup-physics { 50% { transform: translateY(-20px) rotate(30deg); opacity: 1; } }
+
+        /* --- TERMINAL --- */
+        .terminal {
+            height: 180px; background: #000; border-top: 2px solid var(--border);
+            padding: 12px; font-size: 0.6rem; color: #4ade80; display: flex; flex-direction: column-reverse; gap: 4px; overflow: hidden;
+        }
+        .jitter-alert { display: inline-block; animation: jitter 0.1s infinite; color: var(--threat-red); }
+        @keyframes jitter { 50% { transform: translate(1.5px, -1.5px); } }
+
+        /* --- FOOTER: KINETIC DECK --- */
+        footer {
+            background: #000; border-top: 2px solid var(--border);
+            display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; padding: 0 40px; z-index: 1000;
+        }
+        .footer-sec { display: flex; align-items: center; gap: 30px; }
+        .deck-sliders { flex: 1; display: flex; gap: 20px; justify-content: center; }
+        .slider-wrap { display: flex; flex-direction: column; gap: 5px; width: 150px; }
+        .slider-label { font-size: 0.5rem; color: var(--neon-blue); letter-spacing: 1px; }
         
-        .lens-label {
-            position: absolute; top: 10px; left: 15px; font-size: 0.6rem; 
-            color: var(--cyan); letter-spacing: 2px; background: #000; padding: 2px 6px;
-        }
+        input[type=range] { appearance: none; background: #111; height: 3px; accent-color: var(--neon-blue); outline: none; }
 
-        /* DATA READOUTS */
-        .big-data { font-size: 2rem; color: #fff; font-weight: bold; margin-bottom: 10px; }
-        .label { font-size: 0.6rem; color: var(--gold); letter-spacing: 1px; }
-
-        /* FIXED FOOTER CONTROLS */
-        .footer-deck {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 110px;
-            background: #000;
-            border-top: 2px solid var(--violet);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            padding: 10px 40px;
-            z-index: 110;
-        }
-
-        .slider-wrap { padding: 0 20px; }
-        input[type=range] {
-            width: 100%;
-            appearance: none;
-            background: #111;
-            height: 4px;
-            outline: none;
-            accent-color: var(--cyan);
-        }
-
-        /* SCREEN GLITCH ANIMATION */
-        @keyframes shake {
-            0% { transform: translate(0,0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0,0); }
-        }
-        .glitch-active { animation: shake 0.1s infinite; filter: hue-rotate(90deg); }
+        .greeble { position: absolute; font-size: 4px; color: var(--text-dim); text-transform: uppercase; pointer-events: none; }
 
     </style>
 </head>
-<body id="main-body">
+<body id="substrate-hud">
+
+    <div class="hex-background" id="hex-container"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="scanlines"></div>
+    <div class="atmospherics"></div>
 
     <header>
-        <div style="letter-spacing:4px; font-weight: 900;">ALDERSYTH // <span style="color:var(--cyan)">OBSERVATORY</span></div>
-        <nav class="nav">
-            <a href="#">SYSTEM</a>
-            <a href="#">ARCHIVE</a>
-            <a href="#" class="active">SCANNER</a>
-            <a href="#" style="color:var(--crimson)">BYPASS_ROOT</a>
-        </nav>
+        <div class="header-top">
+            <div class="logo-block">
+                <div class="logo-text">SUBSTRATE // ARCH_03</div>
+                <div class="alert-tag">STABILITY_RECOVERY_MODE</div>
+            </div>
+            <div id="clock" style="font-size: 1.2rem; font-weight: 900; color: var(--neon-blue); font-family: 'Space Mono';">00:00:00</div>
+        </div>
+        <div class="header-nav">
+            <nav>
+                <a href="index.html">DASHBOARD</a>
+                <a href="spire.html">SPIRE</a>
+                <a href="market.html">MARKET</a>
+                <a href="residential.html" class="active">RESIDENTIAL</a>
+                <a href="observatory.html">OBSERVATORY</a>
+                <a href="sync.html">SYNC</a>
+                <a href="deck.html">DECK</a>
+                <a href="login.html">AUTH</a>
+                <a href="backdoor.html" style="opacity: 0.2;">_ROOT</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="viewport" id="vport">
-        <aside class="panel">
-            <div class="label">PITCH_RESONANCE</div>
-            <div class="big-data" id="val-freq">0.0</div>
-            
-            <div class="label">SIGNAL_STRENGTH</div>
-            <div class="big-data" id="val-amp" style="color:var(--cyan)">0%</div>
-
-            <div style="margin-top:40px; border: 1px solid var(--border); padding: 10px;">
-                <div class="label">NEURAL_LOAD</div>
-                <div id="load-bar" style="height:4px; background:var(--violet); width: 40%; transition: 0.3s;"></div>
+    <div class="viewport">
+        <!-- LEFT: SUBJECT AUDIT -->
+        <aside>
+            <div class="panel-header">
+                <div class="greeble tl">AUDIT_PROTOCOL_X</div>
+                <span>Subject_Audit_Registry</span>
+                <span id="subject-count">0</span>
             </div>
-            
-            <div style="margin-top:100px; opacity:0.3; font-size:0.5rem;">
-                [!] WARNING: Prolonged exposure to sub-harmonic frequencies may cause temporary temporal displacement.
+            <div id="subject-stream"></div>
+            <div class="terminal" id="terminal">
+                <div>[SYSTEM] INITIALIZING ORBITAL_HUD_v5...</div>
             </div>
         </aside>
 
-        <main style="background: var(--border);">
-            <div class="lens-cell">
-                <span class="lens-label">LENS_01 // SPECTRAL_ANALYSIS</span>
-                <canvas id="c1"></canvas>
-            </div>
-            <div class="lens-cell">
-                <span class="lens-label">LENS_02 // KINETIC_ENVELOPE</span>
-                <canvas id="c2"></canvas>
-            </div>
-            <div class="lens-cell">
-                <span class="lens-label">LENS_03 // BIT_FRAGMENTATION</span>
-                <canvas id="c3"></canvas>
-            </div>
+        <!-- CENTER: ORBITAL WIREFRAME -->
+        <main class="orbital-view" id="main-view">
+            <div class="greeble tl" style="top:20px; left:20px;">COORD: 44.02 // -12.90</div>
+            <div class="greeble tr" style="top:20px; right:20px;">LENS_CURVE: 0.002%</div>
             
-            <div class="panel" style="min-height: 400px; color:#444; font-size:0.8rem; line-height:2;">
-                <span style="color:var(--gold)">// SYSTEM_LOG_EXTENDED</span><br>
-                [14:02] INITIALIZING SCAN...<br>
-                [14:02] TARGET VECTOR: 42.0.60.25<br>
-                [14:03] DECODING MEMORY FRAGMENT FROM DEON_WAL_REPRO...<br>
-                <br>
-                Searching for the ghost in the machine. You must align the purple wave with the red shadow. 
-                When the harmonics match, the observatory will stabilize. 
-                Scroll down to see the real-time buffer status below.
-                <br><br>
-                [BUFFER_STATUS: 92%]<br>
-                [INTERFERENCE: HIGH]<br>
-                [RESONANCE: PENDING]
+            <svg class="ring-wireframe" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" stroke-dasharray="1, 4" />
+                <circle cx="50" cy="50" r="38" stroke-dasharray="10, 5" />
+                <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" />
+                <circle cx="50" cy="50" r="5" fill="var(--neon-blue)" opacity="0.1" />
+            </svg>
+
+            <div class="decoherence-marker"></div>
+
+            <div class="stability-display">
+                <div class="stability-label">STABILITY_COEFFICIENT</div>
+                <div class="stability-value" id="stab-val">99.9%</div>
+            </div>
+
+            <div class="teacup-evidence">
+                <div class="greeble tl">KINETIC_EVIDENCE_S01</div>
+                <svg class="teacup-icon" viewBox="0 0 100 100">
+                    <path d="M25,40 Q25,85 50,85 Q75,85 75,40 Z" stroke-width="3"/>
+                    <path d="M75,45 Q90,45 90,55 Q90,65 75,65" stroke-width="3"/>
+                </svg>
+                <div style="font-size: 0.5rem; color: #fff; margin-top: 5px;">VAR: PROJECTILE</div>
+            </div>
+
+            <div style="position: absolute; bottom: 60px; width: 450px; text-align: center;">
+                <div style="font-size: 0.5rem; color: var(--neon-violet); letter-spacing: 2px;">SLOANE_DIRECTIVE_FEED</div>
+                <div id="narrative-feed" style="font-size: 0.85rem; color: #fff; height: 1.2em; font-weight: bold; text-transform: uppercase; margin-top: 5px;"></div>
             </div>
         </main>
 
-        <aside class="panel">
-            <div class="label">DECRYPTED_OUTPUT</div>
-            <div id="output-text" style="color:#555; margin-top:20px; font-size:0.9rem;">
-                [SIGNAL_LOST]<br>---<br>AWAITING INPUT...
+        <!-- RIGHT: TELEMETRY -->
+        <aside style="border-right: none; border-left: 1px solid var(--border);">
+            <div class="panel-header">
+                <span>Biometric_Vitals</span>
+                <span style="color: var(--neon-orange);">LIVE</span>
             </div>
-            
-            <div id="visual-glitch" style="margin-top:50px; width:100%; height:150px; background:#050505; border:1px solid #1a1a1a; display:flex; align-items:center; justify-content:center; color:#111;">
-                NO_VISUAL
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+                <div style="border: 1px solid var(--border); padding: 12px; background: rgba(0,0,0,0.3);">
+                    <div class="v-label" style="font-size:0.5rem; color:var(--text-dim);">O2_TAX_INDEX</div>
+                    <div id="o2-val" style="font-size: 1.4rem; color: #fff;">₮ 0.0000</div>
+                </div>
+                <div style="border: 1px solid var(--border); padding: 12px; background: rgba(0,0,0,0.3);">
+                    <div class="v-label" style="font-size:0.5rem; color:var(--text-dim);">MASS_DENSITY_G</div>
+                    <div id="mass-val" style="font-size: 1.4rem; color: #fff;">1.002 G</div>
+                </div>
+                <div style="border: 1px solid var(--border); padding: 12px; background: rgba(0,0,0,0.3);">
+                    <div class="v-label" style="font-size:0.5rem; color:var(--text-dim);">ACOUSTIC_VOICE_FEED</div>
+                    <canvas id="voice-canvas" style="width: 100%; height: 60px; margin-top: 10px;"></canvas>
+                </div>
+                <div style="border: 1px solid var(--threat-red); padding: 12px; background: rgba(220, 38, 38, 0.05);">
+                    <div class="v-label" style="font-size:0.5rem; color:var(--threat-red);">SECTOR_DEBT</div>
+                    <div style="font-size: 1.4rem; color: var(--threat-red); font-weight: 900;">$ 42.2M</div>
+                </div>
             </div>
         </aside>
     </div>
 
-    <div class="footer-deck">
-        <div class="slider-wrap">
-            <div class="label">FREQUENCY</div>
-            <input type="range" id="f_in" min="10" max="100" value="20">
+    <footer>
+        <div class="footer-sec">
+            <span>BITRATE: 44.1KBPS</span>
+            <span>OS: v4.4.2_STABLE</span>
         </div>
-        <div class="slider-wrap">
-            <div class="label">AMPLITUDE</div>
-            <input type="range" id="a_in" min="1" max="100" value="10">
+        <div class="footer-sec deck-sliders">
+            <div class="slider-wrap">
+                <div class="slider-label">FREQUENCY_STAB</div>
+                <input type="range" id="f_in" min="10" max="100" value="20">
+            </div>
+            <div class="slider-wrap">
+                <div class="slider-label">AMPLITUDE_MOD</div>
+                <input type="range" id="a_in" min="1" max="100" value="30">
+            </div>
+            <div class="slider-wrap">
+                <div class="slider-label">PHASE_SYNC</div>
+                <input type="range" id="p_in" min="1" max="100" value="50">
+            </div>
         </div>
-        <div class="slider-wrap">
-            <div class="label">PHASE_SHIFT</div>
-            <input type="range" id="p_in" min="1" max="100" value="50">
+        <div class="footer-sec" style="justify-content: flex-end;">
+            <span>PACKET_SYNC: 99.4%</span>
+            <span style="color: var(--neon-blue); margin-left: 20px;">RING_03_SECURED</span>
         </div>
-    </div>
+    </footer>
 
     <script>
-        const ctxs = [
-            document.getElementById('c1').getContext('2d'),
-            document.getElementById('c2').getContext('2d'),
-            document.getElementById('c3').getContext('2d')
-        ];
+        // --- 1. HEX BG GENERATOR ---
+        const hexContainer = document.getElementById('hex-container');
+        let hexString = "";
+        for(let i=0; i<3000; i++) hexString += Math.floor(Math.random()*16).toString(16) + (i % 30 === 0 ? "\n" : " ");
+        hexContainer.innerHTML = `<div class="hex-scroll-inner">${hexString}${hexString}</div>`;
+
+        // --- 2. PARTICLE DUST MOTES ---
+        const pCanvas = document.getElementById('particle-canvas');
+        const pCtx = pCanvas.getContext('2d');
+        let particles = [];
         
-        let t = 0;
-        const target = { f: 42, a: 60, p: 25 };
-
-        function res() {
-            ctxs.forEach(ctx => {
-                ctx.canvas.width = ctx.canvas.parentElement.offsetWidth;
-                ctx.canvas.height = ctx.canvas.parentElement.offsetHeight;
-            });
+        function initParticles() {
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<50; i++) {
+                particles.push({
+                    x: Math.random() * pCanvas.width,
+                    y: Math.random() * pCanvas.height,
+                    s: Math.random() * 2,
+                    v: Math.random() * 0.5 + 0.1
+                });
+            }
         }
-        window.onresize = res;
-        res();
 
-        function draw() {
-            t += 0.1;
+        function drawParticles() {
+            pCtx.clearRect(0,0,pCanvas.width, pCanvas.height);
+            pCtx.fillStyle = "rgba(255,255,255,0.05)";
+            particles.forEach(p => {
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.s, 0, Math.PI*2);
+                pCtx.fill();
+                p.y -= p.v;
+                if(p.y < -10) p.y = pCanvas.height + 10;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        // --- 3. DATA STREAM ---
+        const stream = document.getElementById('subject-stream');
+        const terminal = document.getElementById('terminal');
+        const stabVal = document.getElementById('stab-val');
+        let currentStability = 99.9;
+        const targetWave = { f: 42, a: 60, p: 25 };
+
+        async function initData() {
+            try {
+                const res = await fetch('https://randomuser.me/api/?results=15&nat=us');
+                const data = await res.json();
+                renderSubjects(data.results);
+                requestAnimationFrame(mainLoop);
+            } catch(e) {
+                terminal.innerHTML = "<div class='jitter-alert'>[FATAL] SUBSTRATE LINK FAILED.</div>";
+            }
+        }
+
+        function renderSubjects(users) {
+            stream.innerHTML = users.map((u, i) => {
+                const isCritical = (u.name.last === "Flores" || i === 4);
+                return `
+                    <div class="subject-card ${isCritical ? 'critical-state' : ''}" id="s-${i}">
+                        <img class="subject-img" src="${u.picture.thumbnail}">
+                        <div class="subject-bio">
+                            <span class="subject-name" style="${isCritical ? 'color: var(--threat-red)' : ''}">${u.name.last.toUpperCase()}, ${u.name.first[0]}.</span>
+                            <span class="subject-unit">CID_${Math.floor(Math.random()*9000)} // ${isCritical ? 'CRITICAL' : 'STABLE'}</span>
+                            <div class="heat-map"><canvas class="h-canvas" id="h-${i}" style="width:100%; height:100%"></canvas></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('subject-count').innerText = `${users.length} SUBJECTS_FOUND`;
+            initHeatMaps();
+        }
+
+        // --- 4. WAVEFORM & LOOP ---
+        const vCanvas = document.getElementById('voice-canvas');
+        const vCtx = vCanvas.getContext('2d');
+        let waveTime = 0;
+
+        function mainLoop() {
+            waveTime += 0.1;
             const f = parseInt(document.getElementById('f_in').value);
             const a = parseInt(document.getElementById('a_in').value);
             const p = parseInt(document.getElementById('p_in').value);
 
-            // Update Text
-            document.getElementById('val-freq').innerText = (f * 12.5).toFixed(1) + "Hz";
-            document.getElementById('val-amp').innerText = a + "%";
-            document.getElementById('load-bar').style.width = f + "%";
+            // Accuracy logic
+            const distF = Math.abs(f - targetWave.f);
+            const distA = Math.abs(a - targetWave.a);
+            const accuracy = 100 - (distF + distA);
+            currentStability = (currentStability * 0.95) + (accuracy * 0.05);
+            stabVal.innerText = currentStability.toFixed(1) + "%";
 
-            // Match Logic & Effects
-            const isClose = Math.abs(f - target.f) < 8 && Math.abs(a - target.a) < 10;
-            const isPerfect = Math.abs(f - target.f) < 3 && Math.abs(a - target.a) < 4;
+            // Glitch Intensity
+            const glitch = Math.max(0, (98 - currentStability) * 4);
+            document.documentElement.style.setProperty('--glitch-offset', `${glitch}px`);
 
-            if(isClose) {
-                document.getElementById('vport').classList.add('glitch-active');
-                document.getElementById('output-text').innerText = "[SIGNAL_FOUND] // STABILIZING...";
-                document.getElementById('output-text').style.color = "var(--cyan)";
-            } else {
-                document.getElementById('vport').classList.remove('glitch-active');
-                document.getElementById('output-text').style.color = "#555";
-                document.getElementById('output-text').innerText = "[SIGNAL_LOST]";
+            // Draw Vitals Wave
+            vCtx.clearRect(0,0,vCanvas.width, vCanvas.height);
+            vCtx.beginPath();
+            vCtx.strokeStyle = currentStability < 92 ? 'var(--threat-red)' : 'var(--neon-blue)';
+            vCtx.lineWidth = 1;
+            for(let x=0; x<vCanvas.width; x++) {
+                const stress = (100 - currentStability) * 2;
+                const y = 30 + Math.sin(x*0.1 + waveTime) * 10 + (Math.random()*stress - stress/2);
+                vCtx.lineTo(x, y);
+            }
+            vCtx.stroke();
+
+            // Random Alerts
+            if(currentStability < 90 && Math.random() > 0.98) {
+                logTerminal(`STABILITY FAILURE: Higgs-Decoherence Spike detected`, true);
             }
 
-            ctxs.forEach((ctx, i) => {
-                const w = ctx.canvas.width;
-                const h = ctx.canvas.height;
-                ctx.clearRect(0,0,w,h);
-                
-                // Grid
-                ctx.strokeStyle = "#0a0a0c";
-                for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-                
-                // Red Ghost
-                renderWave(ctx, w, h, target.f, target.a, target.p, "rgba(255,0,0,0.1)", 1);
-                // User Wave
-                renderWave(ctx, w, h, f, a, p, (isPerfect ? "var(--cyan)" : "var(--violet)"), 2);
+            requestAnimationFrame(mainLoop);
+        }
+
+        function initHeatMaps() {
+            const hCanvases = document.querySelectorAll('.h-canvas');
+            hCanvases.forEach(hc => {
+                const ctx = hc.getContext('2d');
+                function drawH() {
+                    const isCrit = hc.parentElement.parentElement.parentElement.classList.contains('critical-state');
+                    ctx.clearRect(0,0,hc.width, hc.height);
+                    ctx.beginPath();
+                    ctx.strokeStyle = isCrit ? 'var(--threat-red)' : 'var(--neon-blue)';
+                    ctx.lineWidth = 1;
+                    for(let x=0; x<hc.width; x+=2) {
+                        const y = hc.height/2 + (Math.random()* (isCrit ? 10 : 4) - (isCrit ? 5 : 2));
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                    setTimeout(drawH, 100 + Math.random()*200);
+                }
+                drawH();
             });
-
-            requestAnimationFrame(draw);
         }
 
-        function renderWave(ctx, w, h, f, a, p, col, lw) {
-            ctx.beginPath();
-            ctx.strokeStyle = col;
-            ctx.lineWidth = lw;
-            for(let x=0; x<w; x++) {
-                let y = h/2 + Math.sin(x * f * 0.005 + p * 0.1 + t) * (a * 1.5);
-                if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        function logTerminal(msg, isAlert = false) {
+            const div = document.createElement('div');
+            if(isAlert) div.className = "jitter-alert";
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            terminal.prepend(div);
+            if(terminal.childNodes.length > 8) terminal.lastChild.remove();
+        }
+
+        // --- 5. NARRATIVE ---
+        const lines = [
+            "THE TEA CUP SHOULDN'T ACCELERATE LIKE A PROJECTILE.",
+            "SLOANE VIEWS HUMAN SUFFERING AS A NECESSARY BYPRODUCT.",
+            "THE SPIRE IS DECOHERING. THE CITY IS HUNGRY.",
+            "A PERFECTLY SMOOTH WALL WHERE A DOOR USED TO BE.",
+            "INTERVENTION ALTERS THE DATASET.",
+            "SUBJECT 01 RECOGNIZED THE LOOP."
+        ];
+        let lIdx = 0, cIdx = 0;
+        function type() {
+            const el = document.getElementById('narrative-feed');
+            if(cIdx < lines[lIdx].length) {
+                el.innerText += lines[lIdx][cIdx++];
+                setTimeout(type, 50);
+            } else {
+                setTimeout(() => { el.innerText = ""; cIdx = 0; lIdx = (lIdx + 1) % lines.length; type(); }, 3000);
             }
-            ctx.stroke();
         }
 
-        draw();
+        // INIT
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        drawParticles();
+        initData();
+        type();
+        vCanvas.width = vCanvas.offsetWidth;
+        vCanvas.height = vCanvas.offsetHeight;
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            document.getElementById('o2-val').innerText = `₮ ${(Math.random()*0.005).toFixed(4)}`;
+            document.getElementById('mass-val').innerText = (1 + Math.random()*0.02).toFixed(3) + " G";
+        }, 1000);
+
     </script>
 </body>
 </html>
