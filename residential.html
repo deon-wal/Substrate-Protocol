@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBSTRATE // ARCH_03: ORBITAL_HUD</title>
+    <title>SUBSTRATE // ARCH_03: ORBITAL_SURVEILLANCE_HUD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-void: #020203;
-            --panel-bg: rgba(8, 8, 10, 0.92);
+            --panel-bg: rgba(8, 8, 10, 0.98);
             --neon-blue: #0ea5e9;
             --neon-violet: #7000FF;
             --neon-orange: #f97316;
             --threat-red: #ef4444;
             --text-main: #cbd5e1;
             --text-dim: #334155;
-            --border: rgba(14, 165, 233, 0.15);
-            --glitch-intensity: 0px;
+            --border: rgba(14, 165, 233, 0.2);
+            --glitch-offset: 0px;
+            --header-h: 100px;
+            --footer-h: 80px;
         }
 
         * { box-sizing: border-box; cursor: crosshair; }
@@ -30,382 +32,452 @@
             overflow: hidden;
             height: 100vh;
             display: grid;
-            grid-template-rows: 60px 1fr 40px;
+            grid-template-rows: var(--header-h) 1fr var(--footer-h);
             /* Barrel Distortion simulation */
-            transform: perspective(1000px) rotateX(0.5deg) scale(1.02);
+            transform: perspective(1200px) rotateX(0.2deg) scale(1.01);
         }
 
-        /* --- BACKGROUND LAYER: HEX SCROLL --- */
+        /* --- BACKGROUND HEX & SIGNAL WASH --- */
         .hex-background {
             position: fixed; inset: 0; pointer-events: none; z-index: 1;
             opacity: 0.05; font-size: 10px; line-height: 12px;
             overflow: hidden; color: var(--neon-blue); white-space: pre;
-            user-select: none;
         }
-        .hex-scroll-inner { animation: scroll-up 120s linear infinite; }
-        @keyframes scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+        .hex-scroll { animation: scroll-hex 120s linear infinite; }
+        @keyframes scroll-hex { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 
-        /* --- ATMOSPHERICS: DIRTY LENS & SCANLINES --- */
+        /* --- ATMOSPHERICS --- */
         .atmospherics {
-            position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+            position: fixed; inset: 0; pointer-events: none; z-index: 5000;
             background: 
-                radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%),
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+                radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.5) 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
         }
         .scanlines {
-            position: fixed; inset: 0; pointer-events: none; z-index: 1001;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%;
+            position: fixed; inset: 0; pointer-events: none; z-index: 5001;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px;
         }
 
-        /* --- HEADER --- */
+        /* --- ROBUST COMMAND HEADER --- */
         header {
-            background: var(--panel-bg); border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; z-index: 110; backdrop-filter: blur(10px);
+            background: #000; 
+            border-bottom: 2px solid var(--border);
+            display: flex; flex-direction: column;
+            z-index: 1000;
         }
-        .logo { font-weight: 900; font-family: 'Inter', sans-serif; letter-spacing: -2px; font-size: 1.3rem; color: #fff; }
-        nav { display: flex; gap: 20px; }
-        nav a { color: var(--text-dim); text-decoration: none; font-size: 0.7rem; border: 1px solid transparent; padding: 4px 10px; transition: 0.2s; }
-        nav a.active { border-color: var(--neon-blue); color: #fff; background: rgba(14, 165, 233, 0.05); }
+        .header-top {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; height: 50px; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .header-nav {
+            display: flex; align-items: center;
+            padding: 0 40px; height: 50px;
+            background: rgba(14, 165, 233, 0.03);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .header-nav::-webkit-scrollbar { display: none; }
 
-        /* --- VIEWPORT --- */
+        .logo { font-weight: 900; font-family: 'Inter', sans-serif; letter-spacing: -2px; font-size: 1.6rem; color: #fff; display: flex; align-items: center; gap: 12px; }
+        .live-pulse { width: 10px; height: 100%; width: 3px; background: var(--threat-red); animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0; } }
+
+        nav a { 
+            color: var(--text-dim); text-decoration: none; font-size: 0.65rem; 
+            border: 1px solid rgba(255,255,255,0.05); padding: 6px 14px; 
+            margin-right: 8px; transition: 0.2s; white-space: nowrap; font-weight: bold;
+        }
+        nav a:hover { color: var(--neon-blue); border-color: var(--neon-blue); }
+        nav a.active { color: #fff; border-color: var(--neon-blue); background: rgba(14, 165, 233, 0.1); }
+
+        /* --- VIEWPORT LAYOUT --- */
         .viewport {
-            display: grid; grid-template-columns: 360px 1fr 340px; overflow: hidden; position: relative; z-index: 10;
+            display: grid; grid-template-columns: 380px 1fr 340px; overflow: hidden; position: relative; z-index: 100;
         }
 
         aside {
             background: var(--panel-bg); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; position: relative;
         }
+        .sidebar-right { border-right: none; border-left: 1px solid var(--border); }
+
         .panel-header {
-            padding: 12px 15px; border-bottom: 1px solid var(--border);
+            padding: 15px; border-bottom: 1px solid var(--border);
             font-size: 0.65rem; color: var(--neon-blue); display: flex; justify-content: space-between;
-            text-transform: uppercase; letter-spacing: 2px; position: relative;
+            text-transform: uppercase; letter-spacing: 2px;
+            background: rgba(14, 165, 233, 0.05);
         }
 
-        /* --- CENTER: ORTHOGRAPHIC ORBITAL --- */
-        .orbital-view {
-            position: relative; background: radial-gradient(circle at center, #0f172a 0%, #000 100%);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-        .ring-projection {
-            width: 80%; height: 80%; stroke: var(--neon-blue); stroke-width: 0.3; fill: none; opacity: 0.4;
-            transform: rotateX(60deg) rotateZ(0deg); animation: ring-spin 60s linear infinite;
-        }
-        @keyframes ring-spin { to { transform: rotateX(60deg) rotateZ(360deg); } }
-
-        .decoherence-zone {
-            position: absolute; width: 140px; height: 140px;
-            background: radial-gradient(circle, var(--neon-violet) 0%, transparent 70%);
-            border: 1px solid var(--neon-violet); border-radius: 50%;
-            filter: blur(12px); animation: deco-pulse 3s infinite alternate;
-            mix-blend-mode: screen; pointer-events: none; opacity: 0.4;
-        }
-        @keyframes deco-pulse { from { transform: scale(0.8); opacity: 0.2; } to { transform: scale(1.6); opacity: 0.6; } }
-
-        .stability-hero {
-            position: absolute; top: 40px; text-align: center;
-        }
-        .stability-pct {
-            font-size: 3.5rem; font-weight: 900; color: #fff; font-family: 'Inter', sans-serif;
-            text-shadow: 
-                calc(var(--glitch-intensity) * -1) 0 0 rgba(255,0,0,0.8),
-                var(--glitch-intensity) 0 0 rgba(0,255,255,0.8);
-            transition: 0.1s;
-        }
-
-        /* --- SUBJECT FOCUS: TEA CUP --- */
-        .subject-01-focus {
-            position: absolute; bottom: 80px; right: 20px; width: 100px; height: 100px;
-            border: 1px solid var(--border); background: rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .teacup-bitmap {
-            width: 40px; height: 40px; stroke: #fff; fill: none; opacity: 0.3;
-            animation: teacup-float 4s infinite ease-in-out;
-        }
-        @keyframes teacup-float { 
-            0%, 100% { transform: translate(0, 0) rotate(0deg); } 
-            50% { transform: translate(5px, -15px) rotate(15deg); } 
-        }
-
-        /* --- TENANT REGISTRY --- */
+        /* --- TENANT REGISTRY WITH IMAGES --- */
         #tenant-stream { flex: 1; overflow-y: auto; scrollbar-width: none; }
         .tenant-card {
-            padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.02);
-            font-size: 0.7rem; display: flex; gap: 10px; align-items: center;
+            padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            display: flex; gap: 12px; align-items: center; transition: 0.2s;
         }
-        .t-img { width: 30px; height: 30px; filter: grayscale(1) brightness(0.6); border: 1px solid var(--border); }
-        .purged { color: var(--threat-red); opacity: 0.5; text-decoration: line-through; }
+        .tenant-card:hover { background: rgba(14, 165, 233, 0.05); }
+        .t-img { width: 40px; height: 40px; border: 1px solid var(--border); filter: grayscale(1) brightness(0.8); }
+        .t-info { flex: 1; }
+        .t-name { font-size: 0.8rem; font-weight: bold; color: #fff; display: block; }
+        .t-unit { font-size: 0.6rem; color: var(--text-dim); }
+        .purged { opacity: 0.3; filter: blur(0.5px); text-decoration: line-through; color: var(--threat-red); }
+
+        /* --- CENTER: SURVEILLANCE FOCUS --- */
+        .surveillance-focus {
+            position: relative; background: radial-gradient(circle at center, #0f172a 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+        }
+        
+        /* Wireframe BG */
+        .wireframe-ring {
+            position: absolute; width: 80%; height: 80%; stroke: var(--neon-blue); stroke-width: 0.2; fill: none; opacity: 0.2;
+            transform: rotateX(65deg); animation: rotate-ring 60s linear infinite;
+        }
+        @keyframes rotate-ring { to { transform: rotateX(65deg) rotateZ(360deg); } }
+
+        .subject-frame {
+            width: 420px; height: 420px; border: 1px solid var(--border); background: #000;
+            position: relative; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px rgba(0,0,0,1), 0 0 20px rgba(14, 165, 233, 0.1);
+            z-index: 10;
+        }
+        #subject-img { width: 100%; height: 100%; object-fit: cover; filter: sepia(0.2) contrast(1.2) brightness(0.8); }
+        .cam-corners { position: absolute; inset: -5px; border: 1px solid var(--neon-blue); opacity: 0.4; pointer-events: none; }
+
+        .stability-overlay {
+            position: absolute; top: 30px; text-align: center; z-index: 20;
+        }
+        .stability-val {
+            font-size: 4rem; font-weight: 900; font-family: 'Inter', sans-serif; color: #fff;
+            text-shadow: calc(var(--glitch-offset) * -1) 0 0 rgba(255,0,0,0.8),
+                         var(--glitch-offset) 0 0 rgba(0,255,255,0.8);
+            transition: 0.1s; letter-spacing: -2px;
+        }
+
+        .decoherence-zone {
+            position: absolute; width: 180px; height: 180px;
+            background: radial-gradient(circle, var(--neon-violet) 0%, transparent 70%);
+            border: 1px solid var(--neon-violet); border-radius: 50%;
+            filter: blur(20px); animation: pulse-deco 3s infinite alternate;
+            mix-blend-mode: screen; opacity: 0.4;
+        }
+        @keyframes pulse-deco { from { transform: scale(0.6); opacity: 0.1; } to { transform: scale(1.6); opacity: 0.5; } }
 
         /* --- VITALS --- */
-        .vitals-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .v-card { border: 1px solid var(--border); padding: 12px; position: relative; background: rgba(14, 165, 233, 0.02); }
+        .vitals-grid { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+        .v-item { border: 1px solid var(--border); padding: 15px; background: rgba(0,0,0,0.3); position: relative; }
         .v-label { font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; }
-        .v-value { font-size: 1.2rem; color: #fff; margin-top: 5px; }
-        
-        #waveform-canvas { width: 100%; height: 50px; margin-top: 10px; filter: brightness(1.5); }
+        .v-val { font-size: 1.4rem; color: #fff; margin-top: 5px; }
+        #osc-canvas { width: 100%; height: 60px; margin-top: 10px; filter: brightness(1.5); }
 
-        /* --- TERMINAL & JITTER --- */
+        .teacup-focus {
+            position: absolute; bottom: 80px; right: 20px; width: 120px; height: 120px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .cup-svg { width: 60px; height: 60px; stroke: #fff; fill: none; opacity: 0.4; animation: cup-float 4s infinite; }
+        @keyframes cup-float { 50% { transform: translateY(-15px) rotate(15deg); opacity: 0.8; } }
+
+        /* --- TERMINAL --- */
         .terminal {
-            height: 160px; background: #000; border-top: 1px solid var(--border);
+            height: 180px; background: #000; border-top: 2px solid var(--border);
             padding: 12px; font-size: 0.65rem; color: #4ade80; overflow: hidden;
             display: flex; flex-direction: column-reverse; gap: 4px;
         }
-        .jitter-alert {
-            display: inline-block; color: var(--threat-red); font-weight: bold;
-            animation: jitter 0.1s infinite;
-        }
-        @keyframes jitter {
-            0% { transform: translate(0); }
-            25% { transform: translate(-1.5px, 1.5px); }
-            50% { transform: translate(1.5px, -1.5px); }
-            100% { transform: translate(-1.5px, -1.5px); }
-        }
+        .threat-alert { color: var(--threat-red); font-weight: bold; animation: jitter 0.1s infinite; display: inline-block; }
+        @keyframes jitter { 0%, 100% { transform: translate(0); } 50% { transform: translate(1px, -1px); } }
 
-        /* --- MICRO LABELS --- */
-        .micro-tag { position: absolute; font-size: 4pt; color: var(--text-dim); text-transform: uppercase; white-space: nowrap; }
-        .tl { top: 4px; left: 4px; } .tr { top: 4px; right: 4px; }
-        .bl { bottom: 4px; left: 4px; } .br { bottom: 4px; right: 4px; }
-
+        /* --- FOOTER: DATA MARQUEE --- */
         footer {
-            background: var(--panel-bg); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 25px; font-size: 0.6rem; color: var(--text-dim);
+            background: #000; border-top: 2px solid var(--border);
+            display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center;
+            padding: 0 40px; font-size: 0.65rem; color: var(--text-dim);
         }
+        .marquee { overflow: hidden; white-space: nowrap; border-left: 1px solid var(--border); border-right: 1px solid var(--border); margin: 0 20px; }
+        .marquee-inner { display: inline-block; animation: scroll-data 30s linear infinite; color: var(--neon-blue); letter-spacing: 2px; }
+        @keyframes scroll-data { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        /* --- GREEBLES --- */
+        .greeble { position: absolute; font-size: 4px; color: var(--text-dim); text-transform: uppercase; }
 
     </style>
 </head>
 <body>
 
-    <div class="hex-background" id="hex-bg-container"></div>
+    <div class="hex-background"><div class="hex-scroll" id="hex-data"></div></div>
     <div class="scanlines"></div>
     <div class="atmospherics"></div>
 
     <header>
-        <div class="logo">SUBSTRATE // ORBITAL_03</div>
-        <nav>
-            <a href="#">CORE</a>
-            <a href="#" class="active">RESIDENTIAL</a>
-            <a href="#">OBSERVATORY</a>
-            <a href="#">SYNC</a>
-        </nav>
-        <div id="clock" style="color: var(--neon-blue); font-size: 0.8rem;">00:00:00</div>
+        <div class="header-top">
+            <div class="logo">
+                <div class="live-pulse"></div>
+                SUBSTRATE // ORBITAL_COMMAND
+            </div>
+            <div style="display: flex; gap: 30px; align-items: center;">
+                <div style="text-align: right;">
+                    <div style="font-size: 0.5rem; color: var(--text-dim);">ANALYST_AUTH</div>
+                    <div style="color: #fff; font-size: 0.75rem; font-weight: bold;">SUB_01_RECOVERY</div>
+                </div>
+                <div id="clock" style="color: var(--neon-blue); font-size: 1.1rem; font-weight: 900;">00:00:00</div>
+            </div>
+        </div>
+        <div class="header-nav">
+            <nav>
+                <a href="index.html">DASHBOARD</a>
+                <a href="spire.html">SPIRE_CORE</a>
+                <a href="market.html">MARKET_DISTRICT</a>
+                <a href="residential.html" class="active">RESIDENTIAL_RINGS</a>
+                <a href="observatory.html">OBSERVATORY</a>
+                <a href="sync.html">SYNC_ENGINE</a>
+                <a href="deck.html">DECK_VIEW</a>
+                <a href="login.html">AUTH_PORTAL</a>
+                <a href="backdoor.html" style="opacity: 0.3;">_ROOT_ACCESS</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="viewport">
-        <!-- LEFT: REGISTRY -->
+    <div class="viewport" id="main-viewport">
+        <!-- LEFT: AUDIT REGISTRY -->
         <aside>
             <div class="panel-header">
-                <div class="micro-tag tl">AUDIT_LOCK_04</div>
-                <span>Subject_Audit</span>
-                <span id="tenant-count">--</span>
+                <div class="greeble" style="top:2px; left:2px;">AUDIT_ID_882</div>
+                <span>Subject_Audit_Stream</span>
+                <span id="subject-count">0 ACTIVE</span>
             </div>
             <div id="tenant-stream"></div>
             <div class="terminal" id="terminal">
-                <div>[SYSTEM] ESTABLISHING HUD HANDSHAKE...</div>
+                <div>[SYSTEM] INITIALIZING SURVEILLANCE_MODULE_03...</div>
             </div>
         </aside>
 
-        <!-- CENTER: ORTHOGRAPHIC ORBITAL -->
-        <main class="orbital-view" id="main-hud">
-            <div class="micro-tag tl" style="top:20px; left:20px;">LAT: 44.02 // LNG: -12.44</div>
-            <div class="micro-tag tr" style="top:20px; right:20px;">ALBEDO_SCAN: 0.442</div>
-            
-            <svg class="ring-projection" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="48" stroke-dasharray="2, 4" />
+        <!-- CENTER: ORBITAL FOCUS -->
+        <main class="surveillance-focus">
+            <svg class="wireframe-ring" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" stroke-dasharray="1, 3" />
                 <circle cx="50" cy="50" r="35" stroke-dasharray="10, 5" />
-                <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" stroke-width="0.5" />
-                <rect x="48" y="48" width="4" height="4" fill="var(--neon-blue)" opacity="0.3" />
+                <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" />
             </svg>
 
             <div class="decoherence-zone" id="deco-zone"></div>
 
-            <div class="stability-hero">
-                <div class="v-label">Stability_Coefficient</div>
-                <div class="stability-pct" id="stability-pct">96.9%</div>
+            <div class="stability-overlay">
+                <div style="font-size: 0.6rem; color: var(--neon-blue); letter-spacing: 4px;">STABILITY_COEFFICIENT</div>
+                <div class="stability-val" id="stab-val">99.9%</div>
             </div>
 
-            <div class="subject-01-focus">
-                <div class="micro-tag tl">SUB_01</div>
-                <svg class="teacup-bitmap" viewBox="0 0 100 100">
+            <div class="subject-frame" id="subject-frame">
+                <div class="cam-corners"></div>
+                <img id="subject-img" src="https://via.placeholder.com/400x400?text=INITIALIZING+LINK" alt="Focus">
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 10px; font-size: 0.7rem; border-top: 1px solid var(--border);">
+                    <span id="focus-name">IDENTIFYING...</span>
+                    <span style="float: right; color: var(--neon-orange);" id="focus-unit">UNIT: ---</span>
+                </div>
+            </div>
+
+            <div class="teacup-focus">
+                <div class="greeble" style="top:5px; left:5px;">ANOMALY_S01</div>
+                <svg class="cup-svg" viewBox="0 0 100 100">
                     <path d="M25,40 Q25,85 50,85 Q75,85 75,40 Z" />
                     <path d="M75,45 Q90,45 90,55 Q90,65 75,65" />
                 </svg>
+                <div style="font-size: 0.5rem; color: var(--threat-red); margin-top: 10px;">KINETIC_VAR</div>
             </div>
 
-            <div style="position: absolute; bottom: 60px; width: 400px; text-align: center;">
-                <div class="v-label" style="color: var(--neon-violet);">Sloane_Transmission:</div>
-                <div id="narrative" style="font-size: 0.8rem; color: #fff; height: 1.2em; margin-top: 5px;"></div>
+            <div style="position: absolute; bottom: 60px; width: 500px; text-align: center;">
+                <div style="font-size: 0.5rem; color: var(--neon-violet);">[SLOANE_COMM_OVERRIDE]</div>
+                <div id="narrative-feed" style="font-size: 0.9rem; color: #fff; height: 1.2em; font-weight: bold; text-transform: uppercase; margin-top: 5px;"></div>
             </div>
         </main>
 
-        <!-- RIGHT: VITALS -->
-        <aside style="border-right: none; border-left: 1px solid var(--border);">
+        <!-- RIGHT: TELEMETRY -->
+        <aside class="sidebar-right">
             <div class="panel-header">
-                <span>Telemetry_Logs</span>
+                <span>Vitals_Telemetry</span>
                 <span style="color: var(--neon-orange);">REALTIME</span>
-                <div class="micro-tag tr">REF_ID: GHOST_00</div>
             </div>
-            <div class="vitals-list">
-                <div class="v-card">
-                    <div class="micro-tag tr">AUTO_TAX</div>
-                    <span class="v-label">O2_Tax_Index</span>
-                    <div class="v-value" id="o2-val">₮ 0.0000</div>
+            <div class="vitals-grid">
+                <div class="v-item">
+                    <span class="v-label">O2_Tax_Index (Per_Breath)</span>
+                    <div class="v-val" id="o2-val">₮ 0.0000</div>
+                    <div class="greeble" style="bottom:2px; right:2px;">RATE: 0.04%_HR</div>
                 </div>
-                <div class="v-card">
+                <div class="v-item">
                     <span class="v-label">Mass_Density_Fluctuation</span>
-                    <div class="v-value" id="mass-val">1.002 G</div>
+                    <div class="v-val" id="mass-val">1.002 G</div>
                 </div>
-                <div class="v-card">
-                    <span class="v-label">Acoustic_Suspension_Waveform</span>
-                    <canvas id="waveform-canvas"></canvas>
+                <div class="v-item">
+                    <span class="v-label">Acoustic_Resonance_Waveform</span>
+                    <canvas id="osc-canvas"></canvas>
                 </div>
-                <div class="v-card" style="border-color: var(--threat-red); background: rgba(239, 68, 68, 0.03);">
-                    <span class="v-label" style="color: var(--threat-red);">Kilowatt_Debt</span>
-                    <div class="v-value" style="color: var(--threat-red);">$ 14,204.11</div>
+                <div class="v-item" style="border-color: var(--threat-red); background: rgba(239, 68, 68, 0.05);">
+                    <span class="v-label" style="color: var(--threat-red);">Sector_Kilowatt_Debt</span>
+                    <div class="v-val" style="color: var(--threat-red); font-weight: bold;">$ 42,204,112.44</div>
                 </div>
             </div>
         </aside>
     </div>
 
     <footer>
-        <span>SECTOR_03 // RESIDENTIAL_RINGS</span>
-        <span>"INTERPRET THE VARIABLES WITH YOUR BIOLOGY."</span>
-        <span style="color: var(--neon-blue);">BITRATE: 44.1kbps // SYNC: 99.4%</span>
+        <div class="footer-sec">
+            <span>BITRATE: 44.1KBPS</span>
+            <span>LATENCY: 4MS</span>
+        </div>
+        <div class="footer-sec marquee">
+            <div class="marquee-inner">
+                SYSTEM_STATUS: [NOMINAL] // MONITORING HIGGS-FIELD DECOHERENCE IN RING_03 // DO NOT ENGAGE WITH PURGED SUBJECTS // KINETIC VARS IDENTIFIED // SLOANE_DIRECTIVE ACTIVE // 
+            </div>
+        </div>
+        <div class="footer-sec" style="justify-content: flex-end;">
+            <span>PACKET_SYNC: 99.42%</span>
+            <span style="color: var(--neon-blue); margin-left: 20px;">v4.4.2_SUBSTRATE</span>
+        </div>
     </footer>
 
     <script>
-        // --- 1. HEX BACKGROUND SCROLL ---
-        const hexContainer = document.getElementById('hex-bg-container');
-        let hexData = "";
-        for(let i=0; i<3000; i++) {
-            hexData += Math.floor(Math.random()*16).toString(16) + (i % 25 === 0 ? "\n" : "");
-        }
-        hexContainer.innerHTML = `<div class="hex-scroll-inner">${hexData}${hexData}</div>`;
+        // --- 1. HEX BG GENERATOR ---
+        const hexContainer = document.getElementById('hex-data');
+        let hexString = "";
+        for(let i=0; i<3000; i++) hexString += Math.floor(Math.random()*16).toString(16) + (i % 30 === 0 ? "\n" : " ");
+        hexContainer.innerText = hexString + hexString;
 
-        // --- 2. LIVE STABILITY & CHROMATIC ABERRATION ---
-        let currentStability = 96.9;
-        const stabPct = document.getElementById('stability-pct');
-        const decoZone = document.getElementById('deco-zone');
-
-        function updateStability() {
-            // "Roll-over" effect logic
-            const target = 88 + Math.random() * 11;
-            currentStability = (currentStability * 0.9) + (target * 0.1);
-            stabPct.innerText = currentStability.toFixed(1) + "%";
-
-            // Intensity of RGB split based on stability drop
-            const glitch = Math.max(0, (98 - currentStability) * 2);
-            document.documentElement.style.setProperty('--glitch-intensity', `${glitch}px`);
-
-            // Move decoherence zone randomly
-            decoZone.style.left = `${Math.random() * 60 + 20}%`;
-            decoZone.style.top = `${Math.random() * 60 + 20}%`;
-        }
-        setInterval(updateStability, 150);
-
-        // --- 3. DATA STREAM (TENANTS) ---
+        // --- 2. DATA INITIALIZATION (TENANTS) ---
         const stream = document.getElementById('tenant-stream');
         const terminal = document.getElementById('terminal');
+        const focusImg = document.getElementById('subject-img');
+        const focusName = document.getElementById('focus-name');
+        const focusUnit = document.getElementById('focus-unit');
+        let currentStability = 99.9;
+        let subjects = [];
 
         async function initHUD() {
             try {
-                const res = await fetch('https://randomuser.me/api/?results=15&nat=us');
+                const res = await fetch('https://randomuser.me/api/?results=15&nat=us,gb');
                 const data = await res.json();
-                renderTenants(data.results);
-                startStressEvents();
+                subjects = data.results;
+                renderSubjects();
+                updateFocus(subjects[0]);
+                startSystemStress();
             } catch(e) {
-                terminal.innerHTML = "<div>[ERROR] SUBSTRATE LINK FAILED.</div>";
+                terminal.innerHTML = "<div style='color:red'>[FATAL] SUBSTRATE LINK DISRUPTED.</div>";
             }
         }
 
-        function renderTenants(users) {
-            stream.innerHTML = users.map((u, i) => `
-                <div class="tenant-card" id="t-${i}">
+        function renderSubjects() {
+            stream.innerHTML = subjects.map((u, i) => `
+                <div class="tenant-card" id="s-${i}" onclick="updateFocusByIndex(${i})">
                     <img class="t-img" src="${u.picture.thumbnail}">
-                    <div style="flex:1">
-                        <div style="font-size:0.6rem; color:var(--text-dim)">U-${Math.floor(Math.random()*900)}</div>
-                        <span>${u.name.last.toUpperCase()}, ${u.name.first[0]}.</span>
+                    <div class="t-info">
+                        <span class="t-name">${u.name.last.toUpperCase()}, ${u.name.first[0]}.</span>
+                        <span class="t-unit">UNIT: ${Math.floor(Math.random()*900)}R // CID: ${Math.floor(Math.random()*9999)}</span>
                     </div>
-                    <span style="font-size:0.6rem; color:#4ade80">OK</span>
                 </div>
             `).join('');
-            document.getElementById('tenant-count').innerText = `${users.length} SUBJECTS`;
+            document.getElementById('subject-count').innerText = `${subjects.length} SUBJECTS_LINKED`;
         }
 
-        function startStressEvents() {
+        function updateFocus(u) {
+            focusImg.src = u.picture.large;
+            focusName.innerText = `${u.name.first.toUpperCase()} ${u.name.last.toUpperCase()}`;
+            focusUnit.innerText = `UNIT: ${Math.floor(Math.random()*900)}R`;
+            logTerminal(`FOCUS_SHIFT: Subject ${u.name.last.toUpperCase()}`);
+        }
+
+        function updateFocusByIndex(i) { updateFocus(subjects[i]); }
+
+        function logTerminal(msg, isThreat = false) {
+            const div = document.createElement('div');
+            if(isThreat) div.className = "threat-alert";
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            terminal.prepend(div);
+            if(terminal.childNodes.length > 10) terminal.lastChild.remove();
+        }
+
+        // --- 3. STRESS ENGINE ---
+        const stabVal = document.getElementById('stab-val');
+        const mainView = document.getElementById('main-viewport');
+        const decoZone = document.getElementById('deco-zone');
+
+        function startSystemStress() {
             setInterval(() => {
-                const cards = document.querySelectorAll('.tenant-card:not(.purged)');
-                if(cards.length > 0 && Math.random() > 0.7) {
-                    const target = cards[Math.floor(Math.random()*cards.length)];
-                    target.classList.add('purged');
-                    const alert = document.createElement('div');
-                    alert.className = "jitter-alert";
-                    alert.innerText = `[CRITICAL] DECOHERENCE DETECTED: Unit ${target.innerText.split('\n')[2].trim()}`;
-                    terminal.prepend(alert);
+                const target = 85 + Math.random() * 15;
+                currentStability = (currentStability * 0.95) + (target * 0.05);
+                stabVal.innerText = currentStability.toFixed(1) + "%";
+
+                const glitch = Math.max(0, (99 - currentStability) * 4);
+                document.documentElement.style.setProperty('--glitch-offset', `${glitch}px`);
+
+                decoZone.style.left = `${Math.random() * 40 + 30}%`;
+                decoZone.style.top = `${Math.random() * 40 + 30}%`;
+
+                if(currentStability < 92) {
+                    mainView.style.transform = `translate(${Math.random()*6-3}px, ${Math.random()*6-3}px)`;
+                    document.getElementById('subject-frame').style.animation = "jitter 0.1s infinite";
+                    logTerminal(`DECOHERENCE DETECTED: Ring_03 Stability Redlining`, true);
+                    purgeRandom();
+                } else {
+                    mainView.style.transform = `translate(0,0)`;
+                    document.getElementById('subject-frame').style.animation = "none";
                 }
-            }, 3000);
+            }, 150);
         }
 
-        // --- 4. HIGH-SPEED WAVEFORM ---
-        const waveCanvas = document.getElementById('waveform-canvas');
-        const wCtx = waveCanvas.getContext('2d');
-        let waveTime = 0;
-
-        function drawWave() {
-            wCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-            wCtx.beginPath();
-            wCtx.strokeStyle = currentStability < 92 ? 'var(--threat-red)' : 'var(--neon-blue)';
-            wCtx.lineWidth = 1;
-            for(let i=0; i<waveCanvas.width; i++) {
-                // High frequency reacting to stability
-                const stress = (100 - currentStability) * 1.5;
-                const y = 25 + Math.sin(i*0.2 + waveTime) * 10 + (Math.random() * stress - stress/2);
-                wCtx.lineTo(i, y);
+        function purgeRandom() {
+            const cards = document.querySelectorAll('.tenant-card:not(.purged)');
+            if(cards.length > 0 && Math.random() > 0.95) {
+                const victim = cards[Math.floor(Math.random()*cards.length)];
+                victim.classList.add('purged');
+                logTerminal(`SUBJECT_PURGED: ${victim.querySelector('.t-name').innerText}`, true);
             }
-            wCtx.stroke();
-            waveTime += 0.4;
-            requestAnimationFrame(drawWave);
         }
 
-        // --- 5. LORE TYPEWRITER ---
+        // --- 4. WAVEFORM & UPDATES ---
+        const oscCanvas = document.getElementById('osc-canvas');
+        const oCtx = oscCanvas.getContext('2d');
+        let oscStep = 0;
+
+        function drawOsc() {
+            oCtx.clearRect(0, 0, oscCanvas.width, oscCanvas.height);
+            oCtx.beginPath();
+            oCtx.strokeStyle = currentStability < 92 ? 'var(--threat-red)' : 'var(--neon-blue)';
+            oCtx.lineWidth = 1;
+            for(let i=0; i<oscCanvas.width; i++) {
+                const stress = (100 - currentStability) * 2;
+                const y = 30 + Math.sin(i*0.1 + oscStep) * 10 + (Math.random()*stress - stress/2);
+                oCtx.lineTo(i, y);
+            }
+            oCtx.stroke();
+            oscStep += 0.3;
+            requestAnimationFrame(drawOsc);
+        }
+
         const lines = [
-            "A tea cup shouldn't accelerate along a skewed vector.",
-            "Sloane views human suffering as a necessary byproduct.",
-            "The Spire is decohering. The city is hungry.",
-            "A perfectly smooth wall where a door used to be.",
-            "Intervention alters the dataset."
+            "THE TEA CUP SHOULDN'T ACCELERATE LIKE A PROJECTILE.",
+            "SLOANE IS WATCHING. I AM THE CORRECTIVE VARIABLE.",
+            "THE SPIRE IS DECOHERING. THE CITY IS HUNGRY.",
+            "A PERFECTLY SMOOTH WALL WHERE A DOOR USED TO BE.",
+            "STABILIZATION IS A DELUSION."
         ];
         let lIdx = 0, cIdx = 0;
         function type() {
-            const el = document.getElementById('narrative');
+            const el = document.getElementById('narrative-feed');
             if(cIdx < lines[lIdx].length) {
                 el.innerText += lines[lIdx][cIdx++];
                 setTimeout(type, 50);
             } else {
-                setTimeout(() => { 
-                    el.innerText = ""; cIdx = 0; 
-                    lIdx = (lIdx + 1) % lines.length; 
-                    type(); 
-                }, 4000);
+                setTimeout(() => { el.innerText = ""; cIdx = 0; lIdx = (lIdx + 1) % lines.length; type(); }, 4000);
             }
         }
 
-        // --- 6. CLOCK & VITALS ---
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
             document.getElementById('o2-val').innerText = `₮ ${(Math.random()*0.005).toFixed(4)}`;
-            document.getElementById('mass-val').innerText = (1 + Math.random()*0.012).toFixed(3) + " G";
+            document.getElementById('mass-val').innerText = (1 + Math.random()*0.02).toFixed(3) + " G";
         }, 1000);
 
-        // INIT
-        waveCanvas.width = waveCanvas.offsetWidth;
-        waveCanvas.height = waveCanvas.offsetHeight;
+        oscCanvas.width = oscCanvas.offsetWidth;
+        oscCanvas.height = oscCanvas.offsetHeight;
         initHUD();
-        drawWave();
+        drawOsc();
         type();
 
     </script>
