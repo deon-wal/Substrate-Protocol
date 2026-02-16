@@ -3,394 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALDERSYTH // ARCH_03: QUIET_ROOM</title>
+    <title>SUBSTRATE // ARCH_03: ORBITAL_HUD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* THEME: LOG III (Concrete / Lemonade Haze / Bruised) */
-            --concrete: #1a1a1a;
-            --concrete-light: #252525;
-            --haze: rgba(253, 224, 71, 0.03); /* Sickly Lemonade */
-            --bruise: #4a3b52;               /* Elliott's shadow */
-            --alert: #d97706;                /* Ren's orange jumpsuit */
-            --purge: #7f1d1d;                /* Deleted Red */
-            --text-main: #a8a29e;
-            --text-dim: #57534e;
+            --bg-void: #020203;
+            --panel-bg: rgba(8, 8, 10, 0.92);
+            --neon-blue: #0ea5e9;
+            --neon-violet: #7000FF;
+            --neon-orange: #f97316;
+            --threat-red: #ef4444;
+            --text-main: #cbd5e1;
+            --text-dim: #334155;
+            --border: rgba(14, 165, 233, 0.15);
+            --glitch-intensity: 0px;
         }
 
+        * { box-sizing: border-box; cursor: crosshair; }
+
         body {
-            background-color: var(--concrete);
+            background-color: var(--bg-void);
             color: var(--text-main);
             font-family: 'Space Mono', monospace;
             margin: 0;
             overflow: hidden;
             height: 100vh;
             display: grid;
-            grid-template-rows: 50px 1fr 40px;
-            font-size: 13px;
+            grid-template-rows: 60px 1fr 40px;
+            /* Barrel Distortion simulation */
+            transform: perspective(1000px) rotateX(0.5deg) scale(1.02);
         }
 
-        /* --- ATMOSPHERE: THE "LEMONADE" HAZE --- */
-        body::before {
-            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
-            background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(253, 224, 71, 0.05) 100%);
-            mix-blend-mode: overlay;
+        /* --- BACKGROUND LAYER: HEX SCROLL --- */
+        .hex-background {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            opacity: 0.05; font-size: 10px; line-height: 12px;
+            overflow: hidden; color: var(--neon-blue); white-space: pre;
+            user-select: none;
         }
+        .hex-scroll-inner { animation: scroll-up 120s linear infinite; }
+        @keyframes scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 
-        /* --- TEXTURE: FILM GRAIN (LO-FI) --- */
-        body::after {
-            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-            animation: grain 2s steps(4) infinite;
+        /* --- ATMOSPHERICS: DIRTY LENS & SCANLINES --- */
+        .atmospherics {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+            background: 
+                radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
         }
-        @keyframes grain { 0% { transform: translate(0,0); } 100% { transform: translate(-2px,-2px); } }
+        .scanlines {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1001;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+        }
 
         /* --- HEADER --- */
         header {
-            background: #111;
-            border-bottom: 1px solid #333;
+            background: var(--panel-bg); border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; z-index: 100;
+            padding: 0 30px; z-index: 110; backdrop-filter: blur(10px);
         }
-        .logo { color: #fff; font-weight: bold; letter-spacing: 2px; }
-        .nav a { color: #555; text-decoration: none; margin-left: 20px; transition: 0.3s; }
-        .nav a:hover { color: #ccc; }
-        .nav a.active { color: #fff; border-bottom: 1px solid #fff; }
+        .logo { font-weight: 900; font-family: 'Inter', sans-serif; letter-spacing: -2px; font-size: 1.3rem; color: #fff; }
+        nav { display: flex; gap: 20px; }
+        nav a { color: var(--text-dim); text-decoration: none; font-size: 0.7rem; border: 1px solid transparent; padding: 4px 10px; transition: 0.2s; }
+        nav a.active { border-color: var(--neon-blue); color: #fff; background: rgba(14, 165, 233, 0.05); }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- VIEWPORT --- */
         .viewport {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            overflow: hidden;
+            display: grid; grid-template-columns: 360px 1fr 340px; overflow: hidden; position: relative; z-index: 10;
         }
 
-        /* --- SIDEBAR: TENANT DIRECTORY (LIVE API) --- */
-        .sidebar {
-            background: #0f0f0f;
-            border-right: 1px solid #333;
-            display: flex; flex-direction: column;
-            z-index: 60;
+        aside {
+            background: var(--panel-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: relative;
         }
-        .header-bar {
-            padding: 15px; border-bottom: 1px solid #333;
-            font-size: 0.7rem; color: #666; letter-spacing: 1px;
-            background: #0a0a0a; display: flex; justify-content: space-between;
-        }
-        
-        #tenant-list { flex: 1; overflow-y: hidden; padding: 0; }
-        .tenant-row {
-            padding: 10px 15px; font-size: 0.7rem; color: #888; border-bottom: 1px solid #1a1a1a;
-            display: flex; justify-content: space-between; transition: 0.5s;
-        }
-        .tenant-name { font-family: sans-serif; letter-spacing: 0.5px; }
-        .unit-num { color: #444; font-family: monospace; }
-        
-        /* THE PURGE EFFECT */
-        .purged {
-            color: var(--purge) !important;
-            text-decoration: line-through;
-            background: rgba(127, 29, 29, 0.1);
-            opacity: 0.5;
+        .panel-header {
+            padding: 12px 15px; border-bottom: 1px solid var(--border);
+            font-size: 0.65rem; color: var(--neon-blue); display: flex; justify-content: space-between;
+            text-transform: uppercase; letter-spacing: 2px; position: relative;
         }
 
-        /* --- CENTER: THE INFINITE CORRIDOR (3D) --- */
-        .corridor-view {
-            position: relative;
-            background: #000;
-            overflow: hidden;
-            perspective: 400px;
+        /* --- CENTER: ORTHOGRAPHIC ORBITAL --- */
+        .orbital-view {
+            position: relative; background: radial-gradient(circle at center, #0f172a 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .ring-projection {
+            width: 80%; height: 80%; stroke: var(--neon-blue); stroke-width: 0.3; fill: none; opacity: 0.4;
+            transform: rotateX(60deg) rotateZ(0deg); animation: ring-spin 60s linear infinite;
+        }
+        @keyframes ring-spin { to { transform: rotateX(60deg) rotateZ(360deg); } }
+
+        .decoherence-zone {
+            position: absolute; width: 140px; height: 140px;
+            background: radial-gradient(circle, var(--neon-violet) 0%, transparent 70%);
+            border: 1px solid var(--neon-violet); border-radius: 50%;
+            filter: blur(12px); animation: deco-pulse 3s infinite alternate;
+            mix-blend-mode: screen; pointer-events: none; opacity: 0.4;
+        }
+        @keyframes deco-pulse { from { transform: scale(0.8); opacity: 0.2; } to { transform: scale(1.6); opacity: 0.6; } }
+
+        .stability-hero {
+            position: absolute; top: 40px; text-align: center;
+        }
+        .stability-pct {
+            font-size: 3.5rem; font-weight: 900; color: #fff; font-family: 'Inter', sans-serif;
+            text-shadow: 
+                calc(var(--glitch-intensity) * -1) 0 0 rgba(255,0,0,0.8),
+                var(--glitch-intensity) 0 0 rgba(0,255,255,0.8);
+            transition: 0.1s;
+        }
+
+        /* --- SUBJECT FOCUS: TEA CUP --- */
+        .subject-01-focus {
+            position: absolute; bottom: 80px; right: 20px; width: 100px; height: 100px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.5);
             display: flex; align-items: center; justify-content: center;
         }
+        .teacup-bitmap {
+            width: 40px; height: 40px; stroke: #fff; fill: none; opacity: 0.3;
+            animation: teacup-float 4s infinite ease-in-out;
+        }
+        @keyframes teacup-float { 
+            0%, 100% { transform: translate(0, 0) rotate(0deg); } 
+            50% { transform: translate(5px, -15px) rotate(15deg); } 
+        }
+
+        /* --- TENANT REGISTRY --- */
+        #tenant-stream { flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .tenant-card {
+            padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.7rem; display: flex; gap: 10px; align-items: center;
+        }
+        .t-img { width: 30px; height: 30px; filter: grayscale(1) brightness(0.6); border: 1px solid var(--border); }
+        .purged { color: var(--threat-red); opacity: 0.5; text-decoration: line-through; }
+
+        /* --- VITALS --- */
+        .vitals-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .v-card { border: 1px solid var(--border); padding: 12px; position: relative; background: rgba(14, 165, 233, 0.02); }
+        .v-label { font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; }
+        .v-value { font-size: 1.2rem; color: #fff; margin-top: 5px; }
         
-        .tunnel {
-            width: 100vw; height: 100vh;
-            position: absolute;
-            transform-style: preserve-3d;
-            animation: moveTunnel 8s infinite linear;
-        }
-        
-        .wall {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid #222;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-        }
-        
-        /* Procedural Walls moving towards viewer */
-        .w1 { width: 100px; height: 100px; z-index: 1; opacity: 0.1; animation: wall-anim 4s infinite linear; animation-delay: 0s; }
-        .w2 { width: 100px; height: 100px; z-index: 2; opacity: 0.1; animation: wall-anim 4s infinite linear; animation-delay: 1s; }
-        .w3 { width: 100px; height: 100px; z-index: 3; opacity: 0.1; animation: wall-anim 4s infinite linear; animation-delay: 2s; }
-        .w4 { width: 100px; height: 100px; z-index: 4; opacity: 0.1; animation: wall-anim 4s infinite linear; animation-delay: 3s; }
+        #waveform-canvas { width: 100%; height: 50px; margin-top: 10px; filter: brightness(1.5); }
 
-        @keyframes wall-anim {
-            0% { transform: translate(-50%, -50%) translateZ(-400px); opacity: 0; }
-            10% { opacity: 1; border-color: #333; }
-            90% { opacity: 1; border-color: #444; background: transparent; }
-            100% { transform: translate(-50%, -50%) translateZ(100px); opacity: 0; }
+        /* --- TERMINAL & JITTER --- */
+        .terminal {
+            height: 160px; background: #000; border-top: 1px solid var(--border);
+            padding: 12px; font-size: 0.65rem; color: #4ade80; overflow: hidden;
+            display: flex; flex-direction: column-reverse; gap: 4px;
         }
-
-        /* --- THE "REN" MONOLOGUE BOX --- */
-        .monologue-box {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 80%; text-align: center;
-            color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5);
-            font-size: 0.9rem; line-height: 1.6;
-            pointer-events: none; z-index: 100;
+        .jitter-alert {
+            display: inline-block; color: var(--threat-red); font-weight: bold;
+            animation: jitter 0.1s infinite;
         }
-
-        /* --- RIGHT: VITALS & AUDIO --- */
-        .vitals-panel {
-            background: #0f0f0f; border-left: 1px solid #333;
-            display: flex; flex-direction: column;
-        }
-        .stat-block { padding: 20px; border-bottom: 1px solid #222; }
-        .label { display: block; font-size: 0.65rem; color: #555; margin-bottom: 5px; }
-        .value { font-size: 1.2rem; color: #ddd; }
-        
-        #audio-canvas { width: 100%; height: 80px; background: #080808; border-top: 1px solid #222; margin-top: auto; }
-
-        /* --- FOOTER --- */
-        footer {
-            background: #000; border-top: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; color: #444; font-size: 0.65rem; z-index: 100;
-        }
-
-        /* --- GLITCH FX --- */
-        .glitch-text { animation: glitch 0.5s infinite; }
-        @keyframes glitch {
+        @keyframes jitter {
             0% { transform: translate(0); }
-            20% { transform: translate(-1px, 1px); }
-            40% { transform: translate(-1px, -1px); }
-            60% { transform: translate(1px, 1px); }
-            80% { transform: translate(1px, -1px); }
-            100% { transform: translate(0); }
+            25% { transform: translate(-1.5px, 1.5px); }
+            50% { transform: translate(1.5px, -1.5px); }
+            100% { transform: translate(-1.5px, -1.5px); }
+        }
+
+        /* --- MICRO LABELS --- */
+        .micro-tag { position: absolute; font-size: 4pt; color: var(--text-dim); text-transform: uppercase; white-space: nowrap; }
+        .tl { top: 4px; left: 4px; } .tr { top: 4px; right: 4px; }
+        .bl { bottom: 4px; left: 4px; } .br { bottom: 4px; right: 4px; }
+
+        footer {
+            background: var(--panel-bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 25px; font-size: 0.6rem; color: var(--text-dim);
         }
 
     </style>
 </head>
 <body>
 
+    <div class="hex-background" id="hex-bg-container"></div>
+    <div class="scanlines"></div>
+    <div class="atmospherics"></div>
+
     <header>
-        <div class="logo">ALDERSYTH // RESIDENTIAL</div>
-       <nav class="nav">
-    <a href="spire.html">CORE</a> 
-    
-    <a href="market.html">MARKET</a>
-    <a href="residential.html">RESIDENTIAL</a>
-    <a href="observatory.html">OBSERVATORY</a>
-    
-    <a href="sync.html">SYNC</a> 
-    
-    <a href="backdoor.html" style="opacity:0.3;">_ROOT</a> 
-</nav>
-        <div style="color: var(--alert); font-size: 0.7rem;">SILENCE_MANDATORY</div>
+        <div class="logo">SUBSTRATE // ORBITAL_03</div>
+        <nav>
+            <a href="#">CORE</a>
+            <a href="#" class="active">RESIDENTIAL</a>
+            <a href="#">OBSERVATORY</a>
+            <a href="#">SYNC</a>
+        </nav>
+        <div id="clock" style="color: var(--neon-blue); font-size: 0.8rem;">00:00:00</div>
     </header>
 
     <div class="viewport">
-        
-        <aside class="sidebar">
-            <div class="header-bar">
-                <span>TENANT_REGISTRY</span>
-                <span id="tenant-count" style="color:#fff;">LOAD...</span>
+        <!-- LEFT: REGISTRY -->
+        <aside>
+            <div class="panel-header">
+                <div class="micro-tag tl">AUDIT_LOCK_04</div>
+                <span>Subject_Audit</span>
+                <span id="tenant-count">--</span>
             </div>
-            <div id="tenant-list">
-                </div>
-            <div style="padding:15px; border-top:1px solid #222; font-size:0.65rem; color:#444;">
-                <span style="color:var(--purge);">STATUS:</span> Evictions process automatically. Do not engage with Deleted units.
+            <div id="tenant-stream"></div>
+            <div class="terminal" id="terminal">
+                <div>[SYSTEM] ESTABLISHING HUD HANDSHAKE...</div>
             </div>
         </aside>
 
-        <main class="corridor-view">
-            <div class="tunnel">
-                <div class="wall w1"></div>
-                <div class="wall w2"></div>
-                <div class="wall w3"></div>
-                <div class="wall w4"></div>
+        <!-- CENTER: ORTHOGRAPHIC ORBITAL -->
+        <main class="orbital-view" id="main-hud">
+            <div class="micro-tag tl" style="top:20px; left:20px;">LAT: 44.02 // LNG: -12.44</div>
+            <div class="micro-tag tr" style="top:20px; right:20px;">ALBEDO_SCAN: 0.442</div>
+            
+            <svg class="ring-projection" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" stroke-dasharray="2, 4" />
+                <circle cx="50" cy="50" r="35" stroke-dasharray="10, 5" />
+                <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" stroke-width="0.5" />
+                <rect x="48" y="48" width="4" height="4" fill="var(--neon-blue)" opacity="0.3" />
+            </svg>
+
+            <div class="decoherence-zone" id="deco-zone"></div>
+
+            <div class="stability-hero">
+                <div class="v-label">Stability_Coefficient</div>
+                <div class="stability-pct" id="stability-pct">96.9%</div>
             </div>
 
-            <div class="monologue-box">
-                <span id="ren-lyrics"></span><span style="animation:blink 1s infinite;">_</span>
+            <div class="subject-01-focus">
+                <div class="micro-tag tl">SUB_01</div>
+                <svg class="teacup-bitmap" viewBox="0 0 100 100">
+                    <path d="M25,40 Q25,85 50,85 Q75,85 75,40 Z" />
+                    <path d="M75,45 Q90,45 90,55 Q90,65 75,65" />
+                </svg>
+            </div>
+
+            <div style="position: absolute; bottom: 60px; width: 400px; text-align: center;">
+                <div class="v-label" style="color: var(--neon-violet);">Sloane_Transmission:</div>
+                <div id="narrative" style="font-size: 0.8rem; color: #fff; height: 1.2em; margin-top: 5px;"></div>
             </div>
         </main>
 
-        <aside class="vitals-panel">
-            <div class="stat-block">
-                <span class="label">RENT_INDEX (BTC)</span>
-                <span class="value" id="rent-val" style="color:var(--text-main);">...</span>
+        <!-- RIGHT: VITALS -->
+        <aside style="border-right: none; border-left: 1px solid var(--border);">
+            <div class="panel-header">
+                <span>Telemetry_Logs</span>
+                <span style="color: var(--neon-orange);">REALTIME</span>
+                <div class="micro-tag tr">REF_ID: GHOST_00</div>
             </div>
-            <div class="stat-block">
-                <span class="label">HALLWAY_TEMP</span>
-                <span class="value" id="temp-val" style="color:#a3a3a3;">...</span>
+            <div class="vitals-list">
+                <div class="v-card">
+                    <div class="micro-tag tr">AUTO_TAX</div>
+                    <span class="v-label">O2_Tax_Index</span>
+                    <div class="v-value" id="o2-val">₮ 0.0000</div>
+                </div>
+                <div class="v-card">
+                    <span class="v-label">Mass_Density_Fluctuation</span>
+                    <div class="v-value" id="mass-val">1.002 G</div>
+                </div>
+                <div class="v-card">
+                    <span class="v-label">Acoustic_Suspension_Waveform</span>
+                    <canvas id="waveform-canvas"></canvas>
+                </div>
+                <div class="v-card" style="border-color: var(--threat-red); background: rgba(239, 68, 68, 0.03);">
+                    <span class="v-label" style="color: var(--threat-red);">Kilowatt_Debt</span>
+                    <div class="v-value" style="color: var(--threat-red);">$ 14,204.11</div>
+                </div>
             </div>
-            <div class="stat-block">
-                <span class="label">OXYGEN_RESERVES</span>
-                <span class="value" style="color:var(--alert);">12%</span>
-            </div>
-            <div class="stat-block" style="border:none;">
-                <span class="label">NOISE_FLOOR</span>
-                <span class="value">0.00 dB</span>
-            </div>
-            <canvas id="audio-canvas"></canvas>
         </aside>
     </div>
 
     <footer>
-        <span>SECTOR: 03 (RINGS)</span>
-        <span>"A perfectly smooth wall where a door used to be."</span>
-        <span>SYNC: 99.4%</span>
+        <span>SECTOR_03 // RESIDENTIAL_RINGS</span>
+        <span>"INTERPRET THE VARIABLES WITH YOUR BIOLOGY."</span>
+        <span style="color: var(--neon-blue);">BITRATE: 44.1kbps // SYNC: 99.4%</span>
     </footer>
 
     <script>
-        // --- 1. LIVE API: TENANT GENERATOR (RandomUser) ---
-        const tenantList = document.getElementById('tenant-list');
-        const countDisplay = document.getElementById('tenant-count');
-        let tenants = [];
+        // --- 1. HEX BACKGROUND SCROLL ---
+        const hexContainer = document.getElementById('hex-bg-container');
+        let hexData = "";
+        for(let i=0; i<3000; i++) {
+            hexData += Math.floor(Math.random()*16).toString(16) + (i % 25 === 0 ? "\n" : "");
+        }
+        hexContainer.innerHTML = `<div class="hex-scroll-inner">${hexData}${hexData}</div>`;
 
-        async function initTenants() {
+        // --- 2. LIVE STABILITY & CHROMATIC ABERRATION ---
+        let currentStability = 96.9;
+        const stabPct = document.getElementById('stability-pct');
+        const decoZone = document.getElementById('deco-zone');
+
+        function updateStability() {
+            // "Roll-over" effect logic
+            const target = 88 + Math.random() * 11;
+            currentStability = (currentStability * 0.9) + (target * 0.1);
+            stabPct.innerText = currentStability.toFixed(1) + "%";
+
+            // Intensity of RGB split based on stability drop
+            const glitch = Math.max(0, (98 - currentStability) * 2);
+            document.documentElement.style.setProperty('--glitch-intensity', `${glitch}px`);
+
+            // Move decoherence zone randomly
+            decoZone.style.left = `${Math.random() * 60 + 20}%`;
+            decoZone.style.top = `${Math.random() * 60 + 20}%`;
+        }
+        setInterval(updateStability, 150);
+
+        // --- 3. DATA STREAM (TENANTS) ---
+        const stream = document.getElementById('tenant-stream');
+        const terminal = document.getElementById('terminal');
+
+        async function initHUD() {
             try {
-                // Fetch 15 random users
-                const res = await fetch('https://randomuser.me/api/?results=15&nat=us,gb,de');
+                const res = await fetch('https://randomuser.me/api/?results=15&nat=us');
                 const data = await res.json();
-                tenants = data.results;
-                renderTenants();
-                countDisplay.innerText = "15 ACTIVE";
-                
-                // Start The Purge Loop
-                setInterval(purgeTenant, 2500);
+                renderTenants(data.results);
+                startStressEvents();
             } catch(e) {
-                tenantList.innerHTML = "<div style='padding:20px'>CONNECTION FAILED.</div>";
+                terminal.innerHTML = "<div>[ERROR] SUBSTRATE LINK FAILED.</div>";
             }
         }
 
-        function renderTenants() {
-            let html = '';
-            tenants.forEach((t, i) => {
-                const name = `${t.name.last.toUpperCase()}, ${t.name.first.toUpperCase().charAt(0)}.`;
-                const unit = `BLOCK-${Math.floor(Math.random()*9)}${Math.floor(Math.random()*100)}`;
-                html += `
-                    <div class="tenant-row" id="t-${i}">
-                        <span class="tenant-name">${name}</span>
-                        <span class="unit-num">${unit}</span>
-                    </div>`;
-            });
-            tenantList.innerHTML = html;
+        function renderTenants(users) {
+            stream.innerHTML = users.map((u, i) => `
+                <div class="tenant-card" id="t-${i}">
+                    <img class="t-img" src="${u.picture.thumbnail}">
+                    <div style="flex:1">
+                        <div style="font-size:0.6rem; color:var(--text-dim)">U-${Math.floor(Math.random()*900)}</div>
+                        <span>${u.name.last.toUpperCase()}, ${u.name.first[0]}.</span>
+                    </div>
+                    <span style="font-size:0.6rem; color:#4ade80">OK</span>
+                </div>
+            `).join('');
+            document.getElementById('tenant-count').innerText = `${users.length} SUBJECTS`;
         }
 
-        function purgeTenant() {
-            // Ren/Elliott Vibe: Randomly delete a person
-            const idx = Math.floor(Math.random() * tenants.length);
-            const row = document.getElementById(`t-${idx}`);
-            if(row && !row.classList.contains('purged')) {
-                row.classList.add('purged');
-                // Play visual sound spike
-                triggerNoiseSpike();
-            }
-        }
-
-        initTenants();
-
-        // --- 2. LIVE API: RENT INDEX (CoinDesk) ---
-        async function getRent() {
-            try {
-                const res = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
-                const data = await res.json();
-                // Rent is 1% of BTC
-                const rent = (data.bpi.USD.rate_float * 0.01).toFixed(2);
-                document.getElementById('rent-val').innerText = "₮ " + rent;
-            } catch(e) { document.getElementById('rent-val').innerText = "OFFLINE"; }
-        }
-        getRent();
-
-        // --- 3. LIVE API: TEMP (OpenMeteo - London for gloom) ---
-        async function getTemp() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.50&longitude=-0.12&current_weather=true');
-                const data = await res.json();
-                // Make it colder for lore
-                const temp = data.current_weather.temperature - 10; 
-                document.getElementById('temp-val').innerText = temp + "°C";
-            } catch(e) { document.getElementById('temp-val').innerText = "--"; }
-        }
-        getTemp();
-
-        // --- 4. REN'S MONOLOGUE TYPEWRITER ---
-        const lyrics = [
-            "I heard a door slam, but there are no doors here.",
-            "The rent went up. The oxygen went down.",
-            "I checked the registry. My name is already crossed out.",
-            "It's not a glitch. It's a feature.",
-            "Hi Ren.",
-            "I'm waiting for the walls to stop breathing.",
-            "Deletion is just administrative peace."
-        ];
-        
-        const textEl = document.getElementById('ren-lyrics');
-        let phraseIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-
-        function typeWriter() {
-            const currentPhrase = lyrics[phraseIndex];
-            
-            if (!isDeleting && charIndex <= currentPhrase.length) {
-                textEl.innerText = currentPhrase.substring(0, charIndex);
-                charIndex++;
-                setTimeout(typeWriter, 50 + Math.random()*50); // Human variance
-            } else if (isDeleting && charIndex >= 0) {
-                textEl.innerText = currentPhrase.substring(0, charIndex);
-                charIndex--;
-                setTimeout(typeWriter, 30);
-            } else if (!isDeleting && charIndex > currentPhrase.length) {
-                isDeleting = true;
-                setTimeout(typeWriter, 2000); // Wait before deleting
-            } else {
-                isDeleting = false;
-                phraseIndex = (phraseIndex + 1) % lyrics.length;
-                setTimeout(typeWriter, 500);
-            }
-        }
-        typeWriter();
-
-        // --- 5. ELLIOTT'S SILENT VISUALIZER ---
-        const canvas = document.getElementById('audio-canvas');
-        const ctx = canvas.getContext('2d');
-        let spike = 0;
-
-        function drawVisualizer() {
-            ctx.fillStyle = '#080808';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height / 2);
-            
-            for (let i = 0; i < canvas.width; i++) {
-                // Flatline usually, spike if triggered
-                let amp = (Math.random() * 2); 
-                if (spike > 0) {
-                    amp = (Math.random() * 40);
-                    spike--;
+        function startStressEvents() {
+            setInterval(() => {
+                const cards = document.querySelectorAll('.tenant-card:not(.purged)');
+                if(cards.length > 0 && Math.random() > 0.7) {
+                    const target = cards[Math.floor(Math.random()*cards.length)];
+                    target.classList.add('purged');
+                    const alert = document.createElement('div');
+                    alert.className = "jitter-alert";
+                    alert.innerText = `[CRITICAL] DECOHERENCE DETECTED: Unit ${target.innerText.split('\n')[2].trim()}`;
+                    terminal.prepend(alert);
                 }
-                ctx.lineTo(i, (canvas.height / 2) + (Math.random() < 0.5 ? -amp : amp));
-            }
-            
-            ctx.strokeStyle = '#333';
-            if(spike > 0) ctx.strokeStyle = '#d97706'; // Orange spike
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            
-            requestAnimationFrame(drawVisualizer);
+            }, 3000);
         }
 
-        function triggerNoiseSpike() {
-            spike = 10; // Frames of noise
+        // --- 4. HIGH-SPEED WAVEFORM ---
+        const waveCanvas = document.getElementById('waveform-canvas');
+        const wCtx = waveCanvas.getContext('2d');
+        let waveTime = 0;
+
+        function drawWave() {
+            wCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+            wCtx.beginPath();
+            wCtx.strokeStyle = currentStability < 92 ? 'var(--threat-red)' : 'var(--neon-blue)';
+            wCtx.lineWidth = 1;
+            for(let i=0; i<waveCanvas.width; i++) {
+                // High frequency reacting to stability
+                const stress = (100 - currentStability) * 1.5;
+                const y = 25 + Math.sin(i*0.2 + waveTime) * 10 + (Math.random() * stress - stress/2);
+                wCtx.lineTo(i, y);
+            }
+            wCtx.stroke();
+            waveTime += 0.4;
+            requestAnimationFrame(drawWave);
         }
-        
-        // Fit canvas
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        drawVisualizer();
+
+        // --- 5. LORE TYPEWRITER ---
+        const lines = [
+            "A tea cup shouldn't accelerate along a skewed vector.",
+            "Sloane views human suffering as a necessary byproduct.",
+            "The Spire is decohering. The city is hungry.",
+            "A perfectly smooth wall where a door used to be.",
+            "Intervention alters the dataset."
+        ];
+        let lIdx = 0, cIdx = 0;
+        function type() {
+            const el = document.getElementById('narrative');
+            if(cIdx < lines[lIdx].length) {
+                el.innerText += lines[lIdx][cIdx++];
+                setTimeout(type, 50);
+            } else {
+                setTimeout(() => { 
+                    el.innerText = ""; cIdx = 0; 
+                    lIdx = (lIdx + 1) % lines.length; 
+                    type(); 
+                }, 4000);
+            }
+        }
+
+        // --- 6. CLOCK & VITALS ---
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            document.getElementById('o2-val').innerText = `₮ ${(Math.random()*0.005).toFixed(4)}`;
+            document.getElementById('mass-val').innerText = (1 + Math.random()*0.012).toFixed(3) + " G";
+        }, 1000);
+
+        // INIT
+        waveCanvas.width = waveCanvas.offsetWidth;
+        waveCanvas.height = waveCanvas.offsetHeight;
+        initHUD();
+        drawWave();
+        type();
 
     </script>
 </body>
